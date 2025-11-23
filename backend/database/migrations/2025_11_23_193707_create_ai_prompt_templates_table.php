@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('ai_prompt_templates', function (Blueprint $table) {
+            $table->id();
+
+            // كود داخلي (مثلاً: PLACEMENT_EVAL, TASK_FEEDBACK, MATCHING_RANK)
+            $table->string('code', 100)->unique();
+
+            // نوع الاستخدام
+            $table->enum('type', ['placement', 'task_feedback', 'matching', 'other'])
+                  ->default('other');
+
+            $table->string('description', 255)->nullable();
+
+            // نص الـ prompt الأساسي (قد يحتوي placeholders مثل {code}, {level}...)
+            $table->longText('template');
+
+            // بيانات إضافية: model الافتراضي، درجة الحرارة، إلخ
+            $table->json('metadata')->nullable();
+
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('ai_prompt_templates');
+    }
+};
