@@ -13,17 +13,24 @@ class PlacementResult extends Model
     protected $table = 'placement_results';
 
     protected $fillable = [
+        // existing fields
         'user_id',
         'final_level',
         'final_domain',
         'overall_score',
         'details',
         'is_active',
+        // required canonical fields
+        'score',
+        'suggested_level',
+        'suggested_domain',
+        'metadata',
     ];
 
     protected $casts = [
         'details' => 'array',
         'is_active' => 'boolean',
+        'metadata' => 'array',
     ];
 
     // الطالب صاحب النتيجة
