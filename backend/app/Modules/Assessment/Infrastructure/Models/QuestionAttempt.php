@@ -16,10 +16,14 @@ class QuestionAttempt extends Model
         'user_id',
         'placement_result_id',
         'question_id',
+        // legacy/alternate fields
         'answer_text',
         'score',
         'ai_feedback',
         'metadata',
+        // required canonical fields
+        'answer',
+        'is_correct',
     ];
 
     protected $casts = [

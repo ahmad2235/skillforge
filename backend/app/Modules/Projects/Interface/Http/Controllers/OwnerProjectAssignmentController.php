@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Modules\Projects\Interface\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Modules\AI\Application\Services\RecommendationService;
+use App\Modules\Projects\Application\Services\ProjectAssignmentService;
+use App\Modules\Projects\Infrastructure\Models\Project;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class OwnerProjectAssignmentController extends Controller
+{
+    public function __construct(
+        private readonly RecommendationService $recommendationService,
+        private readonly ProjectAssignmentService $assignmentService
+    ) {}
+
+    /**
+     * المرشحين (candidates) لمشروع معيّن — يمرّ عبر AI hook
+     * GET /api/business/projects/{project}/candidates
+     */
+    public function candidates(Project $project)
+    {
+        $owner = Auth::user();
+        abort_unless($project->owner_id === $owner->id, 403);
+
+        // Load raw active student candidates
+        $candidates = User::where('role', 'student')
+            ->where('is_active', 1)
+            ->get();
+
+        // Pass through the recommendation service to score & rank
+        $ranked = $this->recommendationService->rankCandidates($project, $candidates);
+
+        return response()->json([
+            'data' => array_map(function ($item) {
+                /** @var \App\Models\User $student */
+                $student = $item['student'];
+
+                return [
+                    'student' => [
+                        'id'     => $student->id,
+                        'name'   => $student->name,
+                        'email'  => $student->email,
+                        'level'  => $student->level,
+                        'domain' => $student->domain,
+                    ],
+                    'score'  => $item['score'],
+                    'reason' => $item['reason'],
+                ];
+            }, $ranked),
+        ]);
+    }
+
+    /**
+     * كل الـ assignments لمشروع معيّن
+     * GET /api/business/projects/{project}/assignments
+     */
+    public function index(Project $project)
+    {
+        $owner = Auth::user();
+        abort_unless($project->owner_id === $owner->id, 403);
+
+        $assignments = $this->assignmentService->listProjectAssignments($project);
+
+        return response()->json([
+            'project'     => $project,
+            'assignments' => $assignments,
+        ]);
+    }
+
+    /**
+     * دعوة طالب لمشروع
+     * POST /api/business/projects/{project}/assignments
+     */
+    public function invite(Request $request, Project $project)
+    {
+        $owner = Auth::user();
+        abort_unless($project->owner_id === $owner->id, 403);
+
+        $data = $request->validate([
+            'user_id'  => 'required|integer|exists:users,id',
+            'team_id'  => 'nullable|integer',
+            'metadata' => 'nullable|array',
+        ]);
+
+        $student = User::query()
+            ->where('id', $data['user_id'])
+            ->where('role', 'student')
+            ->firstOrFail();
+
+        $assignment = $this->assignmentService->inviteStudentToProject(
+            $project,
+            $student,
+            $data['team_id'] ?? null,
+            $data['metadata'] ?? []
+        );
+
+        return response()->json([
+            'message'    => 'Student invited to project.',
+            'assignment' => $assignment,
+        ], 201);
+    }
+
+    /**
+     * صاحب المشروع يعلّم الـ assignment completed + يضيف feedback + rating
+     * POST /api/business/projects/assignments/{assignment}/complete
+     */
+    public function completeWithFeedback(Request $request, int $assignmentId)
+    {
+        $owner = Auth::user();
+
+        $data = $request->validate([
+            'feedback' => 'nullable|string',
+            'rating'   => 'nullable|integer|min:1|max:5',
+        ]);
+
+        $assignment = $this->assignmentService->ownerCompleteWithFeedback(
+            $owner,
+            $assignmentId,
+            $data['feedback'] ?? null,
+            $data['rating'] ?? null
+        );
+
+        return response()->json([
+            'message'    => 'Assignment marked as completed and feedback saved.',
+            'assignment' => $assignment,
+        ]);
+    }
+}

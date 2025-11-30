@@ -12,18 +12,26 @@ return Application::configure(basePath: dirname(__DIR__))
     health: '/up',
 )
 
-    ->withMiddleware(function (Middleware $middleware) {
+->withMiddleware(function (Middleware $middleware) {
     $middleware->statefulApi([
-            'localhost',
-            '127.0.0.1',
-            'backend.test'
-        ])
-        ->validateCsrfTokens();
+        'localhost',
+        '127.0.0.1',
+        'backend.test'
+    ])
+    ->validateCsrfTokens();
 
     $middleware->api(prepend: [
         \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
     ]);
+
+    // -------------------------
+    // ADD ROLE MIDDLEWARE ALIAS
+    // -------------------------
+    $middleware->alias([
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ]);
 })
+
 
     ->withExceptions(function (Exceptions $exceptions): void {
         //
