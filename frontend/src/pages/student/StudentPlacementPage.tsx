@@ -1,0 +1,210 @@
+import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { apiClient } from "../../lib/apiClient";
+
+type DomainOption = "frontend" | "backend";
+
+interface PlacementQuestion {
+  id: number;
+  level: "beginner" | "intermediate" | "advanced";
+  domain: "frontend" | "backend";
+  question_text: string;
+  type: string;
+  difficulty: number;
+  metadata?: Record<string, unknown> | null;
+}
+
+interface PlacementResult {
+  placement_result_id: number;
+  score: number;
+  suggested_level: "beginner" | "intermediate" | "advanced";
+  suggested_domain: "frontend" | "backend";
+  total_questions: number;
+  correct_count: number;
+}
+
+export function StudentPlacementPage() {
+  const [domain, setDomain] = useState<DomainOption>("frontend");
+  const [questions, setQuestions] = useState<PlacementQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<PlacementResult | null>(null);
+
+  async function loadQuestions(selectedDomain: DomainOption) {
+    setIsLoadingQuestions(true);
+    setError(null);
+    setResult(null);
+    setAnswers({});
+    try {
+      const response = await apiClient.get(
+        "/student/assessment/placement/questions",
+        {
+          params: { domain: selectedDomain },
+        }
+      );
+      const data = response.data.data ?? response.data;
+      setQuestions(data as PlacementQuestion[]);
+    } catch (err: any) {
+      console.error(err);
+      const message =
+        err?.response?.data?.message ?? "Failed to load placement questions.";
+      setError(message);
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadQuestions(domain);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [domain]);
+
+  function handleAnswerChange(questionId: number, value: string) {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setResult(null);
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        domain,
+        answers: questions.map((q) => ({
+          question_id: q.id,
+          answer: answers[q.id] ?? "",
+        })),
+      };
+
+      const response = await apiClient.post(
+        "/student/assessment/placement/submit",
+        payload
+      );
+      const data = response.data?.data ?? response.data;
+      setResult(data as PlacementResult);
+    } catch (err: any) {
+      console.error(err);
+      const message =
+        err?.response?.data?.message ??
+        "Failed to submit placement answers. Please try again.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="max-w-4xl mx-auto py-8 px-4 space-y-6">
+        <header className="space-y-2">
+          <h1 className="text-2xl font-bold">Placement Assessment</h1>
+          <p className="text-slate-300 text-sm">
+            Answer the questions below so we can estimate your level and suggest
+            the right roadmap for you.
+          </p>
+        </header>
+
+        {/* Domain selection */}
+        <div className="flex gap-3">
+          {(["frontend", "backend"] as DomainOption[]).map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => setDomain(d)}
+              className={`px-3 py-1 text-sm rounded-md border ${
+                domain === d
+                  ? "border-sky-500 bg-sky-600/20 text-sky-200"
+                  : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
+              }`}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+
+        {isLoadingQuestions && (
+          <p className="text-slate-300 text-sm">Loading questions...</p>
+        )}
+
+        {error && (
+          <div className="rounded-md border border-red-700 bg-red-900/40 px-4 py-2 text-sm text-red-100">
+            {error}
+          </div>
+        )}
+
+        {!isLoadingQuestions && !error && !questions.length && (
+          <p className="text-slate-400 text-sm">
+            No questions found for this domain yet.
+          </p>
+        )}
+
+        {questions.length > 0 && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-4">
+              {questions.map((q, index) => (
+                <div
+                  key={q.id}
+                  className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400">
+                      Q{index + 1} · {q.level} · {q.domain}
+                    </span>
+                    <span className="text-xs rounded-full border border-slate-700 px-2 py-0.5">
+                      {q.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-100">{q.question_text}</p>
+                  <textarea
+                    className="w-full min-h-[80px] rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    value={answers[q.id] ?? ""}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="Type your answer here..."
+                    required
+                  />
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-md bg-sky-600 hover:bg-sky-500 disabled:opacity-60 disabled:cursor-not-allowed px-4 py-2 text-sm font-medium text-white"
+            >
+              {isSubmitting ? "Submitting..." : "Submit assessment"}
+            </button>
+          </form>
+        )}
+
+        {result && (
+          <section className="mt-6 rounded-xl border border-emerald-700 bg-emerald-900/30 px-4 py-3 space-y-2">
+            <h2 className="text-lg font-semibold">Your Placement Result</h2>
+            <p className="text-sm text-emerald-100">
+              Suggested level:{" "}
+              <span className="font-bold">{result.suggested_level}</span>
+            </p>
+            <p className="text-sm text-emerald-100">
+              Suggested domain:{" "}
+              <span className="font-bold">{result.suggested_domain}</span>
+            </p>
+            <p className="text-sm text-emerald-100">
+              Score:{" "}
+              <span className="font-bold">
+                {result.score} / {result.total_questions}
+              </span>{" "}
+              ({result.correct_count} correct answers)
+            </p>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
