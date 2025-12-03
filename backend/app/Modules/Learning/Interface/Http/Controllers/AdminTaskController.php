@@ -33,9 +33,9 @@ class AdminTaskController extends Controller
 
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'type'        => 'required|in:code,quiz,project',
-            'difficulty'  => 'required|in:easy,medium,hard',
+            'description' => 'nullable|string',
+            'type'        => 'required|in:theory,coding,quiz,project',
+            'difficulty'  => 'required|integer|min:1|max:5',
             'max_score'   => 'required|numeric|min:1',
             'metadata'    => 'nullable|array',
         ]);
@@ -66,8 +66,8 @@ class AdminTaskController extends Controller
         $data = $request->validate([
             'title'       => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
-            'type'        => 'sometimes|in:code,quiz,project',
-            'difficulty'  => 'sometimes|in:easy,medium,hard',
+            'type'        => 'sometimes|in:theory,coding,quiz,project',
+            'difficulty'  => 'sometimes|integer|min:1|max:5',
             'max_score'   => 'sometimes|numeric|min:1',
             'metadata'    => 'sometimes|nullable|array',
         ]);

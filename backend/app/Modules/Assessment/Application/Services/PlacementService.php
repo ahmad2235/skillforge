@@ -14,18 +14,23 @@ class PlacementService
 {
     /**
      * Get a set of questions for the placement test for this user.
+     * Optionally filters by domain and orders by difficulty.
      */
-    public function getQuestionsForUser(User $user): array
+    public function getQuestionsForUser(User $user, ?string $domain = null): array
     {
         $query = Question::query();
 
-        // If you want to filter by user domain/level and your questions table supports it,
-        // uncomment and adapt the following:
-        // if ($user->domain) {
-        //     $query->where('domain', $user->domain);
-        // }
+        // Filter by user domain if available, or use provided domain parameter
+        $filterDomain = $domain ?? $user->domain ?? 'frontend';
+        if ($filterDomain) {
+            $query->where('domain', $filterDomain);
+        }
 
-        $questions = $query->inRandomOrder()->limit(10)->get();
+        $questions = $query
+            ->orderBy('difficulty', 'asc')
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
 
         return $questions->map(function (Question $q) {
             return [
