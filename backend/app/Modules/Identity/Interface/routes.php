@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Identity\Interface\Http\Controllers\AuthController;
+use App\Modules\Identity\Interface\Http\Controllers\AdminMonitoringController;
 
 /*
  | ------------------------------------------------------------------
@@ -27,3 +28,21 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
     });
 });
+
+/*
+ | ------------------------------------------------------------------
+ | Admin Monitoring Routes
+ | ------------------------------------------------------------------
+ */
+Route::middleware(['auth:sanctum', 'role:admin'])
+    ->prefix('admin/monitoring')
+    ->group(function () {
+        Route::get('/overview', [AdminMonitoringController::class, 'overview']);
+        Route::get('/users/recent', [AdminMonitoringController::class, 'recentUsers']);
+        Route::get('/users/by-role', [AdminMonitoringController::class, 'usersByRole']);
+        Route::get('/students/by-level', [AdminMonitoringController::class, 'studentsByLevel']);
+        Route::get('/students/by-domain', [AdminMonitoringController::class, 'studentsByDomain']);
+        Route::get('/submissions/recent', [AdminMonitoringController::class, 'recentSubmissions']);
+        Route::get('/ai-logs/recent', [AdminMonitoringController::class, 'recentAiLogs']);
+        Route::get('/assignments/recent', [AdminMonitoringController::class, 'recentAssignments']);
+    });
