@@ -1,294 +1,446 @@
-import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useParams, Link } from "react-router-dom";
-import { apiClient } from "../../lib/apiClient";
-import type { RoadmapBlock, Task } from "../../types/learning";
+import { apiClient } from "@/lib/apiClient";
+import { AdminLayout } from "@/layouts/AdminLayout";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+
+type Task = {
+  id: number;
+  title: string;
+  description?: string | null;
+  type: string;
+  difficulty?: number | null;
+  max_score?: number | null;
+  is_active?: boolean;
+};
+
+type TasksResponse = {
+  data: Task[];
+};
 
 export function AdminBlockTasksPage() {
-  const { blockId } = useParams();
-  const [block, setBlock] = useState<RoadmapBlock | null>(null);
+  const { blockId } = useParams<{ blockId: string }>();
+
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoadingBlock, setIsLoadingBlock] = useState(true);
-  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // form state for creating a task
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("project"); // or "quiz", "practice", etc.
-  const [difficulty, setDifficulty] = useState<number | "">("");
-  const [maxScore, setMaxScore] = useState<number | "">(100);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [reloadFlag, setReloadFlag] = useState(0);
 
-  if (!blockId) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">
-          No block selected. Go back to roadmap blocks.
-        </p>
-      </div>
-    );
-  }
+  // dialog / form state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentId, setCurrentId] = useState<number | null>(null);
 
-  async function loadBlock() {
-    setIsLoadingBlock(true);
-    setError(null);
-    try {
-      // ما عندنا endpoint منفصل للـ block، فنستعمل /admin/learning/blocks ونفلتر
-      const response = await apiClient.get("/admin/learning/blocks");
-      const data = (response.data.data ?? response.data) as RoadmapBlock[];
-      const found = data.find((b) => b.id === Number(blockId)) ?? null;
-      setBlock(found);
-    } catch (err: any) {
-      console.error(err);
-      const message =
-        err?.response?.data?.message ?? "Failed to load block details.";
-      setError(message);
-    } finally {
-      setIsLoadingBlock(false);
-    }
-  }
+  const [formTitle, setFormTitle] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formType, setFormType] = useState<string>("project");
+  const [formDifficulty, setFormDifficulty] = useState<string>("1");
+  const [formMaxScore, setFormMaxScore] = useState<string>("100");
+  const [formIsActive, setFormIsActive] = useState(true);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formSaving, setFormSaving] = useState(false);
 
-  async function loadTasks() {
-    setIsLoadingTasks(true);
-    setError(null);
-    try {
-      const response = await apiClient.get(
-        `/admin/learning/blocks/${blockId}/tasks`
-      );
-      const data = response.data.data ?? response.data;
-      setTasks(data as Task[]);
-    } catch (err: any) {
-      console.error(err);
-      const message = err?.response?.data?.message ?? "Failed to load tasks.";
-      setError(message);
-    } finally {
-      setIsLoadingTasks(false);
-    }
-  }
-
+  // ============= FETCH =============
   useEffect(() => {
-    void loadBlock();
-    void loadTasks();
-  }, [blockId]);
+    if (!blockId) return;
 
-  async function handleCreateTask(e: FormEvent) {
+    const controller = new AbortController();
+
+    async function fetchTasks() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await apiClient.get<TasksResponse | Task[]>(
+          `/admin/learning/blocks/${blockId}/tasks`,
+          { signal: controller.signal }
+        );
+
+        const payload = res.data;
+
+        if (Array.isArray(payload)) {
+          setTasks(payload);
+        } else {
+          setTasks(payload.data || []);
+        }
+      } catch (err: unknown) {
+        // Abort: ignore
+        if (err instanceof Error && err.name === "AbortError") return;
+        console.error(err);
+        setError("Failed to load tasks.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void fetchTasks();
+
+    return () => controller.abort();
+  }, [blockId, reloadFlag]);
+
+  const filteredTasks = tasks.filter((t) =>
+    t.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  // ============= DIALOG HELPERS =============
+
+  const openCreateDialog = () => {
+    setIsEditMode(false);
+    setCurrentId(null);
+    setFormTitle("");
+    setFormDescription("");
+    setFormType("project");
+    setFormDifficulty("1");
+    setFormMaxScore("100");
+    setFormIsActive(true);
+    setFormError(null);
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (task: Task) => {
+    setIsEditMode(true);
+    setCurrentId(task.id);
+    setFormTitle(task.title || "");
+    setFormDescription(task.description || "");
+    setFormType(task.type || "project");
+    setFormDifficulty(task.difficulty != null ? String(task.difficulty) : "1");
+    setFormMaxScore(task.max_score != null ? String(task.max_score) : "100");
+    setFormIsActive(task.is_active ?? true);
+    setFormError(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open && !formSaving) {
+      setIsDialogOpen(false);
+    } else {
+      setIsDialogOpen(open);
+    }
+  };
+
+  // ============= SAVE (CREATE / EDIT) =============
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    setIsSubmitting(true);
+    if (!blockId) return;
+
+    if (!formTitle.trim()) {
+      setFormError("Title is required.");
+      return;
+    }
+
+    const payload: Record<string, unknown> = {
+      title: formTitle.trim(),
+      description: formDescription.trim() || null,
+      type: formType,
+      difficulty: Number(formDifficulty) || 1,
+      max_score: Number(formMaxScore) || 100,
+      is_active: formIsActive ? 1 : 0,
+    };
 
     try {
-      const payload = {
-        title,
-        description: description || null,
-        type,
-        difficulty: difficulty === "" ? 1 : Number(difficulty),
-        max_score: maxScore === "" ? 100 : Number(maxScore),
-      };
+      setFormSaving(true);
+      setFormError(null);
 
-      await apiClient.post(`/admin/learning/blocks/${blockId}/tasks`, payload);
+      if (isEditMode && currentId != null) {
+        await apiClient.put(`/admin/learning/tasks/${currentId}`, payload);
+      } else {
+        await apiClient.post(
+          `/admin/learning/blocks/${blockId}/tasks`,
+          payload
+        );
+      }
 
-      setSuccessMessage("Task created successfully.");
-      setTitle("");
-      setDescription("");
-      setDifficulty("");
-      setMaxScore(100);
-      await loadTasks();
-    } catch (err: any) {
+      setReloadFlag((x) => x + 1);
+      setIsDialogOpen(false);
+    } catch (err: unknown) {
       console.error(err);
-      const message =
-        err?.response?.data?.message ??
-        "Failed to create task. Please check your input.";
-      setError(message);
+      const message = "Failed to save task.";
+      setFormError(message);
     } finally {
-      setIsSubmitting(false);
+      setFormSaving(false);
     }
-  }
+  };
 
-  if (isLoadingBlock && isLoadingTasks) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">Loading block & tasks...</p>
-      </div>
-    );
-  }
+  // ============= DELETE =============
 
-  if (!block) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">
-          Block not found. Go back to roadmap blocks.
-        </p>
-      </div>
-    );
-  }
+  const handleDelete = async (task: Task) => {
+    if (!window.confirm(`Delete task "${task.title}"?`)) return;
+
+    try {
+      await apiClient.delete(`/admin/learning/tasks/${task.id}`);
+      setReloadFlag((x) => x + 1);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete task.");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-6xl mx-auto py-8 px-4 space-y-6">
-        <header className="space-y-1">
-          <p className="text-xs text-slate-400 mb-1">
-            <Link
-              to="/admin/learning/blocks"
-              className="text-sky-400 hover:underline"
+    <AdminLayout title={`Block ${blockId} Tasks`}>
+      <Card className="p-4 space-y-4">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Link to="/admin/learning/blocks" className="hover:underline">
+                Blocks
+              </Link>
+              <span>/</span>
+              <span>Block {blockId}</span>
+            </div>
+            <h2 className="text-lg font-semibold mt-1">
+              Tasks for Block {blockId}
+            </h2>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Search tasks by title..."
+              value={search}
+              onChange={handleSearchChange}
+              className="w-48"
+            />
+            <Button
+              variant="outline"
+              onClick={() => setReloadFlag((x) => x + 1)}
             >
-              &larr; Back to blocks
-            </Link>
-          </p>
-          <h1 className="text-2xl font-bold">Tasks for: {block.title}</h1>
-          <p className="text-xs text-slate-400">
-            {block.level} · {block.domain}
-          </p>
-          {block.description && (
-            <p className="text-sm text-slate-300">{block.description}</p>
-          )}
-        </header>
+              Refresh
+            </Button>
+            <Button onClick={openCreateDialog}>Create Task</Button>
+          </div>
+        </div>
 
-        <section className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Create New Task</h2>
+        {error && <div className="text-sm text-red-500">{error}</div>}
 
-          {error && (
-            <div className="rounded-md border border-red-700 bg-red-900/40 px-4 py-2 text-sm text-red-100">
-              {error}
-            </div>
-          )}
+        {/* Table */}
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[60px]">ID</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Difficulty</TableHead>
+                <TableHead>Max Score</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center text-sm text-muted-foreground"
+                  >
+                    Loading tasks...
+                  </TableCell>
+                </TableRow>
+              ) : filteredTasks.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center text-sm text-muted-foreground"
+                  >
+                    No tasks found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredTasks.map((task) => (
+                  <TableRow key={task.id}>
+                    <TableCell>{task.id}</TableCell>
+                    <TableCell className="font-medium">{task.title}</TableCell>
+                    <TableCell className="capitalize">{task.type}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{task.difficulty ?? "-"}</Badge>
+                    </TableCell>
+                    <TableCell>{task.max_score ?? "-"}</TableCell>
+                    <TableCell>
+                      {task.is_active ? (
+                        <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="border-red-400 text-red-500"
+                        >
+                          Inactive
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditDialog(task)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(task)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
 
-          {successMessage && (
-            <div className="rounded-md border border-emerald-700 bg-emerald-900/40 px-4 py-2 text-sm text-emerald-100">
-              {successMessage}
-            </div>
-          )}
+      {/* Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isEditMode ? "Edit Task" : "Create Task"}
+            </DialogTitle>
+          </DialogHeader>
 
-          <form onSubmit={handleCreateTask} className="space-y-3">
-            <div className="space-y-1">
-              <label className="block text-sm text-slate-200" htmlFor="title">
-                Title
-              </label>
-              <input
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
                 id="title"
-                className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                placeholder="Simple HTML Page, REST API Endpoint, etc."
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
+                placeholder="e.g. Simple HTML Page"
               />
             </div>
 
-            <div className="space-y-1">
-              <label
-                className="block text-sm text-slate-200"
-                htmlFor="description"
-              >
-                Description
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
-                className="w-full min-h-[80px] rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Explain the requirements of this task."
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                placeholder="Describe the task..."
               />
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              <div className="space-y-1">
-                <label className="block text-sm text-slate-200">Type</label>
-                <select
-                  className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select
+                  value={formType}
+                  onValueChange={(value) => setFormType(value)}
                 >
-                  <option value="project">Project</option>
-                  <option value="coding">Coding</option>
-                  <option value="quiz">Quiz</option>
-                  <option value="theory">Theory</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="project">Project</SelectItem>
+                    <SelectItem value="quiz">Quiz</SelectItem>
+                    <SelectItem value="code">Code</SelectItem>
+                    <SelectItem value="reading">Reading</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-sm text-slate-200">
-                  Difficulty
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={5}
-                  className="w-24 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
-                  value={difficulty}
-                  onChange={(e) =>
-                    setDifficulty(
-                      e.target.value === "" ? "" : Number(e.target.value)
-                    )
-                  }
-                  placeholder="1–5"
-                />
+              <div className="space-y-2">
+                <Label>Difficulty</Label>
+                <Select
+                  value={formDifficulty}
+                  onValueChange={(value) => setFormDifficulty(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
+                    <SelectItem value="5">5</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-sm text-slate-200">
-                  Max score
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="max_score">Max Score</Label>
+                <Input
+                  id="max_score"
                   type="number"
-                  min={1}
-                  className="w-24 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50"
-                  value={maxScore}
-                  onChange={(e) =>
-                    setMaxScore(
-                      e.target.value === "" ? "" : Number(e.target.value)
-                    )
-                  }
-                  placeholder="100"
+                  value={formMaxScore}
+                  onChange={(e) => setFormMaxScore(e.target.value)}
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-md bg-sky-600 hover:bg-sky-500 disabled:opacity-60 disabled:cursor-not-allowed px-4 py-2 text-sm font-medium text-white"
-            >
-              {isSubmitting ? "Creating..." : "Create Task"}
-            </button>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="is_active">Active</Label>
+              <Switch
+                id="is_active"
+                checked={formIsActive}
+                onCheckedChange={(checked) => setFormIsActive(!!checked)}
+              />
+            </div>
+
+            {formError && (
+              <div className="text-sm text-red-500">{formError}</div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleDialogClose(false)}
+                disabled={formSaving}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={formSaving}>
+                {formSaving
+                  ? isEditMode
+                    ? "Saving..."
+                    : "Creating..."
+                  : isEditMode
+                  ? "Save Changes"
+                  : "Create Task"}
+              </Button>
+            </DialogFooter>
           </form>
-        </section>
-
-        <section>
-          <h2 className="text-lg font-semibold mb-2">Existing Tasks</h2>
-
-          {isLoadingTasks ? (
-            <p className="text-slate-300 text-sm">Loading tasks...</p>
-          ) : !tasks.length ? (
-            <p className="text-slate-400 text-sm">
-              No tasks defined for this block yet.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="rounded-xl border border-slate-800 bg-slate-900/80 p-4"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-md font-semibold">{task.title}</h3>
-                    <span className="text-xs rounded-full border border-slate-700 px-2 py-0.5 text-slate-300">
-                      {task.type} · difficulty {task.difficulty}
-                    </span>
-                  </div>
-                  {task.description && (
-                    <p className="text-xs text-slate-300">{task.description}</p>
-                  )}
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    Max score: {task.max_score}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </AdminLayout>
   );
 }

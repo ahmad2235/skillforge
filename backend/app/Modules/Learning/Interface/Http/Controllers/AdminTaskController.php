@@ -37,6 +37,7 @@ class AdminTaskController extends Controller
             'type'        => 'required|in:theory,coding,quiz,project',
             'difficulty'  => 'required|integer|min:1|max:5',
             'max_score'   => 'required|numeric|min:1',
+            'is_active'   => 'boolean',
             'metadata'    => 'nullable|array',
         ]);
 
@@ -47,6 +48,7 @@ class AdminTaskController extends Controller
             'type'             => $data['type'],
             'difficulty'       => $data['difficulty'],
             'max_score'        => $data['max_score'],
+            'is_active'        => $data['is_active'] ?? true,
             'metadata'         => $data['metadata'] ?? [],
         ]);
 
@@ -69,6 +71,7 @@ class AdminTaskController extends Controller
             'type'        => 'sometimes|in:theory,coding,quiz,project',
             'difficulty'  => 'sometimes|integer|min:1|max:5',
             'max_score'   => 'sometimes|numeric|min:1',
+            'is_active'   => 'sometimes|boolean',
             'metadata'    => 'sometimes|nullable|array',
         ]);
 
