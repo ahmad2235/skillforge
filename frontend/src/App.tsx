@@ -1,14 +1,15 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import { LandingPage } from "./pages/landing/LandingPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { StudentDashboardPage } from "./pages/student/StudentDashboardPage";
 import { BusinessDashboardPage } from "./pages/business/BusinessDashboardPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-import { AdminRoadmapBlocksPage } from "./pages/admin/AdminRoadmapBlocksPage";
+import { AdminLearningBlocksPage } from "./pages/admin/AdminLearningBlocksPage";
 import { AdminBlockTasksPage } from "./pages/admin/AdminBlockTasksPage";
 import { AdminAssessmentQuestionsPage } from "./pages/admin/AdminAssessmentQuestionsPage";
 import { AdminMonitoringPage } from "./pages/admin/AdminMonitoringPage";
+import { AdminStudentsPage } from "./pages/admin/AdminStudentsPage";
 import { NotFoundPage } from "./pages/errors/NotFoundPage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./hooks/useAuth";
@@ -246,10 +247,26 @@ function AppShell() {
             }
           />
           <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminStudentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/learning/blocks"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminRoadmapBlocksPage />
+                <AdminLearningBlocksPage />
               </ProtectedRoute>
             }
           />
@@ -276,6 +293,20 @@ function AppShell() {
                 <AdminMonitoringPage />
               </ProtectedRoute>
             }
+          />
+
+          {/* Admin redirects for cleaner navigation */}
+          <Route
+            path="/admin/learning"
+            element={<Navigate to="/admin/learning/blocks" replace />}
+          />
+          <Route
+            path="/admin/assessment"
+            element={<Navigate to="/admin/assessment/questions" replace />}
+          />
+          <Route
+            path="/admin/placement"
+            element={<Navigate to="/admin/assessment/questions" replace />}
           />
 
           {/* Fallback */}

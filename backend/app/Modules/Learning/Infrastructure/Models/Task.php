@@ -18,11 +18,13 @@ class Task extends Model
         'type',
         'difficulty',
         'max_score',
+        'is_active',
         'metadata',
     ];
 
     protected $casts = [
         'metadata' => 'array',
+        'is_active' => 'boolean',
     ];
 
     // البلوك الذي تنتمي له المهمة
