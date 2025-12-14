@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum', 'role:student'])
 
         Route::get('/blocks/{block}/tasks', [TaskController::class, 'listByBlock']);
         Route::post('/tasks/{task}/submit', [TaskController::class, 'submit']);
+        Route::get('/submissions/{submission}', [TaskController::class, 'getSubmission']);
     });
 
 // =======================

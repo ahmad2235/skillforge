@@ -19,7 +19,10 @@ class Submission extends Model
         'attachment_url',
         'status',
         'score',
+        'ai_score',
         'ai_feedback',
+        'ai_metadata',
+        'is_evaluated',
         'metadata',
         'submitted_at',
         'evaluated_at'
@@ -27,6 +30,8 @@ class Submission extends Model
 
     protected $casts = [
         'metadata'      => 'array',
+        'ai_metadata'   => 'array',
+        'is_evaluated'  => 'boolean',
         'submitted_at'  => 'datetime',
         'evaluated_at'  => 'datetime',
     ];
