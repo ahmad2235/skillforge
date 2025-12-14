@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import type { Task, RoadmapBlock } from "../../types/learning";
+import { useEventLogger } from "../../hooks/useEventLogger";
 
 export function StudentBlockTasksPage() {
   const { blockId } = useParams();
@@ -11,6 +12,7 @@ export function StudentBlockTasksPage() {
   const [loadingBlock, setLoadingBlock] = useState(true);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { logView } = useEventLogger();
 
   // Load block info (we get it by filtering roadmap)
   useEffect(() => {
@@ -42,6 +44,7 @@ export function StudentBlockTasksPage() {
         );
         const data = response.data.data ?? response.data;
         setTasks(data);
+        logView("block", Number(blockId), { task_count: data.length });
       } catch (err: unknown) {
         console.error(err);
         setError("Failed to load tasks.");
@@ -51,7 +54,7 @@ export function StudentBlockTasksPage() {
     }
 
     fetchTasks();
-  }, [blockId]);
+  }, [blockId, logView]);
 
   if (error) {
     return (

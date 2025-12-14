@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Learning\Interface\Http\Controllers\StudentRoadmapController;
+use App\Modules\Learning\Interface\Http\Controllers\StudentEventController;
 use App\Modules\Learning\Interface\Http\Controllers\TaskController;
 use App\Modules\Learning\Interface\Http\Controllers\AdminRoadmapBlockController;
 use App\Modules\Learning\Interface\Http\Controllers\AdminTaskController;
@@ -20,6 +21,9 @@ Route::middleware(['auth:sanctum', 'role:student'])
         Route::get('/blocks/{block}/tasks', [TaskController::class, 'listByBlock']);
         Route::post('/tasks/{task}/submit', [TaskController::class, 'submit']);
         Route::get('/submissions/{submission}', [TaskController::class, 'getSubmission']);
+
+        Route::post('/events', [StudentEventController::class, 'store'])
+            ->middleware('throttle:60,1');
     });
 
 // =======================

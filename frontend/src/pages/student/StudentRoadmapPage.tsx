@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import type { RoadmapBlock } from "../../types/learning";
+import { useEventLogger } from "../../hooks/useEventLogger";
 
 export function StudentRoadmapPage() {
   const [blocks, setBlocks] = useState<RoadmapBlock[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { logView } = useEventLogger();
 
   useEffect(() => {
     async function fetchRoadmap() {
@@ -17,6 +19,7 @@ export function StudentRoadmapPage() {
         // backend returns { data: [...] }
         const data = response.data.data ?? response.data;
         setBlocks(data as RoadmapBlock[]);
+        logView("roadmap_list", undefined, { count: data.length });
       } catch (err: unknown) {
         console.error(err);
         const axiosError = err as {
@@ -31,7 +34,7 @@ export function StudentRoadmapPage() {
     }
 
     fetchRoadmap();
-  }, []);
+  }, [logView]);
 
   if (isLoading) {
     return (

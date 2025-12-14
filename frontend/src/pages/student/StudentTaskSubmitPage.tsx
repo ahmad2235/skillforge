@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import type { TaskEvaluation } from "../../types/learning";
+import { useEventLogger } from "../../hooks/useEventLogger";
 
 interface SubmissionData {
   id: number;
@@ -26,6 +27,7 @@ export function StudentTaskSubmitPage() {
   const [submissionId, setSubmissionId] = useState<number | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { logSubmit } = useEventLogger();
 
   // Poll for evaluation results
   useEffect(() => {
@@ -118,6 +120,7 @@ export function StudentTaskSubmitPage() {
       if (data.submission?.id) {
         setSubmissionId(data.submission.id);
         setSuccessMessage("Task submitted. Evaluating...");
+        logSubmit("task", Number(taskId));
       }
 
       setAnswerText("");

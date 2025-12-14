@@ -1,4 +1,13 @@
+import { useEffect } from "react";
+import { useEventLogger } from "../../hooks/useEventLogger";
+
 export function LandingPage() {
+  const { logView } = useEventLogger();
+
+  useEffect(() => {
+    logView("page", undefined, { page: "landing" });
+  }, [logView]);
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
       <div className="max-w-xl text-center px-4">
