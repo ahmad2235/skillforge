@@ -3,6 +3,7 @@
 namespace App\Modules\Learning\Application\Services;
 
 use App\Models\User;
+use App\Jobs\EvaluateSubmissionJob;
 use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
 use App\Modules\Learning\Infrastructure\Models\Task;
 use App\Modules\Learning\Infrastructure\Models\Submission;
@@ -66,18 +67,19 @@ class RoadmapService
                 'answer_text'    => $data['answer_text'] ?? null,
                 'attachment_url' => $data['attachment_url'] ?? null,
                 'status'         => 'submitted',
-                'metadata'       => [],
+                'metadata'       => $data['metadata'] ?? [],
+                'submitted_at'   => now(),
             ]);
 
             return $submission;
         });
 
-        // Call AI evaluation after the submission has been created/committed
-        $evaluation = $this->taskEvaluationService->evaluateSubmission($submission);
+        // Dispatch job for async evaluation (doesn't block the response)
+        EvaluateSubmissionJob::dispatch($submission->id);
 
         return [
             'submission' => $submission,
-            'evaluation' => $evaluation,
+            'message'    => 'Submission received. Evaluation is in progress...',
         ];
     }
 
