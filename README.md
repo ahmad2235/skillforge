@@ -64,6 +64,8 @@ require base_path('app/Modules/Gamification/Interface/routes.php');
 require base_path('app/Modules/Assessment/Interface/routes.php');
 ```
 
+> Versioning: All routes are available under both `/api/*` and `/api/v1/*` to support gradual client migration without breaking existing consumers.
+
 ---
 
 # 🔐 Authentication & Authorization
@@ -91,19 +93,20 @@ backend/app/Http/Middleware/RoleMiddleware.php
 
 # 📚 API Conventions
 
-* Always return **JSON**
-* Use proper status codes:
+- Always return **JSON**
+- Use proper status codes:
 
-  * **200** OK
-  * **201** Created
-  * **403** Forbidden
-  * **422** Validation error
-* Use REST naming conventions:
+  - **200** OK
+  - **201** Created
+  - **403** Forbidden
+  - **422** Validation error
 
-  * `/auth/...`
-  * `/student/...`
-  * `/business/...`
-  * `/admin/...`
+- Use REST naming conventions:
+
+  - `/auth/...`
+  - `/student/...`
+  - `/business/...`
+  - `/admin/...`
 
 ---
 
@@ -317,9 +320,9 @@ php artisan migrate
 
 Enums:
 
-* `role`: `student`, `business`, `admin`
-* `level`: `beginner`, `intermediate`, `advanced`
-* `domain`: `frontend`, `backend`
+- `role`: `student`, `business`, `admin`
+- `level`: `beginner`, `intermediate`, `advanced`
+- `domain`: `frontend`, `backend`
 
 ⚠️ Important:
 Column names **must** match the migrations.
@@ -350,8 +353,8 @@ Thunder Client/Postman recommended for API debugging.
 
 # 🌍 Localization
 
-* Some comments in Arabic are intentional for maintainers.
-* Feel free to add localized docs under `/docs`.
+- Some comments in Arabic are intentional for maintainers.
+- Feel free to add localized docs under `/docs`.
 
 ---
 
@@ -359,22 +362,20 @@ Thunder Client/Postman recommended for API debugging.
 
 SkillForge backend is structured for:
 
-* Clean module boundaries
-* Easy AI integration
-* Simple frontend consumption
-* Team-friendly code organization
-* High scalability (modular monolith → potential microservices later)
+- Clean module boundaries
+- Easy AI integration
+- Simple frontend consumption
+- Team-friendly code organization
+- High scalability (modular monolith → potential microservices later)
 
 **AI engineer** touches only:
 
-* `TaskEvaluationService`
-* `RecommendationService`
-* Optional: add AiLog, prompt templates
+- `TaskEvaluationService`
+- `RecommendationService`
+- Optional: add AiLog, prompt templates
 
 **Frontend engineer** relies on:
 
-* stable JSON contracts from `/student/*`, `/business/*`, `/auth/*`, `/projects/*`, `/assessment/*`
+- stable JSON contracts from `/student/*`, `/business/*`, `/auth/*`, `/projects/*`, `/assessment/*`
 
 **Backend team** works inside Modules with strict boundaries.
-
-

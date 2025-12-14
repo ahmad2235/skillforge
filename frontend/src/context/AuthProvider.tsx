@@ -18,7 +18,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Load initial state from localStorage once
   useEffect(() => {
     try {
-      const storedToken = localStorage.getItem("sf_token");
+      const storedToken =
+        localStorage.getItem("token") || localStorage.getItem("sf_token");
       const storedUser = localStorage.getItem("sf_user");
 
       if (storedToken && storedUser) {
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(nextUser);
     setToken(nextToken);
 
+    localStorage.setItem("token", nextToken);
     localStorage.setItem("sf_token", nextToken);
     localStorage.setItem("sf_user", JSON.stringify(nextUser));
   }
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   function logout() {
     setUser(null);
     setToken(null);
+    localStorage.removeItem("token");
     localStorage.removeItem("sf_token");
     localStorage.removeItem("sf_user");
   }

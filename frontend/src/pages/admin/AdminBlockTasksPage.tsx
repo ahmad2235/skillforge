@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 type Task = {
   id: number;
@@ -44,6 +45,14 @@ type Task = {
 
 type TasksResponse = {
   data: Task[];
+};
+
+const getErrorMessage = (err: unknown, fallback = "Request failed") => {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
 };
 
 export function AdminBlockTasksPage() {
@@ -96,8 +105,9 @@ export function AdminBlockTasksPage() {
       } catch (err: unknown) {
         // Abort: ignore
         if (err instanceof Error && err.name === "AbortError") return;
-        console.error(err);
-        setError("Failed to load tasks.");
+        const message = getErrorMessage(err, "Failed to load tasks.");
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -183,14 +193,15 @@ export function AdminBlockTasksPage() {
           `/admin/learning/blocks/${blockId}/tasks`,
           payload
         );
+        toast.success("Task created");
       }
 
       setReloadFlag((x) => x + 1);
       setIsDialogOpen(false);
     } catch (err: unknown) {
-      console.error(err);
-      const message = "Failed to save task.";
+      const message = getErrorMessage(err, "Failed to save task.");
       setFormError(message);
+      toast.error(message);
     } finally {
       setFormSaving(false);
     }
@@ -204,9 +215,9 @@ export function AdminBlockTasksPage() {
     try {
       await apiClient.delete(`/admin/learning/tasks/${task.id}`);
       setReloadFlag((x) => x + 1);
+      toast.success("Task deleted");
     } catch (err) {
-      console.error(err);
-      alert("Failed to delete task.");
+      toast.error(getErrorMessage(err, "Failed to delete task."));
     }
   };
 

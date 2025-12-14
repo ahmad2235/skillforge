@@ -7,7 +7,6 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
-import axios from "axios";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 type RoadmapBlock = {
   id: number;
@@ -58,6 +58,14 @@ type PaginatedResponse<T> = {
     total: number;
     per_page?: number;
   };
+};
+
+const getErrorMessage = (err: unknown, fallback = "Request failed") => {
+  if (err && typeof err === "object" && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
 };
 
 export function AdminLearningBlocksPage() {
@@ -180,8 +188,9 @@ export function AdminLearningBlocksPage() {
         }
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
-        console.error(err);
-        setError("Failed to load blocks.");
+        const message = getErrorMessage(err, "Failed to load blocks.");
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -298,6 +307,7 @@ export function AdminLearningBlocksPage() {
         }
 
         await apiClient.post(`/admin/learning/blocks`, payload);
+        toast.success("Block created");
       } else if (isEditMode && currentId != null) {
         // editing: we must adjust other blocks if order changed
         const current = blocks.find((b) => b.id === currentId);
@@ -349,42 +359,16 @@ export function AdminLearningBlocksPage() {
 
         // finally update current block
         await apiClient.put(`/admin/learning/blocks/${currentId}`, payload);
+        toast.success("Block updated");
       }
 
       // reload list
       setReloadFlag((x) => x + 1);
       setIsDialogOpen(false);
     } catch (err: unknown) {
-      console.error(err);
-      // Prefer server-provided message if available (validation, auth, etc.)
-      let message = "Failed to save block.";
-      if (axios.isAxiosError(err)) {
-        const resp = err.response?.data as unknown;
-        if (resp && typeof resp === "object") {
-          const r = resp as Record<string, unknown>;
-          if (typeof r.message === "string") message = r.message;
-          else if (typeof r.errors === "object" && r.errors !== null) {
-            try {
-              // collect values from errors object
-              const values = Object.values(r.errors as Record<string, unknown>);
-              const flattened: string[] = [];
-              values.forEach((v) => {
-                if (Array.isArray(v)) flattened.push(...v.map(String));
-                else if (typeof v === "string") flattened.push(v);
-                else flattened.push(String(v));
-              });
-              message = flattened.join(" ");
-            } catch {
-              message = JSON.stringify(r);
-            }
-          } else {
-            message = JSON.stringify(r);
-          }
-        } else {
-          message = err.message;
-        }
-      }
+      const message = getErrorMessage(err, "Failed to save block.");
       setFormError(message);
+      toast.error(message);
     } finally {
       setFormSaving(false);
     }

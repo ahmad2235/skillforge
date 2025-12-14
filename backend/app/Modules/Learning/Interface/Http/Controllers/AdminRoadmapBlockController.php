@@ -13,7 +13,7 @@ class AdminRoadmapBlockController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RoadmapBlock::query();
+        $query = RoadmapBlock::query()->withCount('tasks');
 
         if ($level = $request->get('level')) {
             $query->where('level', $level);
@@ -23,14 +23,36 @@ class AdminRoadmapBlockController extends Controller
             $query->where('domain', $domain);
         }
 
-        $blocks = $query
-            ->orderBy('level')
-            ->orderBy('domain')
-            ->orderBy('order_index')
-            ->get();
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $sort = $request->get('sort', 'order_index');
+        $direction = $request->get('direction', 'asc');
+        $allowedSorts = ['title', 'level', 'domain', 'order_index'];
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'order_index';
+        }
+        $direction = $direction === 'desc' ? 'desc' : 'asc';
+
+        $query->orderBy($sort, $direction);
+
+        $perPage = min(max((int) $request->get('per_page', 50), 1), 100);
+
+        $blocks = $query->paginate($perPage)->withQueryString();
 
         return response()->json([
-            'data' => $blocks,
+            'data' => $blocks->items(),
+            'meta' => [
+                'current_page' => $blocks->currentPage(),
+                'last_page'    => $blocks->lastPage(),
+                'per_page'     => $blocks->perPage(),
+                'total'        => $blocks->total(),
+            ],
+            'links' => $blocks->linkCollection(),
         ]);
     }
 

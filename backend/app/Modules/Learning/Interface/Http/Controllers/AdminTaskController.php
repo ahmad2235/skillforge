@@ -12,15 +12,40 @@ class AdminTaskController extends Controller
     /**
      * عرض جميع التاسكات لبلوك معيّن (من جهة الـ admin)
      */
-    public function index(int $blockId)
+    public function index(Request $request, int $blockId)
     {
         $block = RoadmapBlock::findOrFail($blockId);
 
-        $tasks = Task::where('roadmap_block_id', $block->id)->get();
+        $query = Task::where('roadmap_block_id', $block->id);
+
+        if ($search = $request->get('search')) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction', 'asc');
+        $allowedSorts = ['id', 'title', 'difficulty', 'max_score'];
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = 'id';
+        }
+        $direction = $direction === 'desc' ? 'desc' : 'asc';
+
+        $query->orderBy($sort, $direction);
+
+        $perPage = min(max((int) $request->get('per_page', 50), 1), 100);
+
+        $tasks = $query->paginate($perPage)->withQueryString();
 
         return response()->json([
             'block' => $block,
-            'data'  => $tasks,
+            'data'  => $tasks->items(),
+            'meta'  => [
+                'current_page' => $tasks->currentPage(),
+                'last_page'    => $tasks->lastPage(),
+                'per_page'     => $tasks->perPage(),
+                'total'        => $tasks->total(),
+            ],
+            'links' => $tasks->linkCollection(),
         ]);
     }
 
