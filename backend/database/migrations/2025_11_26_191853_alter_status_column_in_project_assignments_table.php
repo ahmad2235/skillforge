@@ -7,6 +7,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // نخلي status كـ ENUM نصي بالقيم اللي الكود يستخدمها
         DB::statement("
             ALTER TABLE project_assignments 
@@ -18,6 +22,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // لو احتجت ترجع، ممكن نخليها VARCHAR(50) مثلاً
         DB::statement("
             ALTER TABLE project_assignments 
