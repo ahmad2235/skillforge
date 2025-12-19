@@ -16,8 +16,10 @@ Route::middleware(['auth:sanctum', 'role:business'])
         Route::post('/projects/{project}/status', [OwnerProjectController::class, 'changeStatus']);
         Route::delete('/projects/{project}',    [OwnerProjectController::class, 'destroy']);
         Route::get('/projects/{project}/candidates',  [OwnerProjectAssignmentController::class, 'candidates']);
-        Route::get('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'index']);
-        Route::post('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'invite']);
+        Route::get('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'index'])
+            ->middleware('throttle:assignments');
+        Route::post('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'invite'])
+            ->middleware('throttle:assignments');
         Route::post('/projects/assignments/{assignment}/complete', [OwnerProjectAssignmentController::class, 'completeWithFeedback']);
 
     });

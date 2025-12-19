@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 import type { RoadmapBlock } from "../../types/learning";
 
 export function StudentRoadmapPage() {
@@ -18,13 +20,8 @@ export function StudentRoadmapPage() {
         const data = response.data.data ?? response.data;
         setBlocks(data as RoadmapBlock[]);
       } catch (err: unknown) {
-        console.error(err);
-        const axiosError = err as {
-          response?: { data?: { message?: string } };
-        };
-        const message =
-          axiosError?.response?.data?.message ?? "Failed to load roadmap.";
-        setError(message);
+        safeLogError(err, "Roadmap");
+        setError(getSafeErrorMessage(err));
       } finally {
         setIsLoading(false);
       }

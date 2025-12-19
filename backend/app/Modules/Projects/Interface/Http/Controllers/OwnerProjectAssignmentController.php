@@ -61,7 +61,7 @@ class OwnerProjectAssignmentController extends Controller
     public function index(Project $project)
     {
         $owner = Auth::user();
-        abort_unless($project->owner_id === $owner->id, 403);
+        $this->authorize('view', $project);
 
         $assignments = $this->assignmentService->listProjectAssignments($project);
 
@@ -78,7 +78,7 @@ class OwnerProjectAssignmentController extends Controller
     public function invite(Request $request, Project $project)
     {
         $owner = Auth::user();
-        abort_unless($project->owner_id === $owner->id, 403);
+        $this->authorize('update', $project);
 
         $data = $request->validate([
             'user_id'  => 'required|integer|exists:users,id',

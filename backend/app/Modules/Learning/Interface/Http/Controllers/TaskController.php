@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Modules\Learning\Application\Services\RoadmapService;
 use App\Modules\Learning\Infrastructure\Models\Submission;
 use Illuminate\Http\Request;
+use App\Modules\Learning\Interface\Http\Requests\SubmitTaskRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -31,23 +33,10 @@ class TaskController extends Controller
     /**
      * Student submits a task solution
      */
-    public function submit(Request $request, int $taskId)
+    public function submit(SubmitTaskRequest $request, int $taskId)
     {
-        $request->validate([
-            'answer_text'    => 'nullable|string',
-            'attachment_url' => 'nullable|url',
-            'run_status'     => 'nullable|string',
-            'known_issues'   => 'nullable|string',
-        ]);
-
         $user = Auth::user();
-
-        $result = $this->roadmapService->submitTask($user, $taskId, $request->only([
-            'answer_text',
-            'attachment_url',
-            'run_status',
-            'known_issues',
-        ]));
+        $result = $this->roadmapService->submitTask($user, $taskId, $request->validated());
 
         return response()->json([
             'message'    => 'Task submitted successfully.',
@@ -65,10 +54,8 @@ class TaskController extends Controller
         $submission = Submission::with(['task', 'user'])
             ->findOrFail($submissionId);
 
-        // Ensure user can only view their own submissions
-        if ($submission->user_id !== $user->id && $user->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
+        // Policy-based authorization
+        $this->authorize('view', $submission);
 
         return response()->json([
             'data' => [

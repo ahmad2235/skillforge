@@ -8,7 +8,8 @@ Route::middleware(['auth:sanctum', 'role:student'])
     ->prefix('student/assessment')
     ->group(function () {
         Route::get('/placement/questions', [PlacementController::class, 'getQuestions']);
-        Route::post('/placement/submit', [PlacementController::class, 'submit']);
+        Route::post('/placement/submit', [PlacementController::class, 'submit'])
+            ->middleware('throttle:placement_submit');
     });
 
 // Admin routes

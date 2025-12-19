@@ -13,11 +13,13 @@ use App\Modules\Identity\Interface\Http\Controllers\AdminMonitoringController;
  */
 
 Route::prefix('auth')->group(function () {
-    // POST /api/auth/register
-    Route::post('register', [AuthController::class, 'register']);
+    // POST /api/auth/register (rate limited)
+    Route::post('register', [AuthController::class, 'register'])
+        ->middleware('throttle:register');
 
-    // POST /api/auth/login
-    Route::post('login', [AuthController::class, 'login']);
+    // POST /api/auth/login (rate limited)
+    Route::post('login', [AuthController::class, 'login'])
+        ->middleware('throttle:login');
 
     // هذه المسارات تحتاج أن يكون المستخدم مسجّل دخول (token)
     Route::middleware('auth:sanctum')->group(function () {

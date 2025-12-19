@@ -66,6 +66,7 @@ class OwnerProjectController extends Controller
     {
         $user    = Auth::user();
         $project = $this->projectService->getOwnerProject($user, $projectId);
+        $this->authorize('view', $project);
 
         return response()->json([
             'data' => $project,
@@ -94,6 +95,7 @@ class OwnerProjectController extends Controller
         ]);
 
         $project = $this->projectService->updateProject($user, $projectId, $data);
+        $this->authorize('update', $project);
 
         return response()->json([
             'message' => 'Project updated successfully.',
@@ -114,6 +116,7 @@ class OwnerProjectController extends Controller
         ]);
 
         $project = $this->projectService->changeStatus($user, $projectId, $data['status']);
+        $this->authorize('update', $project);
 
         return response()->json([
             'message' => 'Project status updated.',

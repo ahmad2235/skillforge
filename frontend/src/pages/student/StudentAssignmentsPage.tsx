@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 import type { AssignmentStatus, ProjectAssignment } from "../../types/projects";
 import { Link } from "react-router-dom";
 
@@ -23,12 +25,8 @@ export function StudentAssignmentsPage() {
       const data = response.data.data ?? response.data;
       setAssignments(data as ProjectAssignment[]);
     } catch (err: unknown) {
-      console.error(err);
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError?.response?.data?.message ??
-        "Failed to load assignments. Please try again.";
-      setError(message);
+      safeLogError(err, "AssignmentsLoad");
+      setError(getSafeErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -48,11 +46,8 @@ export function StudentAssignmentsPage() {
       setActionMessage("Assignment accepted successfully.");
       await loadAssignments(status);
     } catch (err: unknown) {
-      console.error(err);
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError?.response?.data?.message ?? "Failed to accept assignment.";
-      setError(message);
+      safeLogError(err, "AssignmentAccept");
+      setError(getSafeErrorMessage(err));
     }
   }
 
@@ -66,11 +61,8 @@ export function StudentAssignmentsPage() {
       setActionMessage("Assignment declined.");
       await loadAssignments(status);
     } catch (err: unknown) {
-      console.error(err);
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError?.response?.data?.message ?? "Failed to decline assignment.";
-      setError(message);
+      safeLogError(err, "AssignmentDecline");
+      setError(getSafeErrorMessage(err));
     }
   }
 

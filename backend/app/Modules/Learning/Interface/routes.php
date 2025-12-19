@@ -18,7 +18,8 @@ Route::middleware(['auth:sanctum', 'role:student'])
         Route::post('/blocks/{block}/complete', [StudentRoadmapController::class, 'completeBlock']);
 
         Route::get('/blocks/{block}/tasks', [TaskController::class, 'listByBlock']);
-        Route::post('/tasks/{task}/submit', [TaskController::class, 'submit']);
+        Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])
+            ->middleware('throttle:submissions');
         Route::get('/submissions/{submission}', [TaskController::class, 'getSubmission']);
     });
 

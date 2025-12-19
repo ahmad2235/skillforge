@@ -5,6 +5,10 @@ namespace App\Modules\Identity\Interface\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use App\Modules\Identity\Interface\Http\Requests\RegisterRequest;
+use App\Modules\Identity\Interface\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -13,14 +17,10 @@ class AuthController extends Controller
     /**
      * Register a new user and return token.
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        // 1) Validation: نتأكد من صحة البيانات
-        $data = $request->validate([
-            'name'     => 'required|string|max:100',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-        ]);
+        // 1) Validation via FormRequest (strict allow-list)
+        $data = $request->validated();
 
         // 2) إنشاء المستخدم في قاعدة البيانات
         $user = User::create([
@@ -32,6 +32,12 @@ class AuthController extends Controller
         // 3) إنشاء توكن للمستخدم عبر Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Security logging (without PII)
+        Log::info('auth.register_success', [
+            'user_id' => $user->id,
+            'ip'      => $request->ip(),
+        ]);
+
         // 4) نرجع user + token كـ JSON
         return response()->json([
             'user'  => $user,
@@ -42,19 +48,20 @@ class AuthController extends Controller
     /**
      * Login user and return new token.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        // 1) Validation
-        $data = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
-        ]);
+        // 1) Validation via FormRequest
+        $data = $request->validated();
 
         // 2) البحث عن المستخدم
         $user = User::where('email', $data['email'])->first();
 
         // 3) التحقق من صحة كلمة المرور
         if (! $user || ! Hash::check($data['password'], $user->password)) {
+            Log::warning('auth.login_failed', [
+                'email_hash' => hash('sha256', strtolower($data['email'])),
+                'ip'         => $request->ip(),
+            ]);
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -65,6 +72,11 @@ class AuthController extends Controller
 
         // 5) إنشاء توكن جديد
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        Log::info('auth.login_success', [
+            'user_id' => $user->id,
+            'ip'      => $request->ip(),
+        ]);
 
         return response()->json([
             'user'  => $user,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
+import { safeLogError } from "../../lib/logger";
 import type { Task, RoadmapBlock } from "../../types/learning";
 
 export function StudentBlockTasksPage() {
@@ -23,7 +24,7 @@ export function StudentBlockTasksPage() {
         const found = roadmapBlocks.find((b) => b.id === Number(blockId));
         setBlock(found ?? null);
       } catch (err: unknown) {
-        console.error(err);
+        safeLogError(err, "BlockDetails");
         setError("Failed to load block details.");
       } finally {
         setLoadingBlock(false);
@@ -43,7 +44,7 @@ export function StudentBlockTasksPage() {
         const data = response.data.data ?? response.data;
         setTasks(data);
       } catch (err: unknown) {
-        console.error(err);
+        safeLogError(err, "BlockTasks");
         setError("Failed to load tasks.");
       } finally {
         setLoadingTasks(false);

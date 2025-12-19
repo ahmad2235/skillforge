@@ -60,5 +60,8 @@ class DatabaseSeeder extends Seeder
             'level' => 'beginner',
             'domain' => 'backend',
         ]);
+
+        // Ensure a deterministic admin exists (can be overridden via .env)
+        $this->call(\Database\Seeders\AdminUserSeeder::class);
     }
 }

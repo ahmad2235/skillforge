@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import { useAuth } from "../../hooks/useAuth";
 import type { AuthUser } from "../../context/AuthContext";
@@ -96,6 +96,18 @@ export function LoginPage() {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-slate-400">
+            Don't have an account?{" "}
+            <Link
+              to="/auth/register"
+              className="text-sky-400 hover:text-sky-300 font-medium transition"
+            >
+              Create one
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

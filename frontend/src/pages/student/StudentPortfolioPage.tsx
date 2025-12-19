@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 import type { PortfolioItem } from "../../types/projects";
 
 export function StudentPortfolioPage() {
@@ -16,14 +18,8 @@ export function StudentPortfolioPage() {
         const data = response.data.data ?? response.data;
         setItems(data as PortfolioItem[]);
       } catch (err: unknown) {
-        console.error(err);
-        const axiosError = err as {
-          response?: { data?: { message?: string } };
-        };
-        const message =
-          axiosError?.response?.data?.message ??
-          "Failed to load portfolio items.";
-        setError(message);
+        safeLogError(err, "Portfolio");
+        setError(getSafeErrorMessage(err));
       } finally {
         setIsLoading(false);
       }

@@ -2,6 +2,8 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 
 export function StudentPortfolioCreatePage() {
   // Changed from assignmentId to assignment to match backend route
@@ -52,12 +54,8 @@ export function StudentPortfolioCreatePage() {
         navigate("/student/portfolios");
       }, 800);
     } catch (err: unknown) {
-      console.error(err);
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError?.response?.data?.message ??
-        "Failed to create portfolio item. Please try again.";
-      setError(message);
+      safeLogError(err, "PortfolioCreate");
+      setError(getSafeErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

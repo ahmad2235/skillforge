@@ -34,6 +34,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  // Sync logout with global event (e.g., 401/403 from axios)
+  useEffect(() => {
+    function onForcedLogout() {
+      logout();
+    }
+    if (typeof window !== "undefined") {
+      window.addEventListener("sf:auth-logout", onForcedLogout);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("sf:auth-logout", onForcedLogout);
+      }
+    };
+  }, []);
+
   function login(nextUser: AuthUser, nextToken: string) {
     setUser(nextUser);
     setToken(nextToken);

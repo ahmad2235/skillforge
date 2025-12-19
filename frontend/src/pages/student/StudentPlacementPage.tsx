@@ -1,6 +1,8 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 
 type DomainOption = "frontend" | "backend";
 
@@ -48,10 +50,8 @@ export function StudentPlacementPage() {
       const data = response.data.data ?? response.data;
       setQuestions(data as PlacementQuestion[]);
     } catch (err: any) {
-      console.error(err);
-      const message =
-        err?.response?.data?.message ?? "Failed to load placement questions.";
-      setError(message);
+      safeLogError(err, "PlacementQuestions");
+      setError(getSafeErrorMessage(err));
     } finally {
       setIsLoadingQuestions(false);
     }
@@ -91,11 +91,8 @@ export function StudentPlacementPage() {
       const data = response.data?.data ?? response.data;
       setResult(data as PlacementResult);
     } catch (err: any) {
-      console.error(err);
-      const message =
-        err?.response?.data?.message ??
-        "Failed to submit placement answers. Please try again.";
-      setError(message);
+      safeLogError(err, "PlacementSubmit");
+      setError(getSafeErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

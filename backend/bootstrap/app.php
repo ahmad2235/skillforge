@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->validateCsrfTokens();
 
     $middleware->api(prepend: [
+        \App\Http\Middleware\SecurityHeadersMiddleware::class,
+        // Keep Sanctum middleware ordering if used for stateful requests
         \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
     ]);
 

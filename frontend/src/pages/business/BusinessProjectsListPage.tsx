@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 import type { BusinessProject } from "../../types/projects";
 
 export function BusinessProjectsListPage() {
@@ -17,10 +19,8 @@ export function BusinessProjectsListPage() {
         const data = response.data.data ?? response.data;
         setProjects(data as BusinessProject[]);
       } catch (err: any) {
-        console.error(err);
-        const message =
-          err?.response?.data?.message ?? "Failed to load projects.";
-        setError(message);
+        safeLogError(err, "BusinessProjectsList");
+        setError(getSafeErrorMessage(err));
       } finally {
         setIsLoading(false);
       }

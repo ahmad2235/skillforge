@@ -2,6 +2,8 @@ import type { FormEvent } from "react";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
+import { getSafeErrorMessage } from "../../lib/errors";
+import { safeLogError } from "../../lib/logger";
 import type { TaskEvaluation } from "../../types/learning";
 
 interface SubmissionData {
@@ -65,7 +67,7 @@ export function StudentTaskSubmitPage() {
           setIsEvaluating(false);
         }
       } catch (err) {
-        console.error("Error polling evaluation:", err);
+        safeLogError(err, "PollEvaluation");
       }
     };
 
@@ -125,12 +127,8 @@ export function StudentTaskSubmitPage() {
       setRunStatus("");
       setKnownIssues("");
     } catch (err: unknown) {
-      console.error(err);
-      const axiosError = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosError?.response?.data?.message ??
-        "Failed to submit the task. Please try again.";
-      setError(message);
+      safeLogError(err, "SubmitTask");
+      setError(getSafeErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
