@@ -1,9 +1,11 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { apiClient } from "@/lib/apiClient";
+import { parseApiError } from "@/lib/apiErrors";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ApiStateCard } from "@/components/shared/ApiStateCard";
 import {
   Table,
   TableBody,
@@ -45,7 +47,7 @@ export function AdminStudentsPage() {
   >("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<ReturnType<typeof parseApiError> | null>(null);
 
   // استدعاء الـ API
   useEffect(() => {
@@ -54,7 +56,7 @@ export function AdminStudentsPage() {
     async function fetchStudents() {
       try {
         setLoading(true);
-        setError(null);
+        setApiError(null);
 
         const response = await apiClient.get<PaginatedResponse<Student>>(
           "/admin/students",
@@ -84,7 +86,7 @@ export function AdminStudentsPage() {
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
         console.error(err);
-        setError("Failed to load students.");
+        setApiError(parseApiError(err));
       } finally {
         setLoading(false);
       }
@@ -131,7 +133,14 @@ export function AdminStudentsPage() {
         </div>
 
         {/* Error State */}
-        {error && <div className="text-center py-4 text-red-600">{error}</div>}
+        {apiError && (
+          <ApiStateCard
+            kind={apiError.kind}
+            description={apiError.message}
+            primaryActionLabel="Retry"
+            onPrimaryAction={() => window.location.reload()}
+          />
+        )}
 
         {/* Loading State */}
         {loading && <div className="text-center py-4">Loading students...</div>}

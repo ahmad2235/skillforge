@@ -4,6 +4,8 @@ namespace App\Modules\Learning\Interface\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
+use App\Modules\Learning\Interface\Http\Requests\StoreRoadmapBlockRequest;
+use App\Modules\Learning\Interface\Http\Requests\UpdateRoadmapBlockRequest;
 use Illuminate\Http\Request;
 
 class AdminRoadmapBlockController extends Controller
@@ -37,19 +39,9 @@ class AdminRoadmapBlockController extends Controller
     /**
      * إنشاء بلوك جديد
      */
-    public function store(Request $request)
+    public function store(StoreRoadmapBlockRequest $request)
     {
-        $data = $request->validate([
-            'level'           => 'required|in:beginner,intermediate,advanced',
-            'domain'          => 'required|in:frontend,backend',
-            'title'           => 'required|string|max:255',
-            'description'     => 'nullable|string',
-            'order_index'     => 'required|integer|min:1',
-            'estimated_hours' => 'nullable|integer|min:1',
-            'is_optional'     => 'boolean',
-        ]);
-
-        $block = RoadmapBlock::create($data);
+        $block = RoadmapBlock::create($request->validated());
 
         return response()->json([
             'message' => 'Roadmap block created successfully.',
@@ -72,21 +64,10 @@ class AdminRoadmapBlockController extends Controller
     /**
      * تحديث بلوك
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateRoadmapBlockRequest $request, int $id)
     {
         $block = RoadmapBlock::findOrFail($id);
-
-        $data = $request->validate([
-            'level'           => 'sometimes|in:beginner,intermediate,advanced',
-            'domain'          => 'sometimes|in:frontend,backend',
-            'title'           => 'sometimes|string|max:255',
-            'description'     => 'sometimes|nullable|string',
-            'order_index'     => 'sometimes|integer|min:1',
-            'estimated_hours' => 'sometimes|nullable|integer|min:1',
-            'is_optional'     => 'sometimes|boolean',
-        ]);
-
-        $block->update($data);
+        $block->update($request->validated());
 
         return response()->json([
             'message' => 'Roadmap block updated successfully.',

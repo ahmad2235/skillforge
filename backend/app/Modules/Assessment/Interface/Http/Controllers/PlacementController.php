@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Assessment\Application\Controllers;
+namespace App\Modules\Assessment\Interface\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Assessment\Application\Services\PlacementService;

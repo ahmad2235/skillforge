@@ -19,6 +19,7 @@ class AiLog extends Model
         'submission_id',
         'placement_result_id',
         'type',
+        'action',
         'prompt_template_id',
         'prompt',
         'response',
@@ -28,12 +29,18 @@ class AiLog extends Model
         'total_tokens',
         'status',
         'error_message',
+        'input_json',
+        'output_json',
+        'metadata_json',
     ];
 
     protected $casts = [
         'prompt_tokens'     => 'integer',
         'completion_tokens' => 'integer',
         'total_tokens'      => 'integer',
+        'input_json'        => 'array',
+        'output_json'       => 'array',
+        'metadata_json'     => 'array',
     ];
 
     // المستخدم المرتبط بالطلب (لو موجود)

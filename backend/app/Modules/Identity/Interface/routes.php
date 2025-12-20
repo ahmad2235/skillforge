@@ -36,7 +36,7 @@ Route::prefix('auth')->group(function () {
  | Admin Monitoring Routes
  | ------------------------------------------------------------------
  */
-Route::middleware(['auth:sanctum', 'role:admin'])
+Route::middleware(['auth:sanctum', 'role:admin', 'throttle:30,1'])
     ->prefix('admin/monitoring')
     ->group(function () {
         Route::get('/overview', [AdminMonitoringController::class, 'overview']);

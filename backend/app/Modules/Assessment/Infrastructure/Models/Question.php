@@ -24,6 +24,11 @@ class Question extends Model
         'metadata' => 'array',
     ];
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\QuestionFactory::new();
+    }
+
     // العلاقات:
 
     // سؤال واحد له محاولات كثيرة

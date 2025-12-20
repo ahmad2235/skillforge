@@ -4,6 +4,8 @@ namespace App\Modules\Assessment\Interface\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Assessment\Infrastructure\Models\Question;
+use App\Modules\Assessment\Interface\Http\Requests\StoreQuestionRequest;
+use App\Modules\Assessment\Interface\Http\Requests\UpdateQuestionRequest;
 use Illuminate\Http\Request;
 
 class AdminAssessmentController extends Controller
@@ -37,18 +39,9 @@ class AdminAssessmentController extends Controller
     /**
      * إنشاء سؤال جديد
      */
-    public function store(Request $request)
+    public function store(StoreQuestionRequest $request)
     {
-        $data = $request->validate([
-            'level'         => 'required|in:beginner,intermediate,advanced',
-            'domain'        => 'required|in:frontend,backend',
-            'question_text' => 'required|string|max:1000',
-            'type'          => 'required|in:mcq,code,short',
-            'difficulty'    => 'required|integer|min:1|max:5',
-            'metadata'      => 'nullable|array',
-        ]);
-
-        $question = Question::create($data);
+        $question = Question::create($request->validated());
 
         return response()->json([
             'message' => 'Question created successfully.',
@@ -71,20 +64,10 @@ class AdminAssessmentController extends Controller
     /**
      * تحديث سؤال
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateQuestionRequest $request, int $id)
     {
         $question = Question::findOrFail($id);
-
-        $data = $request->validate([
-            'level'         => 'sometimes|in:beginner,intermediate,advanced',
-            'domain'        => 'sometimes|in:frontend,backend',
-            'question_text' => 'sometimes|string|max:1000',
-            'type'          => 'sometimes|in:mcq,code,short',
-            'difficulty'    => 'sometimes|integer|min:1|max:5',
-            'metadata'      => 'sometimes|nullable|array',
-        ]);
-
-        $question->update($data);
+        $question->update($request->validated());
 
         return response()->json([
             'message' => 'Question updated successfully.',

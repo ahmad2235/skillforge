@@ -63,5 +63,14 @@ class DatabaseSeeder extends Seeder
 
         // Ensure a deterministic admin exists (can be overridden via .env)
         $this->call(\Database\Seeders\AdminUserSeeder::class);
+
+        // Core learning/assessment data
+        $this->call([
+            RoadmapBlockSeeder::class,
+            TaskSeeder::class,
+            QuestionSeeder::class,
+            ProjectSeeder::class,
+            ProjectAssignmentSeeder::class,
+        ]);
     }
 }

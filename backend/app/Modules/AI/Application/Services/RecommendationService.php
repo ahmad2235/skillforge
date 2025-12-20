@@ -5,9 +5,14 @@ namespace App\Modules\AI\Application\Services;
 use App\Models\User;
 use App\Modules\Projects\Infrastructure\Models\Project;
 use Illuminate\Support\Collection;
+use App\Modules\AI\Application\Services\AiLogger;
 
 class RecommendationService
 {
+    public function __construct(
+        private readonly AiLogger $aiLogger
+    ) {}
+
     /**
      * Rank candidate students for a given project.
      *
@@ -25,7 +30,7 @@ class RecommendationService
     public function rankCandidates(Project $project, Collection $candidates): array
     {
         // Very naive scoring for now:
-        return $candidates
+        $ranked = $candidates
             ->map(function (User $student) use ($project) {
                 $score = 0;
 
@@ -52,5 +57,22 @@ class RecommendationService
             ->sortByDesc('score')
             ->values()
             ->all();
+
+        $this->aiLogger->log(
+            'recommendation.rank',
+            $project->owner_id,
+            [
+                'project_id'      => $project->id,
+                'candidate_ids'   => $candidates->pluck('id')->all(),
+            ],
+            [
+                'top_candidates' => array_map(fn ($item) => [
+                    'student_id' => $item['student']->id,
+                    'score'      => $item['score'],
+                ], $ranked),
+            ]
+        );
+
+        return $ranked;
     }
 }

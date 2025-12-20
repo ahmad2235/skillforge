@@ -28,61 +28,53 @@ export function StudentPortfolioPage() {
     void fetchPortfolio();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">Loading portfolio...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-red-300 text-sm">{error}</p>
-      </div>
-    );
-  }
-
-  if (!items.length) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">
-          You have no portfolio items yet.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-5xl mx-auto py-8 px-4 space-y-4">
-        <h1 className="text-2xl font-bold">Your Portfolio</h1>
-        <p className="text-slate-300 text-sm">
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold text-slate-900">Your Portfolio</h1>
+        <p className="text-sm text-slate-600">
           Projects you have completed and decided to showcase.
         </p>
+      </header>
 
+      {isLoading && (
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-sm text-slate-600">Loading portfolio...</p>
+        </div>
+      )}
+
+      {!isLoading && error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {!isLoading && !error && !items.length && (
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-sm text-slate-600">You have no portfolio items yet.</p>
+        </div>
+      )}
+
+      {!isLoading && !error && items.length > 0 && (
         <div className="space-y-3">
           {items.map((item) => (
             <div
               key={item.id}
-              className="rounded-xl border border-slate-800 bg-slate-900/80 p-4"
+              className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
             >
-              <h2 className="text-lg font-semibold mb-1">{item.title}</h2>
+              <h2 className="text-lg font-semibold text-slate-900 mb-1">{item.title}</h2>
               {item.description && (
-                <p className="text-sm text-slate-300 mb-2">
-                  {item.description}
-                </p>
+                <p className="text-sm text-slate-600 mb-2">{item.description}</p>
               )}
 
               {item.score !== undefined && item.score !== null && (
-                <p className="text-sm text-slate-200 mb-1">
-                  Score: <span className="font-bold">{item.score}</span>
+                <p className="text-sm text-slate-700 mb-1">
+                  Score: <span className="font-bold text-slate-900">{item.score}</span>
                 </p>
               )}
 
               {item.feedback && (
-                <p className="text-sm text-slate-400 mb-2 italic">
+                <p className="text-sm text-slate-500 mb-2 italic">
                   Feedback: {item.feedback}
                 </p>
               )}
@@ -93,7 +85,7 @@ export function StudentPortfolioPage() {
                     href={item.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-sky-400 hover:underline"
+                    className="text-sm text-sky-600 hover:underline"
                   >
                     GitHub
                   </a>
@@ -103,7 +95,7 @@ export function StudentPortfolioPage() {
                     href={item.live_demo_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-emerald-400 hover:underline"
+                    className="text-sm text-emerald-600 hover:underline"
                   >
                     Live Demo
                   </a>
@@ -112,7 +104,7 @@ export function StudentPortfolioPage() {
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

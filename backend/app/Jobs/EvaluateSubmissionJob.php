@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Modules\Learning\Infrastructure\Models\Submission;
 use App\Modules\AI\Application\Services\TaskEvaluationService;
+use App\Modules\AI\Application\Services\AiLogger;
+use App\Notifications\TaskEvaluationComplete;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +27,7 @@ class EvaluateSubmissionJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(TaskEvaluationService $evaluationService): void
+    public function handle(TaskEvaluationService $evaluationService, AiLogger $aiLogger): void
     {
         try {
             $submission = Submission::findOrFail($this->submissionId);
@@ -44,6 +46,23 @@ class EvaluateSubmissionJob implements ShouldQueue
             $submission->save();
 
             Log::info("Submission {$submission->id} evaluated successfully. Score: {$evaluation['score']}");
+
+            $aiLogger->log(
+                'task_evaluation',
+                $submission->user_id,
+                [
+                    'submission_id' => $submission->id,
+                    'task_id'       => $submission->task_id,
+                ],
+                $evaluation,
+                [
+                    'model' => $evaluation['metadata']['model'] ?? null,
+                ]
+            );
+
+            if (config('skillforge.notifications.enabled') && config('skillforge.notifications.task_evaluation_complete')) {
+                $submission->user?->notify(new TaskEvaluationComplete($submission));
+            }
 
         } catch (\Exception $e) {
             Log::error("Failed to evaluate submission {$this->submissionId}: {$e->getMessage()}");

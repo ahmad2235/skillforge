@@ -6,12 +6,18 @@ use App\Models\User;
 use App\Modules\Assessment\Infrastructure\Models\Question;
 use App\Modules\Assessment\Infrastructure\Models\QuestionAttempt;
 use App\Modules\Assessment\Infrastructure\Models\PlacementResult;
-use App\Modules\AI\Infrastructure\Models\AiLog;
-use Illuminate\Support\Collection;
+use App\Modules\AI\Application\Services\AiLogger;
+use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
+use App\Modules\Learning\Infrastructure\Models\UserRoadmapBlock;
+use App\Notifications\PlacementResultNotification;
 use Illuminate\Support\Facades\DB;
 
 class PlacementService
 {
+    public function __construct(
+        private readonly AiLogger $aiLogger
+    ) {}
+
     /**
      * Get a set of questions for the placement test for this user.
      * Optionally filters by domain and orders by difficulty.
@@ -100,8 +106,29 @@ class PlacementService
             $user->domain = $suggestedDomain;
             $user->save();
 
-            // AI hook placeholder (optional)
-            // AiLog::create([...]);
+            $roadmap = $this->generateRoadmapFromPlacement($user, $placementResult);
+
+            $this->aiLogger->log(
+                'placement.submit',
+                $user->id,
+                [
+                    'answers_count' => $total,
+                    'domain'        => $suggestedDomain,
+                ],
+                [
+                    'final_level'   => $suggestedLevel,
+                    'final_domain'  => $suggestedDomain,
+                    'placement_id'  => $placementResult->id,
+                    'recommended_block_ids' => $roadmap['block_ids'],
+                ],
+                [
+                    'placement_result_id' => $placementResult->id,
+                ]
+            );
+
+            if (config('skillforge.notifications.enabled') && config('skillforge.notifications.placement_result')) {
+                $user->notify(new PlacementResultNotification($placementResult));
+            }
 
             return [
                 'placement_result_id' => $placementResult->id,
@@ -110,8 +137,46 @@ class PlacementService
                 'suggested_domain'    => $suggestedDomain,
                 'total_questions'     => $total,
                 'correct_count'       => 0, // AI will update later
+                'recommended_blocks_count' => $roadmap['count'],
+                'recommended_block_ids'    => $roadmap['block_ids'],
             ];
         });
+    }
+
+    public function generateRoadmapFromPlacement(User $user, PlacementResult $result): array
+    {
+        $limit = (int) config('skillforge.placement.recommended_blocks_limit', 6);
+        $numAssigned = (int) config('skillforge.placement.num_assigned_blocks', 3);
+
+        $blocks = RoadmapBlock::query()
+            ->where('level', $result->final_level)
+            ->where('domain', $result->final_domain)
+            ->orderBy('order_index')
+            ->limit($limit)
+            ->get();
+
+        $assignedIds = [];
+
+        foreach ($blocks as $index => $block) {
+            UserRoadmapBlock::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'roadmap_block_id' => $block->id,
+                ],
+                [
+                    'status' => $index < $numAssigned ? 'assigned' : 'locked',
+                    'started_at' => null,
+                    'completed_at' => null,
+                ]
+            );
+
+            $assignedIds[] = $block->id;
+        }
+
+        return [
+            'count' => count($assignedIds),
+            'block_ids' => $assignedIds,
+        ];
     }
 
     private function inferLevelFromScore(int $score): string

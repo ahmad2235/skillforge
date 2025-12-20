@@ -1,382 +1,364 @@
-import { useEffect, useState } from "react";
-import { apiClient } from "../../lib/apiClient";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import AppLayout from "@/layouts/AppLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/feedback/EmptyState";
+import { useAppToast } from "@/components/feedback/useAppToast";
+import { apiClient } from "@/lib/apiClient";
+import { ApiStateCard } from "@/components/feedback/ApiStateCard";
+import { parseApiError } from "@/lib/apiClient";
+import { SkeletonList } from "@/components/feedback/Skeletons";
 
-interface OverviewStats {
-  users: {
-    total: number;
-    students: number;
-    business: number;
-    admins: number;
-  };
-  learning: {
-    blocks: number;
-    tasks: number;
-    submissions: number;
-  };
-  projects: {
-    total: number;
-    assignments: number;
-  };
-  assessments: {
-    placement_results: number;
-  };
-  ai: {
-    total_logs: number;
-  };
-}
+type Severity = "info" | "warning" | "error" | "success";
 
-interface RecentUser {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  level: string | null;
-  domain: string | null;
-  created_at: string;
-}
+type Kpi = { label: string; key: string; value?: string | number | null };
+type EventItem = {
+  id: string | number;
+  title?: string;
+  detail?: string;
+  time?: string;
+  severity?: Severity;
+};
+type AiLog = {
+  id: string | number;
+  action?: string;
+  status?: "success" | "warning" | "error" | string;
+  timestamp?: string;
+  input?: string;
+  output?: string;
+};
 
-interface RecentSubmission {
-  id: number;
-  task_title: string;
-  user_name: string;
-  user_email: string;
-  score: number | null;
-  created_at: string;
-}
+const baseKpis: Kpi[] = [
+  { label: "Requests / min", key: "requests_per_min" },
+  { label: "Submissions / day", key: "submissions_per_day" },
+  { label: "Placements / day", key: "placements_per_day" },
+  { label: "AI evaluations queued", key: "ai_evaluations_queued" },
+  { label: "Failed jobs", key: "failed_jobs" },
+  { label: "Error rate", key: "error_rate" },
+];
 
-interface RecentAssignment {
-  id: number;
-  project_title: string;
-  student_name: string;
-  status: string;
-  created_at: string;
-}
+export default function AdminMonitoringPage() {
+  const { toastSuccess } = useAppToast();
+  const [timeRange, setTimeRange] = useState("24h");
+  const [moduleFilter, setModuleFilter] = useState("all");
+  const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
 
-interface DistributionItem {
-  role?: string;
-  level?: string;
-  domain?: string;
-  count: number;
-}
+  const [kpis, setKpis] = useState<Kpi[]>(baseKpis);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [aiLogs, setAiLogs] = useState<AiLog[]>([]);
 
-export function AdminMonitoringPage() {
-  const [overview, setOverview] = useState<OverviewStats | null>(null);
-  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
-  const [recentSubmissions, setRecentSubmissions] = useState<
-    RecentSubmission[]
-  >([]);
-  const [recentAssignments, setRecentAssignments] = useState<
-    RecentAssignment[]
-  >([]);
-  const [usersByRole, setUsersByRole] = useState<DistributionItem[]>([]);
-  const [studentsByLevel, setStudentsByLevel] = useState<DistributionItem[]>(
-    []
-  );
-  const [studentsByDomain, setStudentsByDomain] = useState<DistributionItem[]>(
-    []
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<ReturnType<typeof parseApiError> | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
+  const [items, setItems] = useState<any[]>([]);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  async function loadMonitoringData() {
+  const fetchMonitoring = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-
     try {
-      const [
-        overviewRes,
-        usersRes,
-        submissionsRes,
-        assignmentsRes,
-        byRoleRes,
-        byLevelRes,
-        byDomainRes,
-      ] = await Promise.all([
+      const [overviewRes, eventsRes, aiLogsRes] = await Promise.allSettled([
         apiClient.get("/admin/monitoring/overview"),
-        apiClient.get("/admin/monitoring/users/recent?limit=5"),
-        apiClient.get("/admin/monitoring/submissions/recent?limit=5"),
-        apiClient.get("/admin/monitoring/assignments/recent?limit=5"),
-        apiClient.get("/admin/monitoring/users/by-role"),
-        apiClient.get("/admin/monitoring/students/by-level"),
-        apiClient.get("/admin/monitoring/students/by-domain"),
+        apiClient.get("/admin/monitoring/events/recent"),
+        apiClient.get("/admin/monitoring/ai-logs/recent"),
       ]);
 
-      setOverview(overviewRes.data.data);
-      setRecentUsers(usersRes.data.data);
-      setRecentSubmissions(submissionsRes.data.data);
-      setRecentAssignments(assignmentsRes.data.data);
-      setUsersByRole(byRoleRes.data.data);
-      setStudentsByLevel(byLevelRes.data.data);
-      setStudentsByDomain(byDomainRes.data.data);
-    } catch (err: any) {
-      console.error(err);
-      const message =
-        err?.response?.data?.message ?? "Failed to load monitoring data.";
-      setError(message);
+      if (
+        [overviewRes, eventsRes, aiLogsRes].some(
+          (r) => r.status === "rejected" && ((r.reason?.status ?? r.reason?.response?.status) === 401 || (r.reason?.status ?? r.reason?.response?.status) === 403),
+        )
+      ) {
+        setApiError(parseApiError({ status: 403 }));
+        setKpis(baseKpis);
+        setEvents([]);
+        setAiLogs([]);
+        setIsLoading(false);
+        return;
+      }
+
+      if (overviewRes.status === "fulfilled") {
+        const data = overviewRes.value.data?.data ?? overviewRes.value.data ?? {};
+        setKpis(
+          baseKpis.map((k) => ({
+            ...k,
+            value: data?.[k.key] ?? data?.[k.key.toUpperCase()] ?? data?.[k.key.replace(/_/g, "")] ?? "—",
+          })),
+        );
+      } else {
+        setKpis(baseKpis);
+      }
+
+      if (eventsRes.status === "fulfilled") {
+        const payload = eventsRes.value.data?.data ?? eventsRes.value.data ?? [];
+        setEvents(Array.isArray(payload) ? payload : []);
+      } else {
+        setEvents([]);
+      }
+
+      if (aiLogsRes.status === "fulfilled") {
+        const payload = aiLogsRes.value.data?.data ?? aiLogsRes.value.data ?? [];
+        setAiLogs(Array.isArray(payload) ? payload : []);
+      } else {
+        setAiLogs([]);
+      }
+    } catch (err: unknown) {
+      setError(err);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    void loadMonitoringData();
-  }, []);
+    fetchMonitoring();
+  }, [fetchMonitoring]);
+
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      const matchesSeverity = severityFilter === "all" || event.severity === severityFilter;
+      const matchesModule = moduleFilter === "all" || moduleFilter;
+      return matchesSeverity && Boolean(matchesModule);
+    });
+  }, [events, moduleFilter, severityFilter]);
+
+  const filteredAiLogs = aiLogs;
+
+  const handleApply = () => {
+    toastSuccess("Filters applied (UI-only)");
+  };
+
+  const handleReset = () => {
+    setTimeRange("24h");
+    setModuleFilter("all");
+    setSeverityFilter("all");
+  };
+
+  const renderBadgeVariant = (severity: Severity | undefined) => {
+    if (severity === "success") return "secondary";
+    if (severity === "warning") return "outline";
+    if (severity === "error") return "destructive";
+    return "secondary";
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">Loading monitoring data...</p>
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <SkeletonList rows={5} />
       </div>
     );
   }
 
   if (error) {
+    const parsed = parseApiError(error);
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <div className="max-w-md rounded-lg border border-red-700 bg-red-900/40 px-4 py-3">
-          <p className="text-sm text-red-100">{error}</p>
-        </div>
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <ApiStateCard error={parsed} onRetry={fetchMonitoring} />
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <Card className="space-y-3 border border-slate-200 bg-white p-6 shadow-sm text-center">
+          <h3 className="text-lg font-semibold text-slate-900">Nothing to monitor</h3>
+          <p className="text-sm text-slate-700">There are currently no alerts or items that require your attention.</p>
+          <div className="mt-4 flex justify-center">
+            <Button onClick={fetchMonitoring}>Refresh</Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-6xl mx-auto py-8 px-4 space-y-6">
+    <AppLayout>
+      <div className="space-y-6">
         <header className="space-y-2">
-          <h1 className="text-2xl font-bold">Platform Monitoring</h1>
-          <p className="text-slate-300 text-sm">
-            Overview of users, learning progress, projects, and AI usage.
+          <h1 className="text-3xl font-semibold tracking-tight">Monitoring</h1>
+          <p className="text-sm text-muted-foreground">
+            Platform health, throughput, and operational signals.
           </p>
         </header>
 
-        {/* Overview Stats Cards */}
-        {overview && (
-          <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-              <h3 className="text-xs text-slate-400 uppercase tracking-wide">
-                Total Users
-              </h3>
-              <p className="text-3xl font-bold text-sky-400 mt-1">
-                {overview.users.total}
-              </p>
-              <div className="mt-2 text-xs text-slate-500 space-y-0.5">
-                <p>Students: {overview.users.students}</p>
-                <p>Business: {overview.users.business}</p>
-                <p>Admins: {overview.users.admins}</p>
-              </div>
-            </div>
+        <Card>
+          <CardContent className="grid gap-3 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="space-y-2 rounded-lg border p-3">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                ))
+              : kpis.map((kpi) => (
+                  <div key={kpi.label} className="space-y-1 rounded-lg border p-3">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                      {kpi.label}
+                    </p>
+                    <p className="text-2xl font-semibold text-foreground">{kpi.value ?? "—"}</p>
+                  </div>
+                ))}
+          </CardContent>
+        </Card>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-              <h3 className="text-xs text-slate-400 uppercase tracking-wide">
-                Learning Content
-              </h3>
-              <p className="text-3xl font-bold text-emerald-400 mt-1">
-                {overview.learning.blocks}
-              </p>
-              <p className="text-xs text-slate-500">Roadmap blocks</p>
-              <div className="mt-2 text-xs text-slate-500 space-y-0.5">
-                <p>Tasks: {overview.learning.tasks}</p>
-                <p>Submissions: {overview.learning.submissions}</p>
-              </div>
-            </div>
+        <Card>
+          <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <Select value={timeRange} onValueChange={setTimeRange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="24h">Last 24h</SelectItem>
+                  <SelectItem value="7d">Last 7d</SelectItem>
+                  <SelectItem value="30d">Last 30d</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-              <h3 className="text-xs text-slate-400 uppercase tracking-wide">
-                Projects
-              </h3>
-              <p className="text-3xl font-bold text-amber-400 mt-1">
-                {overview.projects.total}
-              </p>
-              <p className="text-xs text-slate-500">Total projects</p>
-              <div className="mt-2 text-xs text-slate-500">
-                <p>Assignments: {overview.projects.assignments}</p>
-              </div>
-            </div>
+              <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Module" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All modules</SelectItem>
+                  <SelectItem value="identity">Identity</SelectItem>
+                  <SelectItem value="learning">Learning</SelectItem>
+                  <SelectItem value="assessment">Assessment</SelectItem>
+                  <SelectItem value="projects">Projects</SelectItem>
+                  <SelectItem value="ai">AI</SelectItem>
+                  <SelectItem value="gamification">Gamification</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-              <h3 className="text-xs text-slate-400 uppercase tracking-wide">
-                AI Usage
-              </h3>
-              <p className="text-3xl font-bold text-purple-400 mt-1">
-                {overview.ai.total_logs}
-              </p>
-              <p className="text-xs text-slate-500">Total AI logs</p>
-              <div className="mt-2 text-xs text-slate-500">
-                <p>Placements: {overview.assessments.placement_results}</p>
-              </div>
+              <Select value={severityFilter} onValueChange={(v) => setSeverityFilter(v as Severity | "all")}> 
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All severities</SelectItem>
+                  <SelectItem value="info">Info</SelectItem>
+                  <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </section>
+            <div className="ml-auto flex items-center gap-2">
+              <Button variant="secondary" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button onClick={handleApply}>Apply</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {isLoading ? (
+          <div className="grid gap-6 lg:grid-cols-[2fr_1.2fr]">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-5 w-36" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div key={idx} className="space-y-2 rounded-lg border p-3">
+                    <Skeleton className="h-4 w-48" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-5 w-40" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={idx} className="space-y-2 rounded-lg border p-3">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-52" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        ) : apiError ? (
+          <ApiStateCard
+            kind={apiError.kind}
+            description={apiError.message}
+            primaryActionLabel="Retry"
+            onPrimaryAction={() => window.location.reload()}
+          />
+        ) : filteredEvents.length === 0 && filteredAiLogs.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              title="No monitoring data"
+              description="Events and logs will appear here as the platform runs."
+              primaryActionLabel="Refresh"
+              onPrimaryAction={() => window.location.reload()}
+            />
+          </div>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[2fr_1.2fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent events</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {filteredEvents.map((event) => (
+                  <div key={event.id} className="rounded-lg border p-3 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground">{event.title || "Untitled"}</p>
+                        <p className="text-sm text-muted-foreground">{event.detail || "—"}</p>
+                      </div>
+                      <Badge variant={renderBadgeVariant(event.severity)}>{event.severity || "info"}</Badge>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">{event.time || ""}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent AI logs</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {filteredAiLogs.map((log) => (
+                  <div key={log.id} className="space-y-2 rounded-lg border p-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground">{log.action || "Unknown"}</p>
+                        <p className="text-xs text-muted-foreground">{log.timestamp || ""}</p>
+                      </div>
+                      <Badge
+                        variant={
+                          log.status === "success"
+                            ? "secondary"
+                            : log.status === "warning"
+                              ? "outline"
+                              : "destructive"
+                        }
+                      >
+                        {log.status || "error"}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1 rounded-md bg-muted/40 p-2">
+                      <p className="text-xs font-semibold text-muted-foreground">Input</p>
+                      <p className="text-sm text-foreground">{log.input || "—"}</p>
+                    </div>
+                    <div className="space-y-1 rounded-md bg-muted/40 p-2">
+                      <p className="text-xs font-semibold text-muted-foreground">Output</p>
+                      <p className="text-sm text-foreground">{log.output || "—"}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         )}
-
-        {/* Distribution Charts */}
-        <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Users by Role</h3>
-            {usersByRole.length === 0 ? (
-              <p className="text-xs text-slate-500">No data available</p>
-            ) : (
-              <div className="space-y-2">
-                {usersByRole.map((item) => (
-                  <div
-                    key={item.role}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-xs text-slate-300 capitalize">
-                      {item.role}
-                    </span>
-                    <span className="text-xs font-medium text-slate-100">
-                      {item.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Students by Level</h3>
-            {studentsByLevel.length === 0 ? (
-              <p className="text-xs text-slate-500">No data available</p>
-            ) : (
-              <div className="space-y-2">
-                {studentsByLevel.map((item) => (
-                  <div
-                    key={item.level}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-xs text-slate-300 capitalize">
-                      {item.level ?? "unset"}
-                    </span>
-                    <span className="text-xs font-medium text-slate-100">
-                      {item.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Students by Domain</h3>
-            {studentsByDomain.length === 0 ? (
-              <p className="text-xs text-slate-500">No data available</p>
-            ) : (
-              <div className="space-y-2">
-                {studentsByDomain.map((item) => (
-                  <div
-                    key={item.domain}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-xs text-slate-300 capitalize">
-                      {item.domain ?? "unset"}
-                    </span>
-                    <span className="text-xs font-medium text-slate-100">
-                      {item.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Recent Activity */}
-        <section className="grid gap-4 lg:grid-cols-3">
-          {/* Recent Users */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Recent Users</h3>
-            {recentUsers.length === 0 ? (
-              <p className="text-xs text-slate-500">No recent users</p>
-            ) : (
-              <div className="space-y-2">
-                {recentUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="border-b border-slate-800 pb-2 last:border-0 last:pb-0"
-                  >
-                    <p className="text-xs font-medium text-slate-100">
-                      {user.name}
-                    </p>
-                    <p className="text-[11px] text-slate-500">
-                      {user.email} · {user.role}
-                    </p>
-                    <p className="text-[10px] text-slate-600">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Recent Submissions */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Recent Submissions</h3>
-            {recentSubmissions.length === 0 ? (
-              <p className="text-xs text-slate-500">No recent submissions</p>
-            ) : (
-              <div className="space-y-2">
-                {recentSubmissions.map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="border-b border-slate-800 pb-2 last:border-0 last:pb-0"
-                  >
-                    <p className="text-xs font-medium text-slate-100">
-                      {sub.task_title}
-                    </p>
-                    <p className="text-[11px] text-slate-500">
-                      by {sub.user_name} · Score: {sub.score ?? "pending"}
-                    </p>
-                    <p className="text-[10px] text-slate-600">
-                      {new Date(sub.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Recent Assignments */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-            <h3 className="text-sm font-semibold mb-3">Recent Assignments</h3>
-            {recentAssignments.length === 0 ? (
-              <p className="text-xs text-slate-500">No recent assignments</p>
-            ) : (
-              <div className="space-y-2">
-                {recentAssignments.map((asn) => (
-                  <div
-                    key={asn.id}
-                    className="border-b border-slate-800 pb-2 last:border-0 last:pb-0"
-                  >
-                    <p className="text-xs font-medium text-slate-100">
-                      {asn.project_title}
-                    </p>
-                    <p className="text-[11px] text-slate-500">
-                      {asn.student_name} · {asn.status}
-                    </p>
-                    <p className="text-[10px] text-slate-600">
-                      {new Date(asn.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Refresh Button */}
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => void loadMonitoringData()}
-            className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
-          >
-            Refresh Data
-          </button>
-        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

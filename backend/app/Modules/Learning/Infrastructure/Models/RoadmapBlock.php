@@ -4,10 +4,11 @@ namespace App\Modules\Learning\Infrastructure\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RoadmapBlock extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'roadmap_blocks';
 
@@ -24,6 +25,11 @@ class RoadmapBlock extends Model
     protected $casts = [
         'is_optional' => 'boolean',
     ];
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\RoadmapBlockFactory::new();
+    }
 
     // كل المهام التابعة لهذا البلوك
     public function tasks()

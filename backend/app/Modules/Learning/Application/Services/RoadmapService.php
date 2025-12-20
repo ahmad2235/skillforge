@@ -22,19 +22,58 @@ class RoadmapService
             return collect();
         }
 
+        $numAssigned = (int) config('skillforge.placement.num_assigned_blocks', 3);
+
         $blocks = RoadmapBlock::query()
             ->where('level', $user->level)
             ->where('domain', $user->domain)
             ->orderBy('order_index')
             ->get();
 
+        if ($blocks->isEmpty()) {
+            return collect();
+        }
+
+        $blockIds = $blocks->pluck('id');
+
         $userBlocks = UserRoadmapBlock::query()
             ->where('user_id', $user->id)
+            ->whereIn('roadmap_block_id', $blockIds)
             ->get()
             ->keyBy('roadmap_block_id');
 
-        return $blocks->map(function (RoadmapBlock $block) use ($userBlocks) {
+        if ($userBlocks->isEmpty()) {
+            $assignedBlocks = $blocks->take($numAssigned);
+
+            if ($assignedBlocks->isNotEmpty()) {
+                $now = now();
+
+                $payload = $assignedBlocks->map(fn (RoadmapBlock $block) => [
+                    'user_id'          => $user->id,
+                    'roadmap_block_id' => $block->id,
+                    'status'           => 'assigned',
+                    'created_at'       => $now,
+                    'updated_at'       => $now,
+                ])->all();
+
+                UserRoadmapBlock::query()->upsert(
+                    $payload,
+                    ['user_id', 'roadmap_block_id'],
+                    ['status', 'updated_at']
+                );
+
+                $userBlocks = UserRoadmapBlock::query()
+                    ->where('user_id', $user->id)
+                    ->whereIn('roadmap_block_id', $blockIds)
+                    ->get()
+                    ->keyBy('roadmap_block_id');
+            }
+        }
+
+        return $blocks->values()->map(function (RoadmapBlock $block, int $index) use ($userBlocks, $numAssigned) {
             $userBlock = $userBlocks->get($block->id);
+
+            $defaultStatus = $index < $numAssigned ? 'assigned' : 'locked';
 
             return [
                 'id'              => $block->id,
@@ -43,8 +82,8 @@ class RoadmapService
                 'order_index'     => $block->order_index,
                 'estimated_hours' => $block->estimated_hours,
                 'is_optional'     => (bool) $block->is_optional,
-                'status'          => $userBlock->status ?? 'locked',
-                'completed_at'    => $userBlock->completed_at ?? null,
+                'status'          => $userBlock?->status ?? $defaultStatus,
+                'completed_at'    => $userBlock?->completed_at ?? null,
             ];
         });
     }

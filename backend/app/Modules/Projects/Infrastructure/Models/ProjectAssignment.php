@@ -5,6 +5,7 @@ namespace App\Modules\Projects\Infrastructure\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Modules\Projects\Infrastructure\Models\ProjectMilestoneSubmission;
 
 class ProjectAssignment extends Model
 {
@@ -37,6 +38,11 @@ class ProjectAssignment extends Model
         'metadata'      => 'array',
     ];
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\ProjectAssignmentFactory::new();
+    }
+
     // المشروع
     public function project()
     {
@@ -53,5 +59,10 @@ class ProjectAssignment extends Model
     public function team()
     {
         return $this->belongsTo(Team::class, 'team_id');
+    }
+
+    public function milestoneSubmissions()
+    {
+        return $this->hasMany(ProjectMilestoneSubmission::class, 'project_assignment_id');
     }
 }

@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Str;
 
+// Determine the correct MySQL SSL CA option without triggering PHP 8.5 deprecation warnings.
+$mysqlSslCaOption = null;
+if (class_exists('Pdo\\Mysql')) {
+    $mysqlSslCaOption = \Pdo\Mysql::ATTR_SSL_CA;
+} elseif (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+    $mysqlSslCaOption = \PDO::MYSQL_ATTR_SSL_CA;
+}
+
+$mysqlOptions = extension_loaded('pdo_mysql') && $mysqlSslCaOption
+    ? array_filter([$mysqlSslCaOption => env('MYSQL_ATTR_SSL_CA')])
+    : [];
+
 return [
 
     /*
@@ -58,9 +70,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlOptions,
         ],
 
         'mariadb' => [
@@ -78,9 +88,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlOptions,
         ],
 
         'pgsql' => [

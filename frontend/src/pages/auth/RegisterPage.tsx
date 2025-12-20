@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiClient } from "../../lib/apiClient";
 import { getSafeErrorMessage } from "../../lib/errors";
 import { safeLogError } from "../../lib/logger";
@@ -18,6 +28,7 @@ interface FieldErrors {
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
   // Form state
@@ -89,7 +100,6 @@ export function RegisterPage() {
 
     try {
       // Call backend register endpoint
-      // Note: Backend doesn't accept role, so we only send name, email, password
       const response = await apiClient.post("/auth/register", {
         name: name.trim(),
         email: email.trim(),
@@ -111,7 +121,10 @@ export function RegisterPage() {
       login(userWithRole, responseData.token);
 
       // Redirect based on role
-      if (userWithRole.role === "student") {
+      const intent = searchParams.get("intent");
+      if (intent === "placement") {
+        navigate("/student/placement/intro", { replace: true });
+      } else if (userWithRole.role === "student") {
         navigate("/student");
       } else if (userWithRole.role === "business") {
         navigate("/business");
@@ -163,20 +176,16 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-xl border border-slate-800 bg-slate-900 shadow-lg p-6 space-y-6">
-          {/* Header */}
-          <div>
-            <h1 className="text-2xl font-bold text-white">Create Account</h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Join SkillForge and start your learning journey
-            </p>
-          </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4 py-6">
+      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-2xl">Create account</CardTitle>
+          <CardDescription>Join SkillForge and start your learning journey</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           {/* General Error Alert */}
           {generalError && (
-            <div className="rounded-md bg-red-900/40 border border-red-700 px-3 py-2 text-sm text-red-100">
+            <div className="rounded-lg bg-red-900/20 border border-red-700/50 px-4 py-3 text-sm text-red-200">
               {generalError}
             </div>
           )}
@@ -184,163 +193,139 @@ export function RegisterPage() {
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label htmlFor="name" className="block text-sm font-medium text-slate-200">
-                Full Name
+                Full name
               </label>
-              <input
+              <Input
                 id="name"
                 type="text"
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`w-full rounded-md px-3 py-2 text-sm border bg-slate-950 text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition ${
-                  fieldErrors.name
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-slate-700"
+                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                  fieldErrors.name ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.name}
-                aria-describedby={fieldErrors.name ? "name-error" : undefined}
               />
               {fieldErrors.name && (
-                <p id="name-error" className="text-xs text-red-400">
-                  {fieldErrors.name}
-                </p>
+                <p className="text-xs text-red-400">{fieldErrors.name}</p>
               )}
             </div>
 
             {/* Email Field */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-200">
-                Email Address
+                Email address
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className={`w-full rounded-md px-3 py-2 text-sm border bg-slate-950 text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition ${
-                  fieldErrors.email
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-slate-700"
+                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                  fieldErrors.email ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.email}
-                aria-describedby={fieldErrors.email ? "email-error" : undefined}
               />
               {fieldErrors.email && (
-                <p id="email-error" className="text-xs text-red-400">
-                  {fieldErrors.email}
-                </p>
+                <p className="text-xs text-red-400">{fieldErrors.email}</p>
               )}
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label htmlFor="password" className="block text-sm font-medium text-slate-200">
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
-                className={`w-full rounded-md px-3 py-2 text-sm border bg-slate-950 text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition ${
-                  fieldErrors.password
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-slate-700"
+                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                  fieldErrors.password ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.password}
-                aria-describedby={fieldErrors.password ? "password-error" : undefined}
               />
               {fieldErrors.password && (
-                <p id="password-error" className="text-xs text-red-400">
-                  {fieldErrors.password}
-                </p>
+                <p className="text-xs text-red-400">{fieldErrors.password}</p>
               )}
             </div>
 
             {/* Confirm Password Field */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-200">
-                Confirm Password
+                Confirm password
               </label>
-              <input
+              <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="Re-enter your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
-                className={`w-full rounded-md px-3 py-2 text-sm border bg-slate-950 text-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition ${
-                  fieldErrors.confirmPassword
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-slate-700"
+                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                  fieldErrors.confirmPassword ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.confirmPassword}
-                aria-describedby={fieldErrors.confirmPassword ? "confirm-error" : undefined}
               />
               {fieldErrors.confirmPassword && (
-                <p id="confirm-error" className="text-xs text-red-400">
-                  {fieldErrors.confirmPassword}
-                </p>
+                <p className="text-xs text-red-400">{fieldErrors.confirmPassword}</p>
               )}
             </div>
 
             {/* Role Selector */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <label htmlFor="role" className="block text-sm font-medium text-slate-200">
                 I am a
               </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className={`w-full rounded-md px-3 py-2 text-sm border bg-slate-950 text-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500 transition ${
-                  fieldErrors.role
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-slate-700"
-                }`}
-                aria-invalid={!!fieldErrors.role}
-                aria-describedby={fieldErrors.role ? "role-error" : undefined}
-              >
-                <option value="student">Student (Learning Seeker)</option>
-                <option value="business">Business (Project Owner)</option>
-              </select>
+              <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
+                <SelectTrigger
+                  id="role"
+                  className={`bg-slate-950 border-slate-700 text-slate-100 ${
+                    fieldErrors.role ? "border-red-500" : ""
+                  }`}
+                >
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-950 border-slate-700">
+                  <SelectItem value="student" className="text-slate-100">
+                    Student (Learning Seeker)
+                  </SelectItem>
+                  <SelectItem value="business" className="text-slate-100">
+                    Business (Project Owner)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
               {fieldErrors.role && (
-                <p id="role-error" className="text-xs text-red-400">
-                  {fieldErrors.role}
-                </p>
+                <p className="text-xs text-red-400">{fieldErrors.role}</p>
               )}
             </div>
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-md bg-sky-600 hover:bg-sky-500 disabled:opacity-60 disabled:cursor-not-allowed px-3 py-2 text-sm font-medium text-white transition mt-6"
+              className="w-full bg-sky-600 hover:bg-sky-500 text-white mt-2"
             >
-              {isSubmitting ? "Creating account..." : "Create Account"}
-            </button>
+              {isSubmitting ? "Creating account..." : "Create account"}
+            </Button>
           </form>
 
           {/* Login Link */}
-          <div className="text-center">
-            <p className="text-sm text-slate-400">
-              Already have an account?{" "}
-              <Link
-                to="/auth/login"
-                className="text-sky-400 hover:text-sky-300 font-medium transition"
-              >
-                Sign in
-              </Link>
-            </p>
+          <div className="text-center text-sm text-slate-400">
+            Already have an account?{" "}
+            <Link to="/auth/login" className="text-sky-400 hover:text-sky-300 font-medium">
+              Sign in
+            </Link>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

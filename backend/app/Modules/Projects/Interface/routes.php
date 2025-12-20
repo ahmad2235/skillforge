@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Projects\Interface\Http\Controllers\OwnerProjectController;
 use App\Modules\Projects\Interface\Http\Controllers\OwnerProjectAssignmentController;
 use App\Modules\Projects\Interface\Http\Controllers\StudentAssignmentController;
+use App\Modules\Projects\Interface\Http\Controllers\OwnerProjectMilestoneController;
+use App\Modules\Projects\Interface\Http\Controllers\StudentMilestoneController;
+use App\Modules\Projects\Interface\Http\Controllers\AdminMilestoneSubmissionController;
+use App\Modules\Projects\Interface\Http\Controllers\AdminProjectController;
 
 
 Route::middleware(['auth:sanctum', 'role:business'])
@@ -22,6 +26,11 @@ Route::middleware(['auth:sanctum', 'role:business'])
             ->middleware('throttle:assignments');
         Route::post('/projects/assignments/{assignment}/complete', [OwnerProjectAssignmentController::class, 'completeWithFeedback']);
 
+        Route::get('/projects/{project}/milestones', [OwnerProjectMilestoneController::class, 'index']);
+        Route::post('/projects/{project}/milestones', [OwnerProjectMilestoneController::class, 'store']);
+        Route::put('/projects/{project}/milestones/{milestone}', [OwnerProjectMilestoneController::class, 'update']);
+        Route::delete('/projects/{project}/milestones/{milestone}', [OwnerProjectMilestoneController::class, 'destroy']);
+
     });
 
     Route::middleware(['auth:sanctum', 'role:student'])
@@ -32,4 +41,18 @@ Route::middleware(['auth:sanctum', 'role:business'])
         Route::post('/assignments/{assignment}/decline', [StudentAssignmentController::class, 'decline']);
         Route::post('/assignments/{assignment}/feedback', [StudentAssignmentController::class, 'feedback']);
 
+        Route::get('/assignments/{assignment}/milestones', [StudentMilestoneController::class, 'index']);
+        Route::post('/assignments/{assignment}/milestones/{milestone}/submit', [StudentMilestoneController::class, 'submit'])
+            ->middleware('throttle:submissions');
+
+    });
+
+Route::middleware(['auth:sanctum', 'role:admin'])
+    ->prefix('admin/projects')
+    ->group(function () {
+        Route::get('/', [AdminProjectController::class, 'index']);
+        Route::put('/{project}', [AdminProjectController::class, 'update']);
+        Route::delete('/{project}', [AdminProjectController::class, 'destroy']);
+        Route::get('/milestone-submissions', [AdminMilestoneSubmissionController::class, 'index']);
+        Route::post('/milestone-submissions/{submission}/review', [AdminMilestoneSubmissionController::class, 'review']);
     });

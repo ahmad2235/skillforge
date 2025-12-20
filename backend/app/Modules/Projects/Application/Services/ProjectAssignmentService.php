@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\Projects\Infrastructure\Models\Project;
 use App\Modules\Projects\Infrastructure\Models\ProjectAssignment;
 use App\Modules\AI\Application\Services\RecommendationService;
+use App\Notifications\ProjectAssignmentInvitation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Collection;
@@ -88,7 +89,7 @@ class ProjectAssignmentService
                 return $existing;
             }
 
-            return ProjectAssignment::create([
+            $assignment = ProjectAssignment::create([
                 'project_id' => $project->id,
                 'user_id'    => $student->id,      // 🔴 بدل student_id
                 'team_id'    => $teamId,
@@ -96,6 +97,12 @@ class ProjectAssignmentService
                 'metadata'   => $metadata,
                 // match_score, assigned_at, ... تقدر تعبّيهم لاحقاً من AI أو logic آخر
             ]);
+
+            if (config('skillforge.notifications.enabled') && config('skillforge.notifications.project_assignment_invitation')) {
+                $student->notify(new ProjectAssignmentInvitation($assignment));
+            }
+
+            return $assignment;
         });
     }
 

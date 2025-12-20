@@ -1,117 +1,186 @@
-import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
-import type { Task, RoadmapBlock } from "../../types/learning";
+import { EmptyState } from "../../components/feedback/EmptyState";
+import { SkeletonList } from "../../components/feedback/Skeletons";
+import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import type { Task } from "../../types/learning";
+
+type ErrorState = "invalid" | "not-found" | "generic";
 
 export function StudentBlockTasksPage() {
-  const { blockId } = useParams();
-  const [block, setBlock] = useState<RoadmapBlock | null>(null);
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<ErrorState | null>(null);
 
-  const [loadingBlock, setLoadingBlock] = useState(true);
-  const [loadingTasks, setLoadingTasks] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Load block info (we get it by filtering roadmap)
   useEffect(() => {
-    async function fetchBlock() {
-      try {
-        const roadmapResponse = await apiClient.get("/student/roadmap");
-        const roadmapBlocks: RoadmapBlock[] =
-          roadmapResponse.data.data ?? roadmapResponse.data;
+    const numericId = Number(id);
 
-        const found = roadmapBlocks.find((b) => b.id === Number(blockId));
-        setBlock(found ?? null);
-      } catch (err: unknown) {
-        safeLogError(err, "BlockDetails");
-        setError("Failed to load block details.");
-      } finally {
-        setLoadingBlock(false);
-      }
+    if (!Number.isInteger(numericId) || numericId <= 0) {
+      setError("invalid");
+      setLoading(false);
+      return;
     }
 
-    fetchBlock();
-  }, [blockId]);
-
-  // Load tasks for this block
-  useEffect(() => {
     async function fetchTasks() {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await apiClient.get(
-          `/student/blocks/${blockId}/tasks`
-        );
+        const response = await apiClient.get(`/student/blocks/${numericId}/tasks`);
         const data = response.data.data ?? response.data;
-        setTasks(data);
+        setTasks(Array.isArray(data) ? data : []);
       } catch (err: unknown) {
         safeLogError(err, "BlockTasks");
-        setError("Failed to load tasks.");
+
+        if (isAxiosError(err) && err.response?.status === 404) {
+          setError("not-found");
+        } else {
+          setError("generic");
+        }
       } finally {
-        setLoadingTasks(false);
+        setLoading(false);
       }
     }
 
     fetchTasks();
-  }, [blockId]);
+  }, [id]);
 
-  if (error) {
+  const { blockTitle, breadcrumbTitle, blockId } = useMemo(() => {
+    const state = (location.state || {}) as { blockTitle?: string; blockId?: number };
+    const derivedTitle = state.blockTitle || "Learning block";
+    return {
+      blockTitle: state.blockTitle,
+      breadcrumbTitle: derivedTitle,
+      blockId: state.blockId,
+    };
+  }, [location.state]);
+
+  const handleBackToRoadmap = () => navigate("/student/roadmap");
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-red-300 text-sm">{error}</p>
+      <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+        <div className="space-y-2">
+          <div className="h-8 w-48 animate-pulse rounded-md bg-slate-200" />
+          <div className="h-4 w-72 animate-pulse rounded-md bg-slate-200" />
+        </div>
+        <SkeletonList rows={4} />
       </div>
     );
   }
 
-  if (loadingBlock || loadingTasks) {
+  if (error === "invalid") {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300">Loading tasks...</p>
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <EmptyState
+          title="Invalid block"
+          description="The block id is missing or invalid."
+          primaryActionLabel="Back to Roadmap"
+          onPrimaryAction={handleBackToRoadmap}
+        />
       </div>
     );
   }
 
-  if (!block) {
+  if (error === "not-found") {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-400">This block was not found.</p>
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <EmptyState
+          title="Block not found"
+          description="We couldn't find this block."
+          primaryActionLabel="Back to Roadmap"
+          onPrimaryAction={handleBackToRoadmap}
+        />
+      </div>
+    );
+  }
+
+  if (error === "generic") {
+    return (
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <EmptyState
+          title="Unable to load tasks"
+          description="Please try again or return to your roadmap."
+          primaryActionLabel="Back to Roadmap"
+          onPrimaryAction={handleBackToRoadmap}
+        />
+      </div>
+    );
+  }
+
+  if (!tasks.length) {
+    return (
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <EmptyState
+          title="No tasks yet"
+          description="This block doesn't have tasks yet. Check back soon."
+          primaryActionLabel="Back to Roadmap"
+          onPrimaryAction={handleBackToRoadmap}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-5xl mx-auto py-8 px-4 space-y-6">
-        <h1 className="text-3xl font-bold">{block.title}</h1>
-        <p className="text-slate-300 text-sm">
-          {block.description ?? "No description provided."}
+    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+      <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">
+          Home
+        </Link>
+        <span className="text-slate-400">/</span>
+        <Link
+          to="/student/roadmap"
+          className="font-medium text-slate-700 hover:text-slate-900"
+        >
+          Roadmap
+        </Link>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-900">{breadcrumbTitle}</span>
+      </nav>
+
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold text-slate-900">
+          {blockTitle ? `${blockTitle} — Tasks` : "Learning block — Tasks"}
+        </h1>
+        <p className="text-base text-slate-700">
+          Explore the tasks for this learning block.
         </p>
+      </header>
 
-        <h2 className="text-xl font-semibold mt-6">Tasks</h2>
-
-        {!tasks.length ? (
-          <p className="text-slate-400 text-sm">No tasks found.</p>
-        ) : (
-          <div className="grid gap-4">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="rounded-xl bg-slate-900 border border-slate-800 p-4"
-              >
-                <h3 className="text-lg font-medium">{task.title}</h3>
-                <p className="text-slate-400 text-sm mb-3">
+      <div className="space-y-3">
+        {tasks.map((task) => (
+          <Card key={task.id} className="space-y-2 border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-slate-900">{task.title}</h3>
+                <p className="text-sm text-slate-700">
                   {task.description ?? "No description provided."}
                 </p>
-
-                <Link
-                  to={`/student/tasks/${task.id}/submit`}
-                  className="inline-block mt-1 rounded-lg bg-sky-600 hover:bg-sky-500 px-3 py-1 text-sm text-white"
-                >
-                  Open Task
-                </Link>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+
+            <Button size="sm" className="mt-2" asChild>
+              <Link
+                to={`/student/tasks/${task.id}`}
+                state={{
+                  taskTitle: task.title,
+                  blockId: blockId ?? Number(id),
+                  blockTitle: blockTitle,
+                }}
+              >
+                Open task
+              </Link>
+            </Button>
+          </Card>
+        ))}
       </div>
     </div>
   );

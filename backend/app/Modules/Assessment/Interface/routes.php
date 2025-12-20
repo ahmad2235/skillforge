@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Modules\Assessment\Application\Controllers\PlacementController;
+use App\Modules\Assessment\Interface\Http\Controllers\PlacementController;
 use App\Modules\Assessment\Interface\Http\Controllers\AdminAssessmentController;
 
 Route::middleware(['auth:sanctum', 'role:student'])

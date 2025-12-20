@@ -5,7 +5,8 @@ namespace App\Modules\Learning\Interface\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
 use App\Modules\Learning\Infrastructure\Models\Task;
-use Illuminate\Http\Request;
+use App\Modules\Learning\Interface\Http\Requests\StoreTaskRequest;
+use App\Modules\Learning\Interface\Http\Requests\UpdateTaskRequest;
 
 class AdminTaskController extends Controller
 {
@@ -27,19 +28,11 @@ class AdminTaskController extends Controller
     /**
      * إنشاء تاسك جديد تحت بلوك معيّن
      */
-    public function store(Request $request, int $blockId)
+    public function store(StoreTaskRequest $request, int $blockId)
     {
         $block = RoadmapBlock::findOrFail($blockId);
 
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'type'        => 'required|in:theory,coding,quiz,project',
-            'difficulty'  => 'required|integer|min:1|max:5',
-            'max_score'   => 'required|numeric|min:1',
-            'is_active'   => 'boolean',
-            'metadata'    => 'nullable|array',
-        ]);
+        $data = $request->validated();
 
         $task = Task::create([
             'roadmap_block_id' => $block->id,
@@ -61,21 +54,10 @@ class AdminTaskController extends Controller
     /**
      * تحديث تاسك
      */
-    public function update(Request $request, int $taskId)
+    public function update(UpdateTaskRequest $request, int $taskId)
     {
         $task = Task::findOrFail($taskId);
-
-        $data = $request->validate([
-            'title'       => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'type'        => 'sometimes|in:theory,coding,quiz,project',
-            'difficulty'  => 'sometimes|integer|min:1|max:5',
-            'max_score'   => 'sometimes|numeric|min:1',
-            'is_active'   => 'sometimes|boolean',
-            'metadata'    => 'sometimes|nullable|array',
-        ]);
-
-        $task->update($data);
+        $task->update($request->validated());
 
         return response()->json([
             'message' => 'Task updated successfully.',

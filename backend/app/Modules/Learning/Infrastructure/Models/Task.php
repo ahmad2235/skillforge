@@ -4,10 +4,11 @@ namespace App\Modules\Learning\Infrastructure\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'tasks';
 
@@ -26,6 +27,11 @@ class Task extends Model
         'metadata' => 'array',
         'is_active' => 'boolean',
     ];
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\TaskFactory::new();
+    }
 
     // البلوك الذي تنتمي له المهمة
     public function block()
