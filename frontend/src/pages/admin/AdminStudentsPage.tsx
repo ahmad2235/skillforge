@@ -1,7 +1,7 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { parseApiError } from "@/lib/apiErrors";
-import { AdminLayout } from "@/layouts/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,8 @@ export function AdminStudentsPage() {
           setTotal(payload.data?.length || 0);
         }
       } catch (err: unknown) {
+        // Ignore aborted / canceled requests
+        if ((err as any)?.code === "ERR_CANCELED") return;
         if (err instanceof Error && err.name === "AbortError") return;
         console.error(err);
         setApiError(parseApiError(err));
@@ -112,7 +114,7 @@ export function AdminStudentsPage() {
   };
 
   return (
-    <AdminLayout title="Students">
+    <div className="mx-auto max-w-5xl p-6">
       <Card className="p-4 space-y-4">
         {/* Filters / Actions */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -146,7 +148,7 @@ export function AdminStudentsPage() {
         {loading && <div className="text-center py-4">Loading students...</div>}
 
         {/* Table */}
-        {!loading && !error && (
+        {!loading && !apiError && (
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -258,7 +260,7 @@ export function AdminStudentsPage() {
         )}
 
         {/* Pagination */}
-        {!loading && !error && students.length > 0 && (
+        {!loading && !apiError && students.length > 0 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
               Showing {(page - 1) * PAGE_SIZE + 1} to{" "}
@@ -285,6 +287,6 @@ export function AdminStudentsPage() {
           </div>
         )}
       </Card>
-    </AdminLayout>
+    </div>
   );
 }

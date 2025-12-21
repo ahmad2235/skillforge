@@ -1,3 +1,5 @@
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+
 export function StudentDashboardPage() {
   return (
     <div className="space-y-6">

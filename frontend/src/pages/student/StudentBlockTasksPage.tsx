@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { EmptyState } from "../../components/feedback/EmptyState";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { Card } from "../../components/ui/card";
@@ -80,12 +81,7 @@ export function StudentBlockTasksPage() {
   if (error === "invalid") {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <EmptyState
-          title="Invalid block"
-          description="The block id is missing or invalid."
-          primaryActionLabel="Back to Roadmap"
-          onPrimaryAction={handleBackToRoadmap}
-        />
+        <ApiStateCard kind="validation" title="Invalid block" description="The block id is missing or invalid." primaryActionLabel="Back to Roadmap" onPrimaryAction={handleBackToRoadmap} />
       </div>
     );
   }
@@ -93,12 +89,7 @@ export function StudentBlockTasksPage() {
   if (error === "not-found") {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <EmptyState
-          title="Block not found"
-          description="We couldn't find this block."
-          primaryActionLabel="Back to Roadmap"
-          onPrimaryAction={handleBackToRoadmap}
-        />
+        <ApiStateCard kind="not_found" title="Block not found" description="We couldn't find this block." primaryActionLabel="Back to Roadmap" onPrimaryAction={handleBackToRoadmap} />
       </div>
     );
   }
@@ -106,12 +97,7 @@ export function StudentBlockTasksPage() {
   if (error === "generic") {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <EmptyState
-          title="Unable to load tasks"
-          description="Please try again or return to your roadmap."
-          primaryActionLabel="Back to Roadmap"
-          onPrimaryAction={handleBackToRoadmap}
-        />
+        <ApiStateCard kind="network" title="Unable to load tasks" description="Please try again or return to your roadmap." primaryActionLabel="Back to Roadmap" onPrimaryAction={handleBackToRoadmap} />
       </div>
     );
   }
@@ -119,12 +105,7 @@ export function StudentBlockTasksPage() {
   if (!tasks.length) {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <EmptyState
-          title="No tasks yet"
-          description="This block doesn't have tasks yet. Check back soon."
-          primaryActionLabel="Back to Roadmap"
-          onPrimaryAction={handleBackToRoadmap}
-        />
+        <ApiStateCard kind="not_found" title="No tasks yet" description="This block doesn't have tasks yet. Check back soon." primaryActionLabel="Back to Roadmap" onPrimaryAction={handleBackToRoadmap} />
       </div>
     );
   }

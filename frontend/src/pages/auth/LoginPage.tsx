@@ -21,6 +21,17 @@ export function LoginPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Client-side validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -53,6 +64,9 @@ export function LoginPage() {
     }
   }
 
+  // safe loading flag (works whether component uses isSubmitting)
+  const formSubmitting = !!isSubmitting;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4">
       <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
@@ -67,7 +81,7 @@ export function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={formSubmitting}>
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-200">
                 Email address
@@ -81,7 +95,17 @@ export function LoginPage() {
                 autoComplete="email"
                 required
                 className="bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500"
+                aria-invalid={!!error}
+                aria-describedby={error ? "email-error" : "email-help"}
               />
+              <p id="email-help" className="text-xs text-slate-500">
+                {/* ...existing helper text or keep blank */}
+              </p>
+              {error && (
+                <p id="email-error" role="alert" className="text-sm text-red-600">
+                  {error}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -102,15 +126,27 @@ export function LoginPage() {
                 autoComplete="current-password"
                 required
                 className="bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500"
+                aria-invalid={!!error}
+                aria-describedby={error ? "password-error" : "password-help"}
               />
+              <p id="password-help" className="text-xs text-slate-500">
+                {/* ...existing helper text or keep blank */}
+              </p>
+              {error && (
+                <p id="password-error" role="alert" className="text-sm text-red-600">
+                  {error}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-sky-600 hover:bg-sky-500 text-white"
+              className="w-full bg-sky-600 hover:bg-sky-500 text-white inline-flex items-center justify-center"
+              aria-busy={formSubmitting}
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              <span className="disabled:inline disabled:block">Submitting…</span>
+              <span className="disabled:hidden">{isSubmitting ? "Signing in..." : "Sign in"}</span>
             </Button>
           </form>
 

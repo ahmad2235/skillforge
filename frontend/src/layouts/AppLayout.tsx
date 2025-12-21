@@ -1,13 +1,15 @@
-import { ReactNode, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { ReactNode, useMemo, useState, useRef } from "react";
+import { useLocation, Outlet } from "react-router-dom";
 import { Sidebar } from "../components/navigation/Sidebar";
 import { Topbar } from "../components/navigation/Topbar";
 import { useNavigation } from "../components/navigation/NavigationContext";
+import { ErrorBoundary } from "../components/security/ErrorBoundary";
 
-const AppLayout = ({ children }: { children: ReactNode }) => {
+const AppLayout = ({ children }: { children?: ReactNode }) => {
   const { placementMode } = useNavigation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
+  const mainRef = useRef<HTMLElement | null>(null);
 
   const fullBleed = useMemo(() => {
     const path = location.pathname;
@@ -46,6 +48,19 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className={`min-h-screen text-slate-900 ${fullBleed ? "" : "bg-slate-50"}`}>
+      {/* Skip to content - visually hidden off-screen, visible on focus */}
+      <a
+        href="#main-content"
+        onClick={(e) => {
+          e.preventDefault();
+          mainRef.current?.focus();
+          mainRef.current?.scrollIntoView({ behavior: "smooth" });
+        }}
+        className="absolute -left-[9999px] focus:left-4 focus:top-4 focus:static focus:inline-block focus:bg-white focus:text-slate-900 focus:p-2 focus:rounded z-50"
+      >
+        Skip to content
+      </a>
+
       <Topbar
         onToggleSidebar={() => setMobileNavOpen(true)}
         leftSlot={fullBleed ? undefined : breadcrumbSlot}
@@ -60,10 +75,19 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
           />
         )}
 
-        <main className={fullBleed ? "flex-1 w-full" : "flex-1 px-4 sm:px-6 py-6"}>
-          {fullBleed ? children : (
+        <main
+          id="main-content"
+          tabIndex={-1}
+          ref={mainRef}
+          className={fullBleed ? "flex-1 w-full" : "flex-1 px-4 sm:px-6 py-6"}
+        >
+          {fullBleed ? (children ?? <Outlet />) : (
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-              {children}
+              {children ?? (
+                <ErrorBoundary>
+                  <Outlet />
+                </ErrorBoundary>
+              )}
             </div>
           )}
         </main>

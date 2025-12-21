@@ -1,23 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
-function isAuthenticated() {
-  if (typeof window === "undefined") return false;
-  const token = localStorage.getItem("sf_token");
-  return !!token;
-}
+import { useAuth } from "@/hooks/useAuth";
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { user, token } = useAuth();
+  const isAuthenticated = !!token && !!user;
 
   const handlePrimaryCTA = () => {
-    if (isAuthenticated()) {
-      navigate("/student/placement/intro");
+    if (isAuthenticated && user?.role === 'student') {
+      navigate('/student/placement/intro');
     } else {
-      navigate("/auth/register?intent=placement");
+      navigate('/auth/register?intent=placement');
     }
-  };
+  }; 
 
   const handleSecondaryScroll = () => {
     const element = document.getElementById("how-it-works");
@@ -26,40 +23,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-slate-100">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="text-xl font-bold text-sky-400">SkillForge</div>
-          <div className="flex items-center gap-4">
-            {isAuthenticated() ? (
-              <Button
-                variant="outline"
-                onClick={() => navigate("/student")}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
-              >
-                Dashboard
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate("/auth/login")}
-                  className="text-slate-300 hover:text-slate-100 hover:bg-slate-800"
-                >
-                  Sign in
-                </Button>
-                <Button
-                  onClick={() => navigate("/auth/register")}
-                  className="bg-sky-600 hover:bg-sky-500"
-                >
-                  Get started
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
-
+    
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1200px] mx-auto text-center space-y-8">

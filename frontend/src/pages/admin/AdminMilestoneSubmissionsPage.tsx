@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import AppLayout from "@/layouts/AppLayout";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import EmptyState from "@/components/feedback/EmptyState";
 import { useAppToast } from "@/components/feedback/useAppToast";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
+import { getSubmissionStatusBadge } from "../../lib/statusBadges";
 
 interface ApiSubmission {
   id: number | string;
@@ -55,6 +56,10 @@ export default function AdminMilestoneSubmissionsPage() {
   // Add per-item processing state & errors
   const [processingIds, setProcessingIds] = useState<Record<number, boolean>>({});
   const [itemErrors, setItemErrors] = useState<Record<number, string | null>>({});
+  // Confirm dialog focus for destructive actions
+  const rejectTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const rejectConfirmRef = useRef<HTMLButtonElement | null>(null);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
 
   const formatError = (err: any) => {
     const message = err?.response?.data?.message || err?.message;
@@ -191,13 +196,20 @@ export default function AdminMilestoneSubmissionsPage() {
     );
   };
 
+  useEffect(() => {
+    if (isRejectOpen) {
+      setTimeout(() => rejectConfirmRef.current?.focus(), 0);
+    } else {
+      rejectTriggerRef.current?.focus();
+    }
+  }, [isRejectOpen]);
+
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Milestone submissions</h1>
-          <p className="text-sm text-muted-foreground">Review and moderate project milestone submissions.</p>
-        </header>
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Milestone submissions</h1>
+        <p className="text-sm text-muted-foreground">Review and moderate project milestone submissions.</p>
+      </header>
 
         <Card>
           <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:p-5">
@@ -283,9 +295,8 @@ export default function AdminMilestoneSubmissionsPage() {
             )}
           </CardContent>
         </Card>
-      </div>
 
-      <Sheet open={!!selected} onOpenChange={(open) => setSelected(open ? selected : null)}>
+      <Sheet open={!!selected} onOpenChange={(isOpen) => setSelected(isOpen ? selected : null)}>
         <SheetContent side="right" className="w-[460px] sm:w-[520px]">
           <SheetHeader>
             <SheetTitle>{selected?.assignment?.project?.title || "Submission"}</SheetTitle>
@@ -351,7 +362,7 @@ export default function AdminMilestoneSubmissionsPage() {
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => reviewSubmission("rejected")}
+                  onClick={() => setIsRejectOpen(true)}
                   disabled={isReviewing}
                   aria-busy={isReviewing && actionId === selected.id}
                 >
@@ -369,6 +380,49 @@ export default function AdminMilestoneSubmissionsPage() {
           ) : null}
         </SheetContent>
       </Sheet>
-    </AppLayout>
+
+      {isRejectOpen && (
+        <div
+          id="reject-submission-dialog"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="reject-submission-title"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setIsRejectOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50"
+        >
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
+            <h3 id="reject-submission-title" className="text-lg font-semibold">
+              Reject submission
+            </h3>
+            <div className="mt-4 text-sm text-muted-foreground">
+              <p>Are you sure you want to reject this submission?</p>
+              <p className="mt-2 text-red-500">
+                This action cannot be undone. The student will be notified.
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                ref={rejectConfirmRef}
+                variant="destructive"
+                onClick={() => {
+                  if (selected) {
+                    reviewSubmission("rejected");
+                  }
+                  setIsRejectOpen(false);
+                }}
+                aria-label="Confirm reject submission"
+              >
+                Reject submission
+              </Button>
+              <Button onClick={() => setIsRejectOpen(false)} aria-label="Cancel reject">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

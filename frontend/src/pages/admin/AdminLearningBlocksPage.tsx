@@ -8,7 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
 import axios from "axios";
-import { AdminLayout } from "@/layouts/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -394,7 +394,7 @@ export function AdminLearningBlocksPage() {
     sortField === field ? (sortDirection === "asc" ? "↑" : "↓") : "";
 
   return (
-    <AdminLayout title="Learning Blocks">
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
       <Card className="p-4 space-y-4">
         {/* Filters / Actions */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -678,6 +678,6 @@ export function AdminLearningBlocksPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </div>
   );
 }

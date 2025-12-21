@@ -2,6 +2,7 @@ import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { EmptyState } from "../../components/feedback/EmptyState";
+import { Link, useNavigate } from "react-router-dom";
 
 const stats = [
   { label: "Open projects", value: "8" },
@@ -38,9 +39,11 @@ export function BusinessDashboardPage() {
       </section>
 
       <section className="flex flex-wrap items-center gap-3">
-        <Button>Create a project</Button>
+        <Button asChild>
+          <Link to="/business/projects/new">Create a project</Link>
+        </Button>
         <Button variant="link" className="px-0" asChild>
-          <a href="#">View all projects</a>
+          <Link to="/business/projects">View all projects</Link>
         </Button>
       </section>
 

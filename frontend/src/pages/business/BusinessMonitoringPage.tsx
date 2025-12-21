@@ -80,6 +80,10 @@ export const BusinessMonitoringPage = () => {
         try {
           data = await tryFetch("/business/monitoring");
         } catch (err: any) {
+          // Ignore if request was cancelled
+          if (err?.code === "ERR_CANCELED") {
+            return;
+          }
           if (err?.status === 401) {
             setUnauthorized(true);
             throw err;
@@ -89,6 +93,7 @@ export const BusinessMonitoringPage = () => {
           } else if (err?.status && err.status !== 404) {
             throw err;
           }
+          // 404 without projectId - just show empty state
         }
 
         if (!active) return;
@@ -229,23 +234,8 @@ export const BusinessMonitoringPage = () => {
                   <div className="text-slate-700">{row.due || row.due_date || "—"}</div>
                   <div className="text-slate-700">{row.student || row.student_name || "—"}</div>
                   <div className="flex items-center justify-end gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        window.alert("Not implemented");
-                      }}
-                    >
-                      Open milestone
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        window.alert("Not implemented");
-                      }}
-                    >
-                      Message
-                    </Button>
+                    <Button size="sm" disabled className="opacity-60">Open milestone (coming soon)</Button>
+                    <Button size="sm" variant="outline" disabled className="opacity-60">Message (coming soon)</Button>
                   </div>
                 </div>
               );

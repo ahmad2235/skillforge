@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigation } from "./NavigationContext";
@@ -11,9 +11,14 @@ type TopbarProps = {
 };
 
 export const Topbar = ({ onToggleSidebar, leftSlot, fullBleed = false }: TopbarProps) => {
-  const { isAuthenticated, user, logout } = useAuth();
-  const { placementMode } = useNavigation();
+  const { isAuthenticated: ctxIsAuthenticated, user, token, logout } = useAuth();
+  const { placementMode, setPlacementMode } = useNavigation();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Ensure authentication state is computed deterministically from token & user
+  const isAuthenticated = !!token && !!user;
+  const dashboardPath = user?.role === "student" ? "/student" : user?.role === "business" ? "/business" : "/admin";
 
   const routeTitleMap: { pattern: RegExp; title: string }[] = [
     { pattern: /^\/$/, title: "Home" },
@@ -48,8 +53,21 @@ export const Topbar = ({ onToggleSidebar, leftSlot, fullBleed = false }: TopbarP
     ? leftSlot
     : routeTitleMap.find(({ pattern }) => pattern.test(location.pathname))?.title;
 
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const menuFirstItemRef = useRef<HTMLButtonElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setTimeout(() => menuFirstItemRef.current?.focus(), 0);
+    } else {
+      menuTriggerRef.current?.focus();
+    }
+  }, [isMenuOpen]);
+
   return (
     <header
+      role="banner"
       className={
         fullBleed
           ? "sticky top-0 z-30 border-b border-slate-800/70 bg-slate-950/60 backdrop-blur"
@@ -94,9 +112,28 @@ export const Topbar = ({ onToggleSidebar, leftSlot, fullBleed = false }: TopbarP
 
         <div className="ml-auto flex items-center gap-2">
           {placementMode ? (
-            <span className={fullBleed ? "text-xs text-slate-200" : "text-xs text-slate-600"}>
-              Placement mode
-            </span>
+            <>
+              <span className={fullBleed ? "text-xs text-slate-200" : "text-xs text-slate-600"}>
+                Placement mode
+              </span>
+
+              <Button
+                variant={fullBleed ? "ghost" : "ghost"}
+                size="sm"
+                className="ml-2"
+                onClick={() => {
+                  // clear placement mode and navigate back to the student's roadmap (fallback to dashboard)
+                  setPlacementMode(false);
+                  if (user?.role === "student") {
+                    navigate("/student/roadmap");
+                  } else {
+                    navigate("/student/dashboard");
+                  }
+                }}
+              >
+                Exit placement
+              </Button>
+            </>
           ) : isAuthenticated ? (
             <>
               <div className="hidden flex-col items-end text-right sm:flex">
@@ -107,12 +144,11 @@ export const Topbar = ({ onToggleSidebar, leftSlot, fullBleed = false }: TopbarP
                   {user?.role ?? ""}
                 </div>
               </div>
-              <Button
-                variant={fullBleed ? "secondary" : "outline"}
-                size="sm"
-                onClick={logout}
-              >
-                Logout
+
+              <Button asChild size="sm" className={fullBleed ? "text-slate-100" : undefined}>
+                <Link to={dashboardPath}>
+                  Dashboard
+                </Link>
               </Button>
             </>
           ) : (
@@ -130,9 +166,58 @@ export const Topbar = ({ onToggleSidebar, leftSlot, fullBleed = false }: TopbarP
                 asChild
                 className={fullBleed ? "bg-sky-600 text-white hover:bg-sky-500" : undefined}
               >
-                <Link to="/auth/register">Get started</Link>
+                <Link to="/auth/register?intent=placement">Get started</Link>
               </Button>
             </>
+          )}
+
+          <button
+            ref={menuTriggerRef}
+            onClick={() => setIsMenuOpen((s) => !s)}
+            aria-haspopup="true"
+            aria-expanded={isMenuOpen}
+            aria-controls="topbar-menu"
+            aria-label="Open user menu"
+            className="relative h-8 w-8 rounded-full bg-slate-200 text-slate-900 ring-1 ring-slate-900/5 transition-all hover:ring-slate-900/10"
+          >
+            {/* ...icon or avatar... */}
+          </button>
+
+          {isMenuOpen && (
+            <div
+              id="topbar-menu"
+              role="menu"
+              aria-labelledby="topbar-menu"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setIsMenuOpen(false);
+              }}
+              className="absolute right-0 top-14 z-50 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            >
+              <button
+                ref={menuFirstItemRef}
+                role="menuitem"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  // navigate to role-specific profile
+                  navigate(user?.role === 'student' ? '/student/profile' : user?.role === 'business' ? '/business/profile' : '/admin/profile');
+                }}
+                className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+              >
+                Profile
+              </button>
+
+              <button
+                role="menuitem"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  logout();
+                  navigate('/');
+                }}
+                className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+              >
+                Logout
+              </button>
+            </div>
           )}
         </div>
       </div>

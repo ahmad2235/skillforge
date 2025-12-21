@@ -13,9 +13,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [initialized, setInitialized] = useState(false);
 
   const role: UserRole = user?.role ?? null;
-  const isAuthenticated = !!token;
+  // A user is considered authenticated only when BOTH a token and a user object are present.
+  const isAuthenticated = !!token && !!user;
 
-  // Load initial state from localStorage once
+  // Load initial state from localStorage once and clean up stale values when mismatched
   useEffect(() => {
     try {
       const storedToken = localStorage.getItem("sf_token");
@@ -25,6 +26,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const parsedUser: AuthUser = JSON.parse(storedUser);
         setToken(storedToken);
         setUser(parsedUser);
+      } else {
+        // Clean up any stale or mismatched items
+        if (storedToken && !storedUser) {
+          // token without a user is invalid -> remove token
+          localStorage.removeItem("sf_token");
+        }
+        if (!storedToken && storedUser) {
+          // user without a token is stale -> remove stored user
+          localStorage.removeItem("sf_user");
+        }
       }
     } catch {
       localStorage.removeItem("sf_token");

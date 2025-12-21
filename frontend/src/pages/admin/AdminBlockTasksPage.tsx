@@ -1,7 +1,7 @@
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useParams, Link } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
-import { AdminLayout } from "@/layouts/AdminLayout";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -211,7 +211,7 @@ export function AdminBlockTasksPage() {
   };
 
   return (
-    <AdminLayout title={`Block ${blockId} Tasks`}>
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
       <Card className="p-4 space-y-4">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -441,6 +441,6 @@ export function AdminBlockTasksPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </div>
   );
 }

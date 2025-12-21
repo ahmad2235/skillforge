@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
-import { ApiStateCard } from "../../components/feedback/ApiStateCard";
-import { parseApiError } from "../../lib/apiClient";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
+import { parseApiError } from "../../lib/apiErrors";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 
 export function BusinessProjectsListPage() {
+	const navigate = useNavigate();
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<unknown | null>(null);
 	const [projects, setProjects] = useState<any[]>([]);
@@ -43,7 +44,7 @@ export function BusinessProjectsListPage() {
 		const parsed = parseApiError(error);
 		return (
 			<div className="mx-auto max-w-5xl p-4 sm:p-6">
-				<ApiStateCard error={parsed} onRetry={fetchProjects} />
+				<ApiStateCard kind={parsed.kind} description={parsed.message} primaryActionLabel="Retry" onPrimaryAction={fetchProjects} />
 			</div>
 		);
 	}

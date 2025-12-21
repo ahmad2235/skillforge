@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, FormEvent } from "react";
+import { useEffect, useRef, useState, useMemo, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { Card } from "../../components/ui/card";
@@ -196,6 +196,20 @@ export function BusinessProjectsPage() {
     }
   }
 
+  // Focus management for New Project dialog
+  const newProjectTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const newProjectFirstFieldRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isCreateOpen) {
+      // move focus into dialog (first meaningful field)
+      setTimeout(() => newProjectFirstFieldRef.current?.focus(), 0);
+    } else {
+      // return focus to trigger
+      newProjectTriggerRef.current?.focus();
+    }
+  }, [isCreateOpen]);
+
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
       <header className="space-y-2">
@@ -206,7 +220,17 @@ export function BusinessProjectsPage() {
       </header>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button onClick={() => setIsCreateOpen(true)}>Create project</Button>
+        {/* New Project trigger */}
+        <Button
+          ref={newProjectTriggerRef}
+          onClick={() => setIsCreateOpen(true)}
+          aria-haspopup="dialog"
+          aria-controls="new-project-dialog"
+          aria-expanded={isCreateOpen}
+          aria-label="Create new project"
+        >
+          Create project
+        </Button>
         <Input placeholder="Search projects" className="w-full max-w-xs" />
         {/* TODO: add status filter dropdown */}
       </div>
@@ -279,110 +303,114 @@ export function BusinessProjectsPage() {
         />
       )}
 
-      <Dialog open={isCreateOpen} onOpenChange={(open) => {
-        setIsCreateOpen(open);
-        if (!open) {
-          resetForm();
-          setCreateError(null);
-        }
-      }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create project</DialogTitle>
-          </DialogHeader>
-          <form className="space-y-4" onSubmit={handleCreate}>
-            {createError && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {createError}
-              </div>
-            )}
-            <div className="space-y-1">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                required
-                disabled={isSubmitting}
-              />
-              {formErrors.title && <p className="text-xs text-red-600">{formErrors.title}</p>}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                rows={3}
-                required
-              />
-              {formErrors.description && <p className="text-xs text-red-600">{formErrors.description}</p>}
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <Label>Domain</Label>
-                <Select
-                  value={form.domain}
-                  onValueChange={(value) => setForm((f) => ({ ...f, domain: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select domain" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="frontend">Frontend</SelectItem>
-                    <SelectItem value="backend">Backend</SelectItem>
-                    <SelectItem value="fullstack">Fullstack</SelectItem>
-                    <SelectItem value="ai">AI</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formErrors.domain && <p className="text-xs text-red-600">{formErrors.domain}</p>}
-              </div>
-              <div className="space-y-1">
-                <Label>Required level</Label>
-                <Select
-                  value={form.required_level}
-                  onValueChange={(value) => setForm((f) => ({ ...f, required_level: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formErrors.required_level && <p className="text-xs text-red-600">{formErrors.required_level}</p>}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="estimated_duration_weeks">Estimated duration (weeks)</Label>
-              <Input
-                id="estimated_duration_weeks"
-                type="number"
-                min={1}
-                value={form.estimated_duration_weeks}
-                onChange={(e) => setForm((f) => ({ ...f, estimated_duration_weeks: e.target.value }))}
-              />
-              {formErrors.estimated_duration_weeks && (
-                <p className="text-xs text-red-600">{formErrors.estimated_duration_weeks}</p>
+      {/* New Project dialog / sheet */}
+      {isCreateOpen && (
+        <Dialog open={isCreateOpen} onOpenChange={(open) => {
+          setIsCreateOpen(open);
+          if (!open) {
+            resetForm();
+            setCreateError(null);
+          }
+        }}>
+          <DialogContent id="new-project-dialog" aria-modal="true" role="dialog">
+            <DialogHeader>
+              <DialogTitle>Create project</DialogTitle>
+            </DialogHeader>
+            <form className="space-y-4" onSubmit={handleCreate}>
+              {createError && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {createError}
+                </div>
               )}
-            </div>
+              <div className="space-y-1">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  ref={newProjectFirstFieldRef}
+                  value={form.title}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  required
+                  disabled={isSubmitting}
+                />
+                {formErrors.title && <p className="text-xs text-red-600">{formErrors.title}</p>}
+              </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Create"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+              <div className="space-y-1">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={form.description}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  required
+                />
+                {formErrors.description && <p className="text-xs text-red-600">{formErrors.description}</p>}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>Domain</Label>
+                  <Select
+                    value={form.domain}
+                    onValueChange={(value) => setForm((f) => ({ ...f, domain: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select domain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="frontend">Frontend</SelectItem>
+                      <SelectItem value="backend">Backend</SelectItem>
+                      <SelectItem value="fullstack">Fullstack</SelectItem>
+                      <SelectItem value="ai">AI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formErrors.domain && <p className="text-xs text-red-600">{formErrors.domain}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label>Required level</Label>
+                  <Select
+                    value={form.required_level}
+                    onValueChange={(value) => setForm((f) => ({ ...f, required_level: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formErrors.required_level && <p className="text-xs text-red-600">{formErrors.required_level}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="estimated_duration_weeks">Estimated duration (weeks)</Label>
+                <Input
+                  id="estimated_duration_weeks"
+                  type="number"
+                  min={1}
+                  value={form.estimated_duration_weeks}
+                  onChange={(e) => setForm((f) => ({ ...f, estimated_duration_weeks: e.target.value }))}
+                />
+                {formErrors.estimated_duration_weeks && (
+                  <p className="text-xs text-red-600">{formErrors.estimated_duration_weeks}</p>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Create"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 

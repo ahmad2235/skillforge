@@ -11,8 +11,10 @@ export function BusinessProjectAssignmentsPage() {
 
   if (!projectId) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">No project selected.</p>
+      <div className="py-10">
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">No project selected.</p>
+        </div>
       </div>
     );
   }
@@ -43,17 +45,21 @@ export function BusinessProjectAssignmentsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">Loading assignments...</p>
+      <div className="py-10">
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">Loading assignments...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <div className="max-w-md rounded-lg border border-red-700 bg-red-900/40 px-4 py-3 text-sm text-red-100">
-          {error}
+      <div className="py-10">
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          <div className="max-w-md rounded-lg border border-red-700 bg-red-50/40 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         </div>
       </div>
     );
@@ -61,10 +67,10 @@ export function BusinessProjectAssignmentsPage() {
 
   if (!assignments.length) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">
-          No assignments for this project yet.
-        </p>
+      <div className="py-10">
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">No assignments for this project yet.</p>
+        </div>
       </div>
     );
   }

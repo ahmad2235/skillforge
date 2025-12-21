@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import { useNavigation } from "../../components/navigation/NavigationContext";
-import { EmptyState } from "../../components/feedback/EmptyState";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { useAppToast } from "../../components/feedback/useAppToast";
 
@@ -37,26 +37,27 @@ export const PlacementInProgressPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ answer?: string }>({});
+
+  // Extract fetchQuestions so we can reuse it for retries
+  const fetchQuestions = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await apiClient.get("/student/assessment/placement/questions");
+      const data = res.data.data ?? res.data;
+      setQuestions(Array.isArray(data) ? data : []);
+    } catch (err: unknown) {
+      safeLogError(err, "PlacementQuestions");
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     setPlacementMode(true);
-
-    async function fetchQuestions() {
-      setLoading(true);
-      setError(false);
-      try {
-        const res = await apiClient.get("/student/assessment/placement/questions");
-        const data = res.data.data ?? res.data;
-        setQuestions(Array.isArray(data) ? data : []);
-      } catch (err: unknown) {
-        safeLogError(err, "PlacementQuestions");
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchQuestions();
+    void fetchQuestions();
   }, [setPlacementMode]);
 
   const currentQuestion = questions[currentIndex];
@@ -107,9 +108,11 @@ export const PlacementInProgressPage = () => {
     }
   };
 
+  const formSubmitting = !!isSubmitting;
+
   if (loading) {
     return (
-      <div className="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-10">
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
         <SkeletonList rows={5} />
       </div>
     );
@@ -117,32 +120,30 @@ export const PlacementInProgressPage = () => {
 
   if (error) {
     return (
-      <div className="mx-auto flex max-w-4xl px-4 py-10">
-        <EmptyState
-          title="Unable to load questions"
-          description="Please try again."
-          primaryActionLabel="Retry"
-          onPrimaryAction={() => window.location.reload()}
-        />
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <ApiStateCard kind="network" primaryActionLabel="Retry" onPrimaryAction={fetchQuestions} />
       </div>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <div className="mx-auto flex max-w-4xl px-4 py-10">
-        <EmptyState
-          title="No questions available"
-          description="There are no placement questions at the moment."
-          primaryActionLabel="Retry"
-          onPrimaryAction={() => window.location.reload()}
-        />
+      <div className="mx-auto max-w-5xl p-4 sm:p-6">
+        <ApiStateCard kind="not_found" title="No questions available" description="There are no placement questions at the moment." primaryActionLabel="Retry" onPrimaryAction={fetchQuestions} />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-10">
+    <div className="mx-auto max-w-5xl flex flex-col gap-10 p-4 sm:p-6">
+      <nav className="flex items-center gap-2 text-sm text-slate-600">
+        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">Home</Link>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-700">Placement</span>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-900">In progress</span>
+      </nav>
+
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold text-slate-900">Placement in progress</h1>
         <p className="text-base text-slate-700">Answer what you can. Skips are okay—we're mapping your starting point.</p>
@@ -182,12 +183,29 @@ export const PlacementInProgressPage = () => {
             </Card>
           )}
 
+          <label htmlFor="placement-answer" className="block text-sm font-medium text-slate-700">
+            Answer / Response
+          </label>
           <textarea
+            id="placement-answer"
+            aria-invalid={!!fieldErrors.answer}
+            aria-describedby={fieldErrors.answer ? "placement-answer-error" : "placement-answer-help"}
             className="w-full min-h-[160px] rounded-md border border-slate-300 p-2 text-sm"
             placeholder="Type your answer here..."
             value={answers[currentQuestion.id] ?? ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
+            onChange={(e) => {
+              handleAnswerChange(e.target.value);
+              if (fieldErrors.answer) setFieldErrors((prev) => ({ ...prev, answer: undefined }));
+            }}
           />
+          <p id="placement-answer-help" className="text-xs text-slate-500">
+            {/* optional helper text */}
+          </p>
+          {fieldErrors.answer && (
+            <p id="placement-answer-error" role="alert" className="text-sm text-red-600">
+              {fieldErrors.answer}
+            </p>
+          )}
 
           {(currentQuestion.metadata as any)?.hint && (
             <Collapsible open={hintOpen} onOpenChange={setHintOpen}>
@@ -220,8 +238,9 @@ export const PlacementInProgressPage = () => {
             Save & exit
           </Button>
         </div>
-        <Button size="lg" className="min-w-[140px]" onClick={handleNext} disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : isLast ? "Finish" : "Next"}
+        <Button size="lg" className="min-w-[140px]" onClick={handleNext} disabled={isSubmitting} aria-busy={isSubmitting}>
+          <span className="disabled:inline disabled:block">Submitting…</span>
+          <span className="disabled:hidden">{isLast ? "Finish" : "Next"}</span>
         </Button>
       </footer>
     </div>

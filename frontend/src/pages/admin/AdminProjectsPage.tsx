@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
-import AppLayout from "@/layouts/AppLayout";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -252,7 +252,7 @@ export default function AdminProjectsPage() {
   };
 
   const handleExport = () => {
-    toastSuccess("Export not implemented yet");
+    // noop — coming soon
   };
 
   const handleRefresh = () => {
@@ -263,12 +263,11 @@ export default function AdminProjectsPage() {
   const isNoteDirty = adminNoteDraft !== noteBaseline;
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-muted-foreground">Oversight, moderation, and administrative actions.</p>
-        </header>
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
+        <p className="text-sm text-muted-foreground">Oversight, moderation, and administrative actions.</p>
+      </header>
 
         <Card>
           <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:p-5">
@@ -304,7 +303,7 @@ export default function AdminProjectsPage() {
               </SelectContent>
             </Select>
             <div className="ml-auto">
-              <Button onClick={handleExport}>Export</Button>
+              <Button disabled className="opacity-60">Export (coming soon)</Button>
             </div>
           </CardContent>
         </Card>
@@ -458,7 +457,6 @@ export default function AdminProjectsPage() {
             </div>
           ) : null}
         </Card>
-      </div>
 
       <Sheet open={!!selectedProject} onOpenChange={(open) => setSelectedProject(open ? selectedProject : null)}>
         <SheetContent side="right" className="w-[460px] sm:w-[520px]">
@@ -573,6 +571,6 @@ export default function AdminProjectsPage() {
           ) : null}
         </SheetContent>
       </Sheet>
-    </AppLayout>
+    </div>
   );
 }

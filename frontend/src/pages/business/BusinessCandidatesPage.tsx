@@ -223,7 +223,7 @@ export const BusinessCandidatesPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button>Apply filters</Button>
+            <Button disabled className="opacity-60">Apply filters (coming soon)</Button>
             <Button variant="outline">Reset</Button>
           </div>
         </Card>
@@ -284,15 +284,8 @@ export const BusinessCandidatesPage = () => {
                   >
                     View profile
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.alert("Not implemented");
-                    }}
-                  >
-                    Assign
+                  <Button size="sm" variant="outline" disabled className="opacity-60">
+                    Assign (coming soon)
                   </Button>
                 </div>
               </div>
@@ -310,11 +303,10 @@ export const BusinessCandidatesPage = () => {
         <EmptyState
           title="No candidates yet"
           description="Once students match your project, they will appear here."
-          primaryActionLabel="Share project link"
+          primaryActionLabel="Share project link (coming soon)"
           onPrimaryAction={() => {}}
         />
       )}
-
       <Dialog open={!!selectedCandidate} onOpenChange={(open) => !open && closeCandidate()}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
@@ -353,29 +345,9 @@ export const BusinessCandidatesPage = () => {
                 </ul>
               </Card>
               <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  onClick={() => {
-                    window.alert("Not implemented");
-                  }}
-                >
-                  Invite
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    window.alert("Not implemented");
-                  }}
-                >
-                  Assign
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    window.alert("Not implemented");
-                  }}
-                >
-                  Request re-evaluation
-                </Button>
+                <Button disabled className="opacity-60">Invite (coming soon)</Button>
+                <Button variant="outline" disabled className="opacity-60">Assign (coming soon)</Button>
+                <Button variant="ghost" disabled className="opacity-60">Request re-evaluation (coming soon)</Button>
               </div>
             </div>
           ) : null}

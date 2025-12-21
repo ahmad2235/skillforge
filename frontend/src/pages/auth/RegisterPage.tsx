@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -175,6 +181,8 @@ export function RegisterPage() {
     }
   }
 
+  const formSubmitting = !!isSubmitting;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4 py-6">
       <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
@@ -191,14 +199,14 @@ export function RegisterPage() {
           )}
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={formSubmitting}>
             {/* Name Field */}
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-slate-200">
+              <label htmlFor="register-name" className="block text-sm font-medium text-slate-200">
                 Full name
               </label>
               <Input
-                id="name"
+                id="register-name"
                 type="text"
                 placeholder="John Doe"
                 value={name}
@@ -207,19 +215,23 @@ export function RegisterPage() {
                   fieldErrors.name ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.name}
+                aria-describedby={fieldErrors.name ? "register-name-error" : "register-name-help"}
               />
+              <p id="register-name-help" className="text-xs text-slate-500">{/* optional helper */}</p>
               {fieldErrors.name && (
-                <p className="text-xs text-red-400">{fieldErrors.name}</p>
+                <p id="register-name-error" role="alert" className="text-sm text-red-600">
+                  {fieldErrors.name}
+                </p>
               )}
             </div>
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-200">
+              <label htmlFor="register-email" className="block text-sm font-medium text-slate-200">
                 Email address
               </label>
               <Input
-                id="email"
+                id="register-email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
@@ -229,19 +241,23 @@ export function RegisterPage() {
                   fieldErrors.email ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "register-email-error" : "register-email-help"}
               />
+              <p id="register-email-help" className="text-xs text-slate-500">{/* optional helper */}</p>
               {fieldErrors.email && (
-                <p className="text-xs text-red-400">{fieldErrors.email}</p>
+                <p id="register-email-error" role="alert" className="text-sm text-red-600">
+                  {fieldErrors.email}
+                </p>
               )}
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium text-slate-200">
+              <label htmlFor="register-password" className="block text-sm font-medium text-slate-200">
                 Password
               </label>
               <Input
-                id="password"
+                id="register-password"
                 type="password"
                 placeholder="At least 8 characters"
                 value={password}
@@ -251,9 +267,13 @@ export function RegisterPage() {
                   fieldErrors.password ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.password}
+                aria-describedby={fieldErrors.password ? "register-password-error" : "register-password-help"}
               />
+              <p id="register-password-help" className="text-xs text-slate-500">{/* optional helper */}</p>
               {fieldErrors.password && (
-                <p className="text-xs text-red-400">{fieldErrors.password}</p>
+                <p id="register-password-error" role="alert" className="text-sm text-red-600">
+                  {fieldErrors.password}
+                </p>
               )}
             </div>
 
@@ -312,8 +332,10 @@ export function RegisterPage() {
               type="submit"
               disabled={isSubmitting}
               className="w-full bg-sky-600 hover:bg-sky-500 text-white mt-2"
+              aria-busy={formSubmitting}
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              <span className="disabled:inline disabled:block">Submitting…</span>
+              <span className="disabled:hidden">Register</span>
             </Button>
           </form>
 

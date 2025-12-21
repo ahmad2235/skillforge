@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { apiClient } from "../../lib/apiClient";
-import { ApiStateCard } from "../../components/feedback/ApiStateCard";
-import { parseApiError } from "../../lib/apiClient";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
+import { parseApiError } from "../../lib/apiErrors";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -71,7 +71,7 @@ export function StudentAssignmentsPage() {
     const parsed = parseApiError(error);
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <ApiStateCard error={parsed} onRetry={fetchAssignments} />
+        <ApiStateCard kind={parsed.kind} description={parsed.message} primaryActionLabel="Retry" onPrimaryAction={fetchAssignments} />
       </div>
     );
   }

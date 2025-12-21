@@ -14,6 +14,12 @@ export function ForgotPasswordPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -29,6 +35,8 @@ export function ForgotPasswordPage() {
       setIsSubmitting(false);
     }
   }
+
+  const formSubmitting = !!isSubmitting;
 
   if (submitted) {
     return (
@@ -77,13 +85,13 @@ export function ForgotPasswordPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={formSubmitting}>
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-200">
                 Email address
               </label>
               <Input
-                id="email"
+                id="forgot-email"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
@@ -91,15 +99,27 @@ export function ForgotPasswordPage() {
                 autoComplete="email"
                 required
                 className="bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500"
+                aria-invalid={!!error}
+                aria-describedby={error ? "forgot-email-error" : "forgot-email-help"}
               />
+              <p id="forgot-email-help" className="text-xs text-slate-500">
+                We'll send a reset link to this email
+              </p>
+              {error && (
+                <p id="forgot-email-error" role="alert" className="text-sm text-red-600">
+                  {error}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
               disabled={isSubmitting}
               className="w-full bg-sky-600 hover:bg-sky-500 text-white"
+              aria-busy={formSubmitting}
             >
-              {isSubmitting ? "Sending..." : "Send reset link"}
+              <span className="disabled:inline disabled:block">Submitting…</span>
+              <span className="disabled:hidden">Send reset link</span>
             </Button>
           </form>
 

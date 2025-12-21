@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import AppLayout from "@/layouts/AppLayout";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/feedback/EmptyState";
 import { useAppToast } from "@/components/feedback/useAppToast";
 import { apiClient } from "@/lib/apiClient";
-import { ApiStateCard } from "@/components/feedback/ApiStateCard";
-import { parseApiError } from "@/lib/apiClient";
+import { ApiStateCard } from "@/components/shared/ApiStateCard";
+import { parseApiError } from "@/lib/apiErrors";
 import { SkeletonList } from "@/components/feedback/Skeletons";
 
 type Severity = "info" | "warning" | "error" | "success";
@@ -61,7 +61,7 @@ export default function AdminMonitoringPage() {
     try {
       const [overviewRes, eventsRes, aiLogsRes] = await Promise.allSettled([
         apiClient.get("/admin/monitoring/overview"),
-        apiClient.get("/admin/monitoring/events/recent"),
+        apiClient.get("/admin/monitoring/submissions/recent"),
         apiClient.get("/admin/monitoring/ai-logs/recent"),
       ]);
 
@@ -124,8 +124,9 @@ export default function AdminMonitoringPage() {
 
   const filteredAiLogs = aiLogs;
 
+  // Apply is not wired — disable and label as coming soon
   const handleApply = () => {
-    toastSuccess("Filters applied (UI-only)");
+    // noop
   };
 
   const handleReset = () => {
@@ -153,7 +154,7 @@ export default function AdminMonitoringPage() {
     const parsed = parseApiError(error);
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <ApiStateCard error={parsed} onRetry={fetchMonitoring} />
+        <ApiStateCard kind={parsed.kind} description={parsed.message} primaryActionLabel="Retry" onPrimaryAction={fetchMonitoring} />
       </div>
     );
   }
@@ -173,14 +174,13 @@ export default function AdminMonitoringPage() {
   }
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Monitoring</h1>
-          <p className="text-sm text-muted-foreground">
-            Platform health, throughput, and operational signals.
-          </p>
-        </header>
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Monitoring</h1>
+        <p className="text-sm text-muted-foreground">
+          Platform health, throughput, and operational signals.
+        </p>
+      </header>
 
         <Card>
           <CardContent className="grid gap-3 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
@@ -248,7 +248,7 @@ export default function AdminMonitoringPage() {
               <Button variant="secondary" onClick={handleReset}>
                 Reset
               </Button>
-              <Button onClick={handleApply}>Apply</Button>
+              <Button disabled className="opacity-60">Apply (coming soon)</Button>
             </div>
           </CardContent>
         </Card>
@@ -358,7 +358,6 @@ export default function AdminMonitoringPage() {
             </Card>
           </div>
         )}
-      </div>
-    </AppLayout>
+    </div>
   );
 }

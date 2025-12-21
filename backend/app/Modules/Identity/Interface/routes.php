@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Identity\Interface\Http\Controllers\AuthController;
 use App\Modules\Identity\Interface\Http\Controllers\AdminMonitoringController;
+use App\Modules\Identity\Interface\Http\Controllers\AdminUserController;
 
 /*
  | ------------------------------------------------------------------
@@ -47,4 +48,16 @@ Route::middleware(['auth:sanctum', 'role:admin', 'throttle:30,1'])
         Route::get('/submissions/recent', [AdminMonitoringController::class, 'recentSubmissions']);
         Route::get('/ai-logs/recent', [AdminMonitoringController::class, 'recentAiLogs']);
         Route::get('/assignments/recent', [AdminMonitoringController::class, 'recentAssignments']);
+    });
+
+// Admin users management (index/show/update)
+Route::middleware(['auth:sanctum', 'role:admin', 'throttle:30,1'])
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/users/{user}', [AdminUserController::class, 'show']);
+        Route::patch('/users/{user}', [AdminUserController::class, 'update']);
+
+        // Students listing (admin)
+        Route::get('/students', [\App\Modules\Identity\Interface\Http\Controllers\AdminStudentController::class, 'index']);
     });

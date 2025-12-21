@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 export default function AdminDashboardPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="py-10">
       <div className="max-w-6xl mx-auto py-10 px-4 space-y-4">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-slate-300 text-sm">
+        <h1 className="text-3xl font-bold mb-2 text-slate-900">Admin Dashboard</h1>
+        <p className="text-slate-700 text-sm">
           Manage roadmaps, tasks, assessment questions and monitor platform
           activity.
         </p>

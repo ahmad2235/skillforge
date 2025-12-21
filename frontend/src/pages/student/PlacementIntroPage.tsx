@@ -18,7 +18,15 @@ export const PlacementIntroPage = () => {
   }, [setPlacementMode]);
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-12">
+    <div className="mx-auto max-w-5xl flex flex-col gap-10 p-6 sm:p-8">
+      <nav className="flex items-center gap-2 text-sm text-slate-600">
+        <a href="/" className="font-medium text-slate-700 hover:text-slate-900">Home</a>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-700">Placement</span>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-900">Intro</span>
+      </nav>
+
       <header className="space-y-2 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Placement intro</h1>
         <p className="text-base text-slate-700">
@@ -46,10 +54,8 @@ export const PlacementIntroPage = () => {
           <Button size="lg" className="w-full max-w-xs text-base" onClick={() => navigate("/student/placement/progress")}>
             Start Your Placement
           </Button>
-          <Button variant="ghost" className="text-sm" asChild>
-            <Link to="#" aria-label="Do placement later">
-              Do it later
-            </Link>
+          <Button variant="ghost" className="text-sm" onClick={() => { setPlacementMode(false); navigate('/student/roadmap'); }}>
+            Do it later
           </Button>
           <p className="text-xs text-slate-600">
             You can skip any question; progress saves automatically.

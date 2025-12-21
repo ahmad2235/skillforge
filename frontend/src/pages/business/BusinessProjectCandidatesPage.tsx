@@ -11,8 +11,10 @@ export function BusinessProjectCandidatesPage() {
 
   if (!projectId) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">No project selected.</p>
+      <div className="py-10">
+        <div className="max-w-6xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">No project selected.</p>
+        </div>
       </div>
     );
   }
@@ -43,17 +45,21 @@ export function BusinessProjectCandidatesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-300 text-sm">Loading candidates...</p>
+      <div className="py-10">
+        <div className="max-w-6xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">Loading candidates...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <div className="max-w-md rounded-lg border border-red-700 bg-red-900/40 px-4 py-3 text-sm text-red-100">
-          {error}
+      <div className="py-10">
+        <div className="max-w-6xl mx-auto px-4 py-10">
+          <div className="max-w-md rounded-lg border border-red-700 bg-red-50/40 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         </div>
       </div>
     );
@@ -61,20 +67,20 @@ export function BusinessProjectCandidatesPage() {
 
   if (!candidates.length) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">
-          No candidates available for this project yet.
-        </p>
+      <div className="py-10">
+        <div className="max-w-6xl mx-auto px-4 py-10">
+          <p className="text-slate-500 text-sm">No candidates available for this project yet.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="py-10">
       <div className="max-w-5xl mx-auto py-8 px-4 space-y-4">
         <header>
-          <h1 className="text-2xl font-bold">Recommended Candidates</h1>
-          <p className="text-slate-300 text-sm">
+          <h1 className="text-2xl font-bold text-slate-900">Recommended Candidates</h1>
+          <p className="text-slate-700 text-sm">
             Ranked list of students for this project, based on AI evaluation.
           </p>
         </header>

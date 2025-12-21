@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import AppLayout from "@/layouts/AppLayout";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,6 +62,8 @@ export default function AdminUsersPage() {
   const [apiError, setApiError] = useState<ReturnType<typeof parseApiError> | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  // If backend only exposes students, we can render users list from students endpoint
+  const [showingStudentsInstead, setShowingStudentsInstead] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
@@ -84,7 +86,28 @@ export default function AdminUsersPage() {
         if (!active) return;
         setUsers(Array.isArray(payload) ? payload : []);
         setMeta(metaPayload && metaPayload.current_page ? metaPayload : null);
-      } catch (err: unknown) {
+      } catch (err: any) {
+        if (err?.code === "ERR_CANCELED") return;
+        // If the backend doesn't have /admin/users, fallback to /admin/students so admin can still view accounts
+        if (err?.status === 404) {
+          try {
+            const r2 = await apiClient.get("/admin/students", { params: page ? { page } : undefined });
+            const payload2 = r2.data?.data ?? r2.data ?? [];
+            const meta2: ApiMeta | null = r2.data?.meta ?? null;
+            if (!active) return;
+            setUsers(Array.isArray(payload2) ? payload2 : []);
+            setMeta(meta2 && meta2.current_page ? meta2 : null);
+            setShowingStudentsInstead(true);
+            return;
+          } catch (err2: unknown) {
+            if (!active) return;
+            setApiError(parseApiError(err2));
+            setUsers([]);
+            setMeta(null);
+            return;
+          }
+        }
+
         if (!active) return;
         setApiError(parseApiError(err));
         setUsers([]);
@@ -136,27 +159,29 @@ export default function AdminUsersPage() {
       .finally(() => setIsDetailLoading(false));
   };
 
+  // Admin actions not implemented yet: disable and show 'coming soon' UX instead of fake toasts
   const handleToggleStatus = (user: ApiUser) => {
-    const nextStatus = normalize(user.status) === "active" ? "Suspended" : "Active";
-    toastSuccess(`${nextStatus} action not implemented yet`);
+    // noop — action coming soon
+    // Optionally, could open a modal in future
   };
 
   const handleRoleChange = (value: string) => {
+    // noop — coming soon
+    // keep UI state locally to reflect selection but do NOT send to server
     if (!selectedUser) return;
     setSelectedUser({ ...selectedUser, role: value });
-    toastSuccess("Role change not implemented yet");
   };
 
   const handleResetPassword = () => {
-    toastSuccess("Reset password not implemented yet");
+    // noop — coming soon
   };
 
   const handleAddUser = () => {
-    toastSuccess("Add user not implemented yet");
+    // noop — coming soon
   };
 
   const handleExport = () => {
-    toastSuccess("Export not implemented yet");
+    // noop — coming soon
   };
 
   const handleRefresh = () => {
@@ -164,12 +189,11 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Users</h1>
-          <p className="text-sm text-muted-foreground">Manage accounts, roles, and activity.</p>
-        </header>
+    <div className="mx-auto max-w-5xl p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">{showingStudentsInstead ? "Students" : "Users"}</h1>
+        <p className="text-sm text-muted-foreground">Manage accounts, roles, and activity.</p>
+      </header>
 
         <Card>
           <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:p-6">
@@ -204,9 +228,9 @@ export default function AdminUsersPage() {
               </Select>
             </div>
             <div className="flex items-center gap-2 ml-auto">
-              <Button onClick={handleAddUser}>Add user</Button>
-              <Button variant="outline" onClick={handleExport}>
-                Export
+              <Button disabled className="opacity-60">Add user (coming soon)</Button>
+              <Button variant="outline" disabled className="opacity-60">
+                Export (coming soon)
               </Button>
             </div>
           </CardContent>
@@ -322,7 +346,6 @@ export default function AdminUsersPage() {
             ) : null}
           </CardContent>
         </Card>
-      </div>
 
       <Sheet open={!!selectedUser} onOpenChange={(open: boolean) => setSelectedUser(open ? selectedUser : null)}>
         <SheetContent side="right" className="w-[420px] sm:w-[480px]">
@@ -362,7 +385,7 @@ export default function AdminUsersPage() {
                   <div className="space-y-3 rounded-lg border p-3">
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">Change role</p>
-                      <Select value={selectedUser.role || ""} onValueChange={handleRoleChange}>
+                      <Select value={selectedUser.role || ""} onValueChange={handleRoleChange} disabled>
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
@@ -374,11 +397,11 @@ export default function AdminUsersPage() {
                       </Select>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Button size="sm" onClick={() => handleToggleStatus(selectedUser)}>
-                        {normalize(selectedUser.status) === "active" ? "Suspend user" : "Activate user"}
+                      <Button size="sm" disabled className="opacity-60">
+                        {normalize(selectedUser.status) === "active" ? "Suspend user (coming soon)" : "Activate user (coming soon)"}
                       </Button>
-                      <Button variant="secondary" size="sm" onClick={handleResetPassword}>
-                        Reset password
+                      <Button variant="secondary" size="sm" disabled className="opacity-60">
+                        Reset password (coming soon)
                       </Button>
                     </div>
                   </div>
@@ -388,6 +411,6 @@ export default function AdminUsersPage() {
           ) : null}
         </SheetContent>
       </Sheet>
-    </AppLayout>
+    </div>
   );
 }

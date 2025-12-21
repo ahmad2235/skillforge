@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../../lib/apiClient";
 import { getSafeErrorMessage } from "../../lib/errors";
 import { safeLogError } from "../../lib/logger";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
+import { SkeletonList } from "../../components/feedback/Skeletons";
 
 type DomainOption = "frontend" | "backend";
 
@@ -100,7 +102,13 @@ export function StudentPlacementPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-4xl mx-auto py-8 px-4 space-y-6">
+      <div className="mx-auto max-w-5xl p-6 sm:p-8 space-y-6">
+        <nav className="flex items-center gap-2 text-sm text-slate-400">
+          <a href="/" className="hover:text-slate-200">Home</a>
+          <span>/</span>
+          <span>Placement</span>
+        </nav>
+
         <header className="space-y-2">
           <h1 className="text-2xl font-bold">Placement Assessment</h1>
           <p className="text-slate-300 text-sm">
@@ -128,19 +136,21 @@ export function StudentPlacementPage() {
         </div>
 
         {isLoadingQuestions && (
-          <p className="text-slate-300 text-sm">Loading questions...</p>
+          <div className="max-w-3xl">
+            <SkeletonList rows={4} />
+          </div>
         )}
 
         {error && (
-          <div className="rounded-md border border-red-700 bg-red-900/40 px-4 py-2 text-sm text-red-100">
-            {error}
+          <div>
+            <ApiStateCard kind="network" description={error} primaryActionLabel="Retry" onPrimaryAction={() => void loadQuestions(domain)} />
           </div>
         )}
 
         {!isLoadingQuestions && !error && !questions.length && (
-          <p className="text-slate-400 text-sm">
-            No questions found for this domain yet.
-          </p>
+          <div>
+            <ApiStateCard kind="not_found" title="No questions found" description="No questions exist for this domain yet." primaryActionLabel="Retry" onPrimaryAction={() => void loadQuestions(domain)} />
+          </div>
         )}
 
         {questions.length > 0 && (

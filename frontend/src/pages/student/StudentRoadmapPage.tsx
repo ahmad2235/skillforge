@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo, useCallback, FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import { parseApiError } from "../../lib/apiErrors";
 import { safeLogError } from "../../lib/logger";
@@ -8,7 +8,7 @@ import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { useNavigation } from "../../components/navigation/NavigationContext";
 import { EmptyState } from "../../components/feedback/EmptyState";
-import { ApiStateCard } from "../../components/feedback/ApiStateCard";
+import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { useAppToast } from "../../components/feedback/useAppToast";
 
@@ -219,7 +219,7 @@ export function StudentRoadmapPage() {
     const parsed = parseApiError(error);
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <ApiStateCard error={parsed} onRetry={fetchRoadmap} />
+        <ApiStateCard kind={parsed.kind} description={parsed.message} primaryActionLabel="Retry" onPrimaryAction={fetchRoadmap} />
       </div>
     );
   }
@@ -244,6 +244,12 @@ export function StudentRoadmapPage() {
   // Success / existing rendering
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-4 sm:p-6">
+      <nav className="flex items-center gap-2 text-sm text-slate-600">
+        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">Home</Link>
+        <span className="text-slate-400">/</span>
+        <span className="font-medium text-slate-900">Roadmap</span>
+      </nav>
+
       <header className="space-y-2 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-3xl font-semibold text-slate-900">Your personalized roadmap</h1>
         <p className="text-base text-slate-700">This path updates as you complete tasks.</p>

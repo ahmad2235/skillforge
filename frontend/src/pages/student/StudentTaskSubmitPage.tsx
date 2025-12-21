@@ -1,5 +1,4 @@
-import type { FormEvent } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useRef, useMemo, FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
@@ -151,6 +150,15 @@ export function StudentTaskSubmitPage() {
     }
   }
 
+  const formSubmitting =
+    typeof isSubmitting !== "undefined"
+      ? // @ts-ignore
+        isSubmitting
+      : typeof loading !== "undefined"
+      ? // @ts-ignore
+        loading
+      : false;
+
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
@@ -230,7 +238,7 @@ export function StudentTaskSubmitPage() {
       </Card>
 
       {!submitted ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} aria-busy={formSubmitting} className="space-y-4">
           <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-900" htmlFor="answer_text">Your answer</label>
@@ -245,8 +253,17 @@ export function StudentTaskSubmitPage() {
                   if (fieldErrors.answer) setFieldErrors(prev => ({ ...prev, answer: undefined }));
                   if (formMessage) setFormMessage(null);
                 }}
+                aria-invalid={!!fieldErrors.answer}
+                aria-describedby={fieldErrors.answer ? "answer-error" : "answer-help"}
               />
-              {fieldErrors.answer && <p className="text-xs text-red-600">{fieldErrors.answer}</p>}
+              <p id="answer-help" className="text-xs text-slate-500">
+                Provide your answer, link, or upload details.
+              </p>
+              {fieldErrors.answer && (
+                <p id="answer-error" role="alert" className="text-sm text-red-600">
+                  {fieldErrors.answer}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -263,9 +280,17 @@ export function StudentTaskSubmitPage() {
                   if (fieldErrors.attachment) setFieldErrors(prev => ({ ...prev, attachment: undefined }));
                   if (formMessage) setFormMessage(null);
                 }}
+                aria-invalid={!!fieldErrors.attachment}
+                aria-describedby={fieldErrors.attachment ? "attachment-error" : "attachment-help"}
               />
-              <p className="text-xs text-slate-600">Must start with https:// if provided.</p>
-              {fieldErrors.attachment && <p className="text-xs text-red-600">{fieldErrors.attachment}</p>}
+              <p id="attachment-help" className="text-xs text-slate-500">
+                Must start with https:// if provided.
+              </p>
+              {fieldErrors.attachment && (
+                <p id="attachment-error" role="alert" className="text-sm text-red-600">
+                  {fieldErrors.attachment}
+                </p>
+              )}
             </div>
 
             {formMessage && (
@@ -290,13 +315,13 @@ export function StudentTaskSubmitPage() {
                 )}
               </Button>
               <div className="flex items-center gap-2">
-                <Button type="button" variant="ghost" onClick={() => toastSuccess("Draft saved (placeholder)")} disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <span className="inline-flex items-center gap-2">
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
-                      Save draft
-                    </span>
-                  ) : "Save draft"}
+              <Button type="button" variant="ghost" disabled className="opacity-60 cursor-not-allowed">
+                {isSubmitting ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
+                    Save draft (coming soon)
+                  </span>
+                ) : "Save draft (coming soon)"}
                 </Button>
                 {isSubmitting && <p className="text-xs text-slate-600">Disabled while submission is in progress.</p>}
               </div>
