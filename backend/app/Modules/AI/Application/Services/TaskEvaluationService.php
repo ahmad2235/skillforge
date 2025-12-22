@@ -9,10 +9,30 @@ use Illuminate\Support\Facades\Log;
 class TaskEvaluationService
 {
     private string $evaluatorUrl;
+    private int $timeout;
+    private int $healthTimeout;
 
     public function __construct()
     {
         $this->evaluatorUrl = config('services.evaluator.url', 'http://127.0.0.1:8001');
+        $this->timeout = config('services.evaluator.timeout', 15);
+        $this->healthTimeout = config('services.evaluator.health_timeout', 3);
+    }
+
+    /**
+     * Check if evaluator service is available.
+     * 
+     * @return bool
+     */
+    public function isEvaluatorAvailable(): bool
+    {
+        try {
+            $response = Http::timeout($this->healthTimeout)->get("{$this->evaluatorUrl}/health");
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::warning("Evaluator health check failed: {$e->getMessage()}");
+            return false;
+        }
     }
 
     /**
@@ -30,6 +50,20 @@ class TaskEvaluationService
      */
     public function evaluateSubmission(Submission $submission): array
     {
+        // Check evaluator availability first
+        if (!$this->isEvaluatorAvailable()) {
+            Log::warning("Evaluator service unavailable for submission {$submission->id}");
+            return [
+                'status' => 'unavailable',
+                'score' => null,
+                'feedback' => 'AI evaluator is currently unavailable. Your submission will be reviewed manually.',
+                'metadata' => [
+                    'reason' => 'healthcheck_failed',
+                    'at' => now()->toISOString(),
+                ],
+            ];
+        }
+
         try {
             // Prepare submission data
             $projectDescription = $submission->task->description ?? 'Project submission';
@@ -46,6 +80,7 @@ class TaskEvaluationService
             if (!$filePath || !file_exists($filePath)) {
                 Log::warning("Evaluator: File not found for submission {$submission->id}");
                 return [
+                    'status' => 'unavailable',
                     'score' => null,
                     'feedback' => 'File not available for evaluation.',
                     'metadata' => ['error' => 'file_not_found'],
@@ -53,7 +88,7 @@ class TaskEvaluationService
             }
 
             // Call the evaluator service
-            $response = Http::timeout(120)
+            $response = Http::timeout($this->timeout)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
                 ->asForm()
                 ->post("{$this->evaluatorUrl}/evaluate", [
@@ -66,20 +101,29 @@ class TaskEvaluationService
             if (!$response->successful()) {
                 Log::error("Evaluator API error: {$response->status()} - {$response->body()}");
                 return [
+                    'status' => 'unavailable',
                     'score' => null,
-                    'feedback' => 'Evaluation service is currently unavailable.',
-                    'metadata' => ['error' => 'api_error', 'status' => $response->status()],
+                    'feedback' => 'AI evaluator is currently unavailable. Your submission will be reviewed manually.',
+                    'metadata' => [
+                        'reason' => 'api_error',
+                        'status' => $response->status(),
+                        'at' => now()->toISOString(),
+                    ],
                 ];
             }
 
             $data = $response->json();
 
-            if (!$data['success'] ?? false) {
+            if (!($data['success'] ?? false)) {
                 Log::error("Evaluator returned success=false");
                 return [
+                    'status' => 'unavailable',
                     'score' => null,
-                    'feedback' => 'Evaluation failed.',
-                    'metadata' => ['error' => 'invalid_response'],
+                    'feedback' => 'Evaluation failed. Your submission will be reviewed manually.',
+                    'metadata' => [
+                        'reason' => 'invalid_response',
+                        'at' => now()->toISOString(),
+                    ],
                 ];
             }
 
@@ -90,6 +134,7 @@ class TaskEvaluationService
             $feedback = $this->buildFeedback($evaluation);
 
             return [
+                'status' => 'completed',
                 'score' => $score,
                 'feedback' => $feedback,
                 'metadata' => $evaluation, // Store full evaluation for later analysis
@@ -98,9 +143,14 @@ class TaskEvaluationService
         } catch (\Exception $e) {
             Log::error("TaskEvaluationService error: {$e->getMessage()}");
             return [
+                'status' => 'unavailable',
                 'score' => null,
-                'feedback' => 'An error occurred during evaluation.',
-                'metadata' => ['error' => 'exception', 'message' => $e->getMessage()],
+                'feedback' => 'AI evaluator encountered an error. Your submission will be reviewed manually.',
+                'metadata' => [
+                    'reason' => 'exception',
+                    'error' => $e->getMessage(),
+                    'at' => now()->toISOString(),
+                ],
             ];
         }
     }

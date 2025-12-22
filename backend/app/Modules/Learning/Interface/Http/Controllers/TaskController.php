@@ -57,6 +57,21 @@ class TaskController extends Controller
         // Policy-based authorization
         $this->authorize('view', $submission);
 
+        // Determine evaluation status and user message
+        $evaluationStatus = 'pending';
+        $userMessage = 'Evaluation in progress...';
+
+        if ($submission->status === 'needs_manual_review') {
+            $evaluationStatus = 'unavailable';
+            $userMessage = 'AI evaluator is currently unavailable. Your submission will be reviewed manually.';
+        } elseif ($submission->is_evaluated) {
+            $evaluationStatus = 'completed';
+            $userMessage = 'Evaluation complete.';
+        } elseif ($submission->status === 'evaluating') {
+            $evaluationStatus = 'pending';
+            $userMessage = 'Evaluation in progress...';
+        }
+
         return response()->json([
             'data' => [
                 'id'          => $submission->id,
@@ -72,6 +87,8 @@ class TaskController extends Controller
                 'submitted_at' => $submission->submitted_at,
                 'evaluated_at' => $submission->evaluated_at,
                 'task'        => $submission->task,
+                'evaluation_status' => $evaluationStatus,
+                'user_message' => $userMessage,
             ],
         ]);
     }
