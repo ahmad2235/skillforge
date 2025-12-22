@@ -4,7 +4,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiClient } from "../../lib/apiClient";
+import { apiClient, ensureCsrfCookie } from "../../lib/apiClient";
 import { useAuth } from "../../hooks/useAuth";
 import type { AuthUser } from "../../context/AuthContext";
 
@@ -35,6 +35,11 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
+      // Ensure we have a fresh CSRF cookie before attempting login.
+      // This is awaited to avoid a race where the token rotates between
+      // fetching it and reading the cookie to set the header.
+      await ensureCsrfCookie();
+
       const response = await apiClient.post("/auth/login", {
         email,
         password,

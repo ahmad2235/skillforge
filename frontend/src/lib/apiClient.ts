@@ -16,9 +16,42 @@ apiClient.interceptors.request.use((config) => {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Ensure X-XSRF-TOKEN header is set from the XSRF-TOKEN cookie (decoded)
+    // This makes CSRF deterministic (decodeURIComponent is required because
+    // cookies may be URL-encoded). Only set for state-mutating requests.
+    const method = (config.method || "").toLowerCase();
+    if (["post", "put", "patch", "delete"].includes(method)) {
+      const match = document.cookie.match(/(^|;)\s*XSRF-TOKEN\s*=\s*([^;]+)/);
+      if (match) {
+        try {
+          const xsrf = decodeURIComponent(match[2]);
+          config.headers = config.headers || {};
+          if (!config.headers["X-XSRF-TOKEN"]) {
+            config.headers["X-XSRF-TOKEN"] = xsrf;
+          }
+        } catch (e) {
+          // no-op: if decoding fails, let the request continue and server will return 419
+        }
+      }
+    }
   }
   return config;
 });
+
+// Helper to ensure the CSRF cookie is present. Uses a module-level promise to
+// avoid duplicate requests (React StrictMode can call effects twice).
+// Note: The Sanctum CSRF route is at /sanctum/csrf-cookie (NOT under /api),
+// so we use axios directly with an absolute URL.
+let csrfPromise: Promise<any> | null = null;
+export function ensureCsrfCookie(): Promise<any> {
+  if (csrfPromise) return csrfPromise;
+  const baseOrigin = new URL(API_BASE_URL).origin; // e.g. http://127.0.0.1:8000
+  csrfPromise = axios.get(`${baseOrigin}/sanctum/csrf-cookie`, { withCredentials: true }).finally(() => {
+    csrfPromise = null;
+  });
+  return csrfPromise;
+}
 
 // Global response handler for auth and safe errors
 apiClient.interceptors.response.use(
