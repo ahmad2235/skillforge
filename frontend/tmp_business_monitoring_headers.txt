@@ -1,0 +1,9 @@
+HTTP/1.0 404 Not Found
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/8.5.1
+Cache-Control: no-cache, private
+Date: Sun, 21 Dec 2025 18:00:43 GMT
+Content-Type: application/json
+Vary: Origin
+

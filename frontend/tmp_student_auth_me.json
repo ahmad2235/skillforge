@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/8.5.1
+Cache-Control: no-cache, private
+Date: Sun, 21 Dec 2025 18:17:19 GMT
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+Vary: Origin
+
+{"id":3,"name":"Beginner Student","email":"student.beginner@example.com","email_verified_at":null,"role":"student","level":"beginner","domain":"frontend","is_active":1,"current_level_project_id":null,"created_at":"2025-12-21T16:06:39.000000Z","updated_at":"2025-12-21T16:06:39.000000Z"}

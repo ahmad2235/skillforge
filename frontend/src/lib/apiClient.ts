@@ -5,7 +5,7 @@ const API_BASE_URL =
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: false, // نستخدم Bearer token بدل cookies
+  withCredentials: true, // Use cookie-based session auth for the SPA (Sanctum)
 });
 
 // Attach Authorization header if token exists in localStorage
