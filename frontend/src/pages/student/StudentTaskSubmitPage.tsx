@@ -77,8 +77,8 @@ export function StudentTaskSubmitPage() {
 
   const handleBackToRoadmap = () => navigate("/student/roadmap");
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: FormEvent | MouseEvent) {
+    if (e && 'preventDefault' in e) e.preventDefault();
     const numericId = Number(id);
 
     // Prevent duplicate submissions
@@ -114,6 +114,7 @@ export function StudentTaskSubmitPage() {
         attachment_url: attachmentUrl || null,
       });
 
+
       // Success: update UI immediately
       setSubmitted(true);
       const payload = res?.data ?? {};
@@ -139,6 +140,9 @@ export function StudentTaskSubmitPage() {
         if (validation.attachment_url) mapped.attachment = Array.isArray(validation.attachment_url) ? validation.attachment_url.join(" ") : String(validation.attachment_url);
         setFieldErrors((prev) => ({ ...prev, ...mapped }));
         setFormMessage(err.response?.data?.message ?? "Please fix the errors below.");
+      } else if (isAxiosError(err) && err.response?.status === 404) {
+        // Specific helpful message when the route is not found
+        setFormMessage("Submission endpoint not found (server returned 404). Please contact support or try again later.");
       } else {
         const message = isAxiosError(err) ? (err.response?.data?.message || "Failed to submit task.") : "Failed to submit task.";
         setFormMessage(message);
@@ -238,7 +242,7 @@ export function StudentTaskSubmitPage() {
       </Card>
 
       {!submitted ? (
-        <form onSubmit={handleSubmit} aria-busy={formSubmitting} className="space-y-4">
+        <form onSubmit={handleSubmit} action="javascript:void(0)" aria-busy={formSubmitting} className="space-y-4">
           <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-900" htmlFor="answer_text">Your answer</label>
@@ -301,7 +305,8 @@ export function StudentTaskSubmitPage() {
 
             <div className="flex flex-wrap items-center gap-2">
               <Button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={isSubmitting}
                 aria-busy={isSubmitting}
               >
