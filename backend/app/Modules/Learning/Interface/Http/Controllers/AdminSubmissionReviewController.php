@@ -35,4 +35,15 @@ class AdminSubmissionReviewController extends Controller
 
         return response()->json(['data' => $submission->refresh()]);
     }
+
+    /**
+     * Re-queue submission evaluation (admin-only).
+     */
+    public function reEvaluate(Submission $submission): JsonResponse
+    {
+        // Dispatch evaluation job
+        dispatch(new \App\Jobs\EvaluateSubmissionJob($submission->id));
+
+        return response()->json(['message' => 'Evaluation queued.', 'submission_id' => $submission->id]);
+    }
 }

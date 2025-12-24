@@ -37,7 +37,8 @@ return [
 
     'evaluator' => [
         'url' => env('EVALUATOR_URL', 'http://127.0.0.1:8001'),
-        'timeout' => (int) env('EVALUATOR_TIMEOUT', 15),
+        'timeout' => (int) env('EVALUATOR_TIMEOUT', 30),
+        'connect_timeout' => (int) env('EVALUATOR_CONNECT_TIMEOUT', 5),
         'health_timeout' => (int) env('EVALUATOR_HEALTH_TIMEOUT', 3),
     ],
 

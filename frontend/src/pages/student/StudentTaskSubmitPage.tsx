@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
+import { useSubmissionPolling } from "../../hooks/useSubmissionPolling";
 import { useAppToast } from "../../components/feedback/useAppToast";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { EmptyState } from "../../components/feedback/EmptyState";
@@ -16,6 +17,7 @@ type TaskDetail = {
   id: number;
   title?: string | null;
   description?: string | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 export function StudentTaskSubmitPage() {
@@ -26,8 +28,9 @@ export function StudentTaskSubmitPage() {
 
   const [answerText, setAnswerText] = useState("");
   const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [studentRunStatus, setStudentRunStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<{ answer?: string; attachment?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{ answer?: string; attachment?: string; runStatus?: string }>({});
   const [formMessage, setFormMessage] = useState<string | null>(null);
 
   const [task, setTask] = useState<TaskDetail | null>(null);
@@ -37,6 +40,27 @@ export function StudentTaskSubmitPage() {
   const [aiFeedback, setAiFeedback] = useState<string | null>(null);
   const [aiScore, setAiScore] = useState<number | null>(null);
   const [submissionMeta, setSubmissionMeta] = useState<{ id?: number | string | null; updatedAt?: string | null; submittedAt?: string | null }>({ submittedAt: null });
+
+  // Start polling after we have a submission id
+  const submissionId = submissionMeta?.id ?? null;
+  const { aiEvaluation, evaluationDebug, semanticStatus, isPolling, attempts, maxAttempts, progressPct, status: submissionStatus, stopReason, lastUpdatedAt, lastError, manualCheck } = useSubmissionPolling(submissionId, { intervalMs: 2500, maxAttempts: 24 });
+
+  // Update UI when aiEvaluation or stopReason changes
+  useEffect(() => {
+    if (aiEvaluation) {
+      if (aiEvaluation.feedback) setAiFeedback(aiEvaluation.feedback);
+      if (typeof aiEvaluation.score === 'number') setAiScore(aiEvaluation.score);
+    }
+  }, [aiEvaluation]);
+
+  useEffect(() => {
+    if (stopReason === 'completed') {
+      // ensure aiFeedback / aiScore reflect final evaluation (handled above)
+    }
+  }, [stopReason]);
+
+  // Poll for submission evaluation status and feedback
+
 
   useEffect(() => {
     const numericId = Number(id);
@@ -53,7 +77,12 @@ export function StudentTaskSubmitPage() {
       try {
         const res = await apiClient.get(`/student/tasks/${numericId}`);
         const data = res.data.data ?? res.data;
-        setTask({ id: numericId, title: data?.title ?? null, description: data?.description ?? null });
+        setTask({
+          id: numericId,
+          title: data?.title ?? null,
+          description: data?.description ?? null,
+          metadata: data?.metadata ?? {},
+        });
       } catch (err: unknown) {
         safeLogError(err, "TaskDetails");
         if (isAxiosError(err) && err.response?.status === 404) {
@@ -77,8 +106,8 @@ export function StudentTaskSubmitPage() {
 
   const handleBackToRoadmap = () => navigate("/student/roadmap");
 
-  async function handleSubmit(e?: FormEvent | MouseEvent) {
-    if (e && 'preventDefault' in e) e.preventDefault();
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
     const numericId = Number(id);
 
     // Prevent duplicate submissions
@@ -90,13 +119,21 @@ export function StudentTaskSubmitPage() {
     }
 
     // inline validation
-    const errors: { answer?: string; attachment?: string } = {};
+    const errors: { answer?: string; attachment?: string; runStatus?: string } = {};
     if (!answerText.trim()) {
       errors.answer = "Answer is required.";
     }
 
-    if (attachmentUrl && !attachmentUrl.startsWith("https://")) {
-      errors.attachment = "Attachment URL must start with https://";
+    // GitHub URL validation when attachment is required
+    const requiresAttachment = (task?.metadata as any)?.requires_attachment ?? false;
+    if (requiresAttachment) {
+      if (!attachmentUrl) {
+        errors.attachment = "GitHub repository URL is required for this task.";
+      } else if (!attachmentUrl.match(/^https:\/\/(www\.)?github\.com\/[\w-]+\/[\w.-]+/i)) {
+        errors.attachment = "Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo)";
+      }
+    } else if (attachmentUrl && !attachmentUrl.startsWith("https://")) {
+      errors.attachment = "URL must start with https://";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -112,8 +149,8 @@ export function StudentTaskSubmitPage() {
       const res = await apiClient.post(`/student/tasks/${numericId}/submit`, {
         answer_text: answerText,
         attachment_url: attachmentUrl || null,
+        run_status: studentRunStatus || null,
       });
-
 
       // Success: update UI immediately
       setSubmitted(true);
@@ -140,9 +177,6 @@ export function StudentTaskSubmitPage() {
         if (validation.attachment_url) mapped.attachment = Array.isArray(validation.attachment_url) ? validation.attachment_url.join(" ") : String(validation.attachment_url);
         setFieldErrors((prev) => ({ ...prev, ...mapped }));
         setFormMessage(err.response?.data?.message ?? "Please fix the errors below.");
-      } else if (isAxiosError(err) && err.response?.status === 404) {
-        // Specific helpful message when the route is not found
-        setFormMessage("Submission endpoint not found (server returned 404). Please contact support or try again later.");
       } else {
         const message = isAxiosError(err) ? (err.response?.data?.message || "Failed to submit task.") : "Failed to submit task.";
         setFormMessage(message);
@@ -242,7 +276,7 @@ export function StudentTaskSubmitPage() {
       </Card>
 
       {!submitted ? (
-        <form onSubmit={handleSubmit} action="javascript:void(0)" aria-busy={formSubmitting} className="space-y-4">
+        <form onSubmit={handleSubmit} aria-busy={formSubmitting} className="space-y-4">
           <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-900" htmlFor="answer_text">Your answer</label>
@@ -271,13 +305,21 @@ export function StudentTaskSubmitPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-900" htmlFor="attachment_url">Attachment URL (optional)</label>
+              {/** Show as required when task requires an attachment */}
+              <label className="text-sm font-medium text-slate-900" htmlFor="attachment_url">
+                {((task?.metadata as any)?.requires_attachment ?? false) ? (
+                  <>GitHub Repo URL <span className="text-red-600">*</span></>
+                ) : (
+                  <>Link / URL <span className="text-slate-400">(optional)</span></>
+                )}
+              </label>
               <input
                 id="attachment_url"
                 type="url"
                 disabled={isSubmitting}
+                required={(task?.metadata as any)?.requires_attachment ?? false}
                 className="w-full rounded-md border border-slate-300 p-2 text-sm disabled:opacity-60 disabled:bg-slate-50"
-                placeholder="https://your-hosted-solution.example.com"
+                placeholder={((task?.metadata as any)?.requires_attachment ?? false) ? "https://github.com/username/repo" : "https://your-hosted-solution.example.com"}
                 value={attachmentUrl}
                 onChange={(e) => {
                   setAttachmentUrl(e.target.value);
@@ -288,13 +330,37 @@ export function StudentTaskSubmitPage() {
                 aria-describedby={fieldErrors.attachment ? "attachment-error" : "attachment-help"}
               />
               <p id="attachment-help" className="text-xs text-slate-500">
-                Must start with https:// if provided.
+                {((task?.metadata as any)?.requires_attachment ?? false)
+                  ? (task?.metadata as any)?.attachment_hint ?? 'Public GitHub repository URL (e.g., https://github.com/user/repo)'
+                  : 'Must start with https:// if provided.'}
               </p>
               {fieldErrors.attachment && (
                 <p id="attachment-error" role="alert" className="text-sm text-red-600">
                   {fieldErrors.attachment}
                 </p>
               )}
+            </div>
+
+            {/* How to run it (optional) */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-900" htmlFor="run_status">
+                How to run it <span className="text-slate-400">(optional)</span>
+              </label>
+              <textarea
+                id="run_status"
+                disabled={isSubmitting}
+                className="min-h-[80px] w-full rounded-md border border-slate-300 p-2 text-sm disabled:opacity-60 disabled:bg-slate-50"
+                placeholder="e.g., npm install && npm start, or python main.py"
+                value={studentRunStatus}
+                onChange={(e) => {
+                  setStudentRunStatus(e.target.value);
+                  if (fieldErrors.runStatus) setFieldErrors(prev => ({ ...prev, runStatus: undefined }));
+                }}
+                aria-describedby="run-status-help"
+              />
+              <p id="run-status-help" className="text-xs text-slate-500">
+                Brief instructions on how to run/test your project (helps the evaluator).
+              </p>
             </div>
 
             {formMessage && (
@@ -305,8 +371,7 @@ export function StudentTaskSubmitPage() {
 
             <div className="flex flex-wrap items-center gap-2">
               <Button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isSubmitting}
                 aria-busy={isSubmitting}
               >
@@ -377,7 +442,165 @@ export function StudentTaskSubmitPage() {
               <span className="text-sm font-medium text-slate-900">Score: {aiScore} / 100</span>
             )}
           </div>
-          <p className="text-sm text-slate-700">{aiFeedback}</p>
+
+          {/* Polling / evaluating state: use semanticStatus (server-provided when available) */}
+          {semanticStatus === 'pending' ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <svg className="h-4 w-4 animate-spin text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
+                <p className="text-sm text-slate-700">Evaluating... <span className="text-xs text-slate-500">(Attempt {attempts} / {maxAttempts})</span></p>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full rounded bg-slate-100 h-2 overflow-hidden">
+                <div className="h-2 bg-emerald-500" style={{ width: `${progressPct}%` }} />
+              </div>
+            </div>
+          ) : null}
+
+          {/* Final feedback when evaluation completed */}
+          {semanticStatus === 'completed' && aiFeedback ? (
+            <p className="text-sm text-slate-700">{aiFeedback}</p>
+          ) : null}
+
+          {/* Debug panel (collapsible) */}
+          {submitted && (
+            <details className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
+              <summary className="cursor-pointer font-medium">Debug</summary>
+              <div className="mt-2 text-sm text-slate-700">
+                <p><strong>Endpoint:</strong> <code>/api/student/submissions/{submissionMeta.id}</code></p>
+                <p><strong>Submission ID:</strong> {submissionMeta.id ?? 'N/A'}</p>
+                <p><strong>Submission status:</strong> {submissionStatus ?? 'N/A'}</p>
+                <p><strong>AI evaluation status:</strong> {aiEvaluation?.status ?? 'N/A'}</p>
+                <p><strong>AI semantic status:</strong> {semanticStatus ?? 'N/A'}</p>
+                <p><strong>Last updated at:</strong> {lastUpdatedAt ?? 'N/A'}</p>
+                <p><strong>Last error:</strong> {lastError ?? 'N/A'}</p>
+                <p><strong>Evaluation debug:</strong></p>
+                <pre className="text-xs bg-white rounded border p-2">{JSON.stringify(aiEvaluation ? { aiEvaluation, evaluation_debug: evaluationDebug ?? 'none' } : (evaluationDebug ?? 'no-evaluation'), null, 2)}</pre>
+
+                {(stopReason === 'timeout') && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        await manualCheck();
+                        toastSuccess('Manual re-check performed');
+                      }}
+                    >
+                      Re-check now
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => toastError('Please ask an admin to review this submission.')}
+                    >
+                      Ask admin to review
+                    </Button>
+                  </div>
+                )}
+
+                {(semanticStatus === 'manual_review' || semanticStatus === 'failed') && (
+                  <div className="mt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => toastError('Please ask an admin to review this submission.')}
+                    >
+                      Ask admin to review
+                    </Button>
+                  </div>
+                )}
+
+              </div>
+            </details>
+          )}
+
+          {/* Unavailable / timeout */}
+          {(semanticStatus === 'manual_review' || semanticStatus === 'failed') && (
+            <div className="space-y-2">
+              {semanticStatus === 'failed' ? (
+                <div>
+                  <p className="text-sm text-red-600">Evaluation failed.</p>
+                  <p className="text-sm text-red-600">Reason: {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Unknown'}</p>
+                </div>
+              ) : (
+                <div>
+                  {/* manual_review */}
+                  <p className="text-sm text-red-600">{
+                    aiEvaluation?.meta?.reason === 'ai_disabled'
+                      ? 'AI evaluation is disabled. Your submission will be reviewed manually.'
+                      : aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Needs manual review'
+                  }</p>
+                </div>
+              )}
+
+              {/* Show diagnostic message when available (if not already shown) */}
+              {evaluationDebug?.message && semanticStatus !== 'failed' && (
+                <p className="text-sm text-red-600">Diagnostic: {evaluationDebug.message}</p>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    // manual re-check of status
+                    const payload = await manualCheck();
+                    if (payload) {
+                      toastSuccess('Manual re-check performed');
+                    } else {
+                      toastError('Re-check failed. Please try again later.');
+                    }
+                  }}
+                >
+                  Re-check now
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => toastError('Please ask an admin to review this submission.')}
+                >
+                  Ask admin to review
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {semanticStatus === 'skipped' && (
+            <div className="space-y-2">
+              <p className="text-sm text-slate-700">Skipped — {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'No reason provided'}</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    const payload = await manualCheck();
+                    if (payload) {
+                      toastSuccess('Manual re-check performed');
+                    } else {
+                      toastError('Re-check failed. Please try again later.');
+                    }
+                  }}
+                >
+                  Re-check now
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {stopReason === 'timeout' && semanticStatus === 'pending' && (
+            <div className="space-y-2">
+              <p className="text-sm text-red-600">Evaluation timed out. Please try again later or ask an admin to review.</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    toastError('Please ask an admin to review this submission.');
+                  }}
+                >
+                  Ask admin to review
+                </Button>
+              </div>
+            </div>
+          )}
+
         </Card>
       )}
 

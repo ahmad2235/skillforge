@@ -20,9 +20,8 @@ class SubmitTaskRequest extends FormRequest
                 'url',
                 'max:2048',
                 'regex:/^https:\\/\\//i',
-                'not_regex:/^https?:\\/\\/(localhost|127\\.0\\.0\\.1|10\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[0-1])\\.)/i',
             ],
-            'run_status'     => ['nullable','string'],
+            'run_status'     => ['nullable','string','max:1000'],
             'known_issues'   => ['nullable','string'],
         ];
     }

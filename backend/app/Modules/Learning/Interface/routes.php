@@ -18,6 +18,7 @@ Route::middleware(['auth:sanctum', 'role:student'])
         Route::post('/blocks/{block}/complete', [StudentRoadmapController::class, 'completeBlock']);
 
         Route::get('/blocks/{block}/tasks', [TaskController::class, 'listByBlock']);
+        Route::get('/tasks/{task}', [TaskController::class, 'show']);
         Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])
             ->middleware('throttle:submissions');
         Route::get('/submissions/{submission}', [TaskController::class, 'getSubmission']);
@@ -43,4 +44,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])
         // Edit/delete task directly
         Route::put('/tasks/{task}',    [AdminTaskController::class, 'update']);
         Route::delete('/tasks/{task}', [AdminTaskController::class, 'destroy']);
+
+        // Submission re-evaluate (admin only)
+        Route::post('/submissions/{submission}/re-evaluate', [\App\Modules\Learning\Interface\Http\Controllers\AdminSubmissionReviewController::class, 'reEvaluate']);
     });

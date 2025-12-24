@@ -301,55 +301,72 @@ export default function AdminLearningSubmissionsPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Final score</label>
-                      <Input type="number" value={selected.final_score ?? ''} onChange={(e) => setSelected((s) => s ? { ...s, final_score: e.target.value ? Number(e.target.value) : null } : s)} min={0} max={selected.task?.max_score ?? 100} step="0.1" />
+
+                    <div className="flex items-end justify-end col-span-2">
+                      <Button size="sm" variant="outline" onClick={async () => {
+                        try {
+                          const res = await apiClient.post(`/admin/learning/submissions/${selected.id}/re-evaluate`);
+                          toastSuccess('Evaluation queued');
+                          // refresh detail
+                          const fresh = await apiClient.get(`/admin/learning/submissions/${selected.id}`);
+                          setSelected(fresh.data?.data ?? fresh.data ?? null);
+                        } catch (err: any) {
+                          toastError('Failed to queue evaluation');
+                        }
+                      }}>
+                        Re-evaluate
+                      </Button>
                     </div>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Feedback</label>
-                    <Textarea value={selected.feedback ?? ''} onChange={(e) => setSelected((s) => s ? { ...s, feedback: e.target.value } : s)} rows={4} />
-                  </div>
-
-                  {selected.task?.rubric && selected.task.rubric.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium">Rubric scores</p>
-                      <div className="space-y-2">
-                        {selected.task.rubric.map((r: any, idx: number) => {
-                          const current = (selected.rubric_scores && selected.rubric_scores[idx]?.score) ?? 0;
-                          return (
-                            <div key={idx} className="flex items-center gap-2">
-                              <div className="flex-1">{r.criterion} ({r.max_points})</div>
-                              <div style={{ width: 120 }}>
-                                <Input type="number" min={0} max={r.max_points} step="0.1" value={(selected.rubric_scores?.[idx]?.score ?? current).toString()} onChange={(e) => {
-                                  const val = e.target.value ? Number(e.target.value) : 0;
-                                  const copy = selected.rubric_scores ? [...selected.rubric_scores] : (selected.task?.rubric ?? []).map((c: any) => ({ criterion: c.criterion, score: 0, max_points: c.max_points }));
-                                  copy[idx] = { criterion: r.criterion, score: val, max_points: r.max_points };
-                                  setSelected((s) => s ? { ...s, rubric_scores: copy } : s);
-                                }} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                    <Button onClick={() => saveOverride({ status: selected.status ?? 'evaluated', final_score: selected.final_score ?? null, feedback: selected.feedback ?? null, rubric_scores: selected.rubric_scores ?? null })} disabled={isProcessing}>{isProcessing ? 'Saving...' : 'Save override'}</Button>
-                    <Button variant="secondary" onClick={() => { setSelected(null); setSelectedId(null); }}>Close</Button>
-                  </div>
-
-                  {Object.keys(fieldErrors).length > 0 && (
-                    <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                      <p className="font-semibold">Validation errors</p>
-                      <ul>
-                        {Object.entries(fieldErrors).map(([k, v]) => (<li key={k}><strong>{k}:</strong> {v.join(', ')}</li>))}
-                      </ul>
-                    </div>
-                  )}
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Final score</label>
+                  <Input type="number" value={selected.final_score ?? ''} onChange={(e) => setSelected((s) => s ? { ...s, final_score: e.target.value ? Number(e.target.value) : null } : s)} min={0} max={selected.task?.max_score ?? 100} step="0.1" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Feedback</label>
+                  <Textarea value={selected.feedback ?? ''} onChange={(e) => setSelected((s) => s ? { ...s, feedback: e.target.value } : s)} rows={4} />
+                </div>
+
+                {selected.task?.rubric && selected.task.rubric.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium">Rubric scores</p>
+                    <div className="space-y-2">
+                      {selected.task.rubric.map((r: any, idx: number) => {
+                        const current = (selected.rubric_scores && selected.rubric_scores[idx]?.score) ?? 0;
+                        return (
+                          <div key={idx} className="flex items-center gap-2">
+                            <div className="flex-1">{r.criterion} ({r.max_points})</div>
+                            <div style={{ width: 120 }}>
+                              <Input type="number" min={0} max={r.max_points} step="0.1" value={(selected.rubric_scores?.[idx]?.score ?? current).toString()} onChange={(e) => {
+                                const val = e.target.value ? Number(e.target.value) : 0;
+                                const copy = selected.rubric_scores ? [...selected.rubric_scores] : (selected.task?.rubric ?? []).map((c: any) => ({ criterion: c.criterion, score: 0, max_points: c.max_points }));
+                                copy[idx] = { criterion: r.criterion, score: val, max_points: r.max_points };
+                                setSelected((s) => s ? { ...s, rubric_scores: copy } : s);
+                              }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => saveOverride({ status: selected.status ?? 'evaluated', final_score: selected.final_score ?? null, feedback: selected.feedback ?? null, rubric_scores: selected.rubric_scores ?? null })} disabled={isProcessing}>{isProcessing ? 'Saving...' : 'Save override'}</Button>
+                  <Button variant="secondary" onClick={() => { setSelected(null); setSelectedId(null); }}>Close</Button>
+                </div>
+
+                {Object.keys(fieldErrors).length > 0 && (
+                  <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    <p className="font-semibold">Validation errors</p>
+                    <ul>
+                      {Object.entries(fieldErrors).map(([k, v]) => (<li key={k}><strong>{k}:</strong> {v.join(', ')}</li>))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="p-4">

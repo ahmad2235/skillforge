@@ -1,0 +1,5 @@
+# Project evaluator local ignores
+.env
+venv/
+__pycache__/
+*.pyc

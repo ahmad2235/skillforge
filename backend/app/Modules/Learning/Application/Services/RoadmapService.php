@@ -7,6 +7,7 @@ use App\Jobs\EvaluateSubmissionJob;
 use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
 use App\Modules\Learning\Infrastructure\Models\Task;
 use App\Modules\Learning\Infrastructure\Models\Submission;
+use App\Modules\Learning\Infrastructure\Models\AiEvaluation;
 use App\Modules\Learning\Infrastructure\Models\UserRoadmapBlock;
 use Illuminate\Support\Facades\DB;
 use App\Modules\AI\Application\Services\TaskEvaluationService;
@@ -100,15 +101,41 @@ class RoadmapService
         $submission = DB::transaction(function () use ($user, $taskId, $data) {
             $task = Task::findOrFail($taskId);
 
+            // Build submission metadata including student_run_status
+            $metadata = $data['metadata'] ?? [];
+            if (!empty($data['run_status'])) {
+                $metadata['student_run_status'] = $data['run_status'];
+            }
+            if (!empty($data['known_issues'])) {
+                $metadata['known_issues'] = $data['known_issues'];
+            }
+
             $submission = Submission::create([
                 'user_id'        => $user->id,
                 'task_id'        => $task->id,
                 'answer_text'    => $data['answer_text'] ?? null,
                 'attachment_url' => $data['attachment_url'] ?? null,
                 'status'         => 'submitted',
-                'metadata'       => $data['metadata'] ?? [],
+                'metadata'       => $metadata,
                 'submitted_at'   => now(),
             ]);
+
+            // Create a queued AI evaluation record immediately to avoid eval_count=0 and UI timeouts
+            $aiEval = AiEvaluation::create([
+                'submission_id' => $submission->id,
+                'status'        => 'queued',
+                'score'         => null,
+                'feedback'      => null,
+                'metadata'      => [
+                    'evaluation_outcome' => 'pending',
+                    'source'             => 'submit',
+                ],
+                'started_at'    => now(),
+                'completed_at'  => null,
+            ]);
+
+            $submission->latest_ai_evaluation_id = $aiEval->id;
+            $submission->save();
 
             return $submission;
         });

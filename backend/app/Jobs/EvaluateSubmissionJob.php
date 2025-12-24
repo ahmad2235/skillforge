@@ -62,17 +62,19 @@ class EvaluateSubmissionJob implements ShouldQueue
                 return;
             }
 
-            // Store the evaluation results
+            // Store the evaluation results (snapshot fields)
             $submission->ai_score = $evaluation['score'];
             $submission->ai_feedback = $evaluation['feedback'];
             $submission->ai_metadata = $evaluation['metadata'];
+            $submission->final_score = $evaluation['score'] ?? null;
+            $submission->rubric_scores = $evaluation['metadata']['rubric_scores'] ?? null;
             $submission->is_evaluated = true;
             $submission->evaluated_at = now();
             $submission->status = 'evaluated';
             $submission->save();
 
             // Create ai_evaluations record for audit trail
-            AiEvaluation::create([
+            $ae = AiEvaluation::create([
                 'submission_id' => $submission->id,
                 'provider' => 'openai',
                 'model' => $evaluation['metadata']['model'] ?? null,
@@ -84,6 +86,10 @@ class EvaluateSubmissionJob implements ShouldQueue
                 'started_at' => now()->subSeconds(5),
                 'completed_at' => now(),
             ]);
+
+            // Update submission pointer to latest evaluation
+            $submission->latest_ai_evaluation_id = $ae->id;
+            $submission->save();
 
             Log::info("Submission {$submission->id} evaluated successfully. Score: {$evaluation['score']}");
 
@@ -117,28 +123,56 @@ class EvaluateSubmissionJob implements ShouldQueue
     }
 
     /**
-     * Handle the case when evaluator is unavailable.
+     * Handle the case when evaluator is unavailable (manual review required).
+     * 
+     * When AI is disabled or evaluation fails, we must:
+     * - NOT set score snapshots (keep ai_score, final_score, rubric_scores NULL)
+     * - Mark submission as needs_manual_review
+     * - Create ai_evaluations record with status='failed'
      */
     private function handleUnavailableEvaluator(Submission $submission, array $evaluation, AiLogger $aiLogger): void
     {
-        $submission->status = 'needs_manual_review';
+        // Clear snapshot fields - manual review means no AI score
+        $submission->ai_score = null;
+        $submission->final_score = null;
+        $submission->rubric_scores = null;
         $submission->ai_feedback = $evaluation['feedback'];
         $submission->ai_metadata = $evaluation['metadata'];
         $submission->is_evaluated = false;
+        $submission->evaluated_at = null;
+        $submission->status = 'needs_manual_review';
         $submission->save();
 
-        // Create ai_evaluations record with failed status
-        AiEvaluation::create([
+        // Select ai_evaluation status based on evaluation metadata outcome
+        $outcome = $evaluation['metadata']['evaluation_outcome'] ?? null;
+        $aiStatus = in_array($outcome, ['skipped', 'manual_review', 'failed'], true) ? $outcome : 'failed';
+
+        // Always use 'failed' status in DB enum for unavailable/manual-review scenarios
+        // (db only understands queued|running|succeeded|failed; 'manual_review' is a metadata concept)
+        $dbStatus = 'failed';
+        $metadata = $evaluation['metadata'] ?? [];
+        // Ensure metadata has the right outcome
+        if (!isset($metadata['evaluation_outcome']) || !in_array($metadata['evaluation_outcome'], ['manual_review', 'skipped', 'failed'], true)) {
+            $metadata['evaluation_outcome'] = 'manual_review';
+        }
+
+        $ae = AiEvaluation::create([
             'submission_id' => $submission->id,
             'provider' => 'openai',
-            'status' => 'failed',
-            'error_message' => $evaluation['feedback'],
-            'metadata' => $evaluation['metadata'],
+            'status' => $dbStatus,
+            'score' => null, // Explicitly null - no AI score for manual review
+            'feedback' => $evaluation['feedback'] ?? null,
+            'error_message' => $evaluation['feedback'] ?? null,
+            'metadata' => $metadata,
             'started_at' => now(),
             'completed_at' => now(),
         ]);
 
-        // Log the unavailability
+        // Update latest pointer
+        $submission->latest_ai_evaluation_id = $ae->id;
+        $submission->save();
+
+        // Log the unavailability / manual review
         $aiLogger->log(
             'task_evaluation_unavailable',
             $submission->user_id,
@@ -149,10 +183,11 @@ class EvaluateSubmissionJob implements ShouldQueue
             [
                 'status' => 'unavailable',
                 'reason' => $evaluation['metadata']['reason'] ?? 'unknown',
+                'outcome' => $aiStatus,
             ]
         );
 
-        Log::warning("Evaluator unavailable for submission {$submission->id}. Marked for manual review.");
+        Log::warning("Evaluator unavailable for submission {$submission->id}. Marked for manual review. Outcome: {$aiStatus}");
     }
 
     /**
@@ -176,15 +211,22 @@ class EvaluateSubmissionJob implements ShouldQueue
         $submission->save();
 
         // Create ai_evaluations record
-        AiEvaluation::create([
+        $ae = AiEvaluation::create([
             'submission_id' => $submission->id,
             'provider' => 'openai',
             'status' => 'failed',
             'error_message' => 'Job failed: ' . $exception->getMessage(),
-            'metadata' => ['exception' => get_class($exception)],
+            'metadata' => ['exception' => get_class($exception), 'evaluation_outcome' => 'manual_review'],
             'started_at' => now(),
             'completed_at' => now(),
         ]);
+
+        // Ensure submission points to this latest ai_evaluation row
+        $submission->latest_ai_evaluation_id = $ae->id;
+        $submission->status = 'needs_manual_review';
+        $submission->ai_feedback = 'Evaluation failed after multiple attempts. Awaiting manual review.';
+        $submission->ai_metadata = ['error' => 'job_failed', 'message' => $exception->getMessage(), 'failed_at' => now()->toISOString()];
+        $submission->save();
 
         // Log the failure
         app(AiLogger::class)->log(

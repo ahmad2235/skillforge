@@ -29,6 +29,15 @@ class TaskSeeder extends Seeder
                 continue;
             }
 
+            $metadata = [];
+
+            // Mark some demo project tasks as requiring an attachment (URL-based)
+            if (in_array($task['key'], ['beginner-frontend-1', 'intermediate-frontend-1'], true)) {
+                $metadata['requires_attachment'] = true;
+                $metadata['attachment_type'] = 'url';
+                $metadata['attachment_hint'] = 'Public GitHub repo or downloadable zip link';
+            }
+
             Task::updateOrCreate(
                 [
                     'roadmap_block_id' => $block->id,
@@ -40,7 +49,7 @@ class TaskSeeder extends Seeder
                     'difficulty'  => $task['difficulty'],
                     'max_score'   => $task['max_score'],
                     'is_active'   => true,
-                    'metadata'    => [],
+                    'metadata'    => $metadata,
                 ]
             );
         }

@@ -13,6 +13,8 @@ class AdminSubmissionController extends Controller
         $submission = Submission::with(['task', 'user', 'latestAiEvaluation'])
             ->findOrFail($submissionId);
 
+        $latestAi = $submission->latestAiEvaluationResolved();
+
         return response()->json([
             'data' => [
                 'id' => $submission->id,
@@ -33,15 +35,15 @@ class AdminSubmissionController extends Controller
                 'effective_score' => $submission->effective_score,
                 'task' => $submission->task,
                 'user' => $submission->user,
-                'latest_ai_evaluation' => $submission->latestAiEvaluation ? [
-                    'id' => $submission->latestAiEvaluation->id,
-                    'provider' => $submission->latestAiEvaluation->provider,
-                    'model' => $submission->latestAiEvaluation->model,
-                    'status' => $submission->latestAiEvaluation->status,
-                    'score' => $submission->latestAiEvaluation->score,
-                    'feedback' => $submission->latestAiEvaluation->feedback,
-                    'rubric_scores' => $submission->latestAiEvaluation->rubric_scores,
-                    'completed_at' => $submission->latestAiEvaluation->completed_at,
+                'latest_ai_evaluation' => $latestAi ? [
+                    'id' => $latestAi->id,
+                    'provider' => $latestAi->provider,
+                    'model' => $latestAi->model,
+                    'status' => $latestAi->status,
+                    'score' => $latestAi->score,
+                    'feedback' => $latestAi->feedback,
+                    'rubric_scores' => $latestAi->rubric_scores,
+                    'completed_at' => $latestAi->completed_at,
                 ] : null,
             ],
         ]);

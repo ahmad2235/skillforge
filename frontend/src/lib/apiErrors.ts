@@ -51,3 +51,8 @@ export function parseApiError(err: any): ParsedApiError {
 
   return { kind: "unknown", message: message || "An error occurred. Please try again." };
 }
+
+export function isNotImplemented(err: any): boolean {
+  const status = err?.status ?? err?.response?.status ?? null;
+  return status === 501;
+}

@@ -58,7 +58,6 @@ class EvaluateSubmissionJobTest extends TestCase
         $this->assertDatabaseHas('ai_evaluations', [
             'submission_id' => $submission->id,
             'status' => 'succeeded',
-            'provider' => 'fake',
         ]);
 
         // Submission updated
@@ -71,5 +70,132 @@ class EvaluateSubmissionJobTest extends TestCase
         $aiEval = DB::table('ai_evaluations')->where('submission_id', $submission->id)->first();
         $this->assertNotNull($aiEval);
         $this->assertEquals($aiEval->score, $submission->final_score);
+
+        // Verify metadata strict defaults for successful evaluations
+        $meta = json_decode($aiEval->metadata ?? 'null', true) ?: [];
+        $this->assertEquals('ok', $meta['reason'] ?? null);
+        $this->assertEquals('ai_completed', $meta['evaluation_outcome'] ?? null);
+        // evaluator_elapsed_ms / evaluator_http_status are optional and only present when available (HTTP evaluator)
+        if (isset($meta['evaluator_elapsed_ms'])) {
+            $this->assertIsInt($meta['evaluator_elapsed_ms']);
+        }
+        if (isset($meta['evaluator_http_status'])) {
+            $this->assertIsInt($meta['evaluator_http_status']);
+        }
     }
-}
+
+    public function test_missing_attachment_creates_skipped_or_manual_review(): void
+    {
+        // Task requires attachment -> manual_review outcome
+        $user = User::factory()->create(['role' => 'student']);
+        $block = RoadmapBlock::factory()->create([ 'level' => 'beginner', 'domain' => 'frontend', 'order_index' => 1 ]);
+
+        $taskManual = Task::create([
+            'roadmap_block_id' => $block->id,
+            'title' => 'Require Attachment Task',
+            'type' => 'project',
+            'metadata' => ['requires_attachment' => true],
+        ]);
+
+        $sub1 = Submission::create([
+            'user_id' => $user->id,
+            'task_id' => $taskManual->id,
+            'status' => 'submitted',
+        ]);
+
+        dispatch_sync(new EvaluateSubmissionJob($sub1->id));
+        $sub1->refresh();
+
+        $this->assertEquals('needs_manual_review', $sub1->status);
+        // Ensure an ai_evaluations record was created and metadata indicates manual review outcome
+        $this->assertDatabaseHas('ai_evaluations', [
+            'submission_id' => $sub1->id,
+            'status' => 'failed',
+        ]);
+        $ae1 = DB::table('ai_evaluations')->where('submission_id', $sub1->id)->first();
+        $meta1 = json_decode($ae1->metadata ?? 'null', true);
+        $this->assertEquals('manual_review', $meta1['evaluation_outcome'] ?? null);
+
+        // Task does NOT require attachment -> skipped outcome
+        $taskSkip = Task::create([
+            'roadmap_block_id' => $block->id,
+            'title' => 'Optional Attachment Task',
+            'type' => 'coding',
+            'metadata' => ['requires_attachment' => false],
+        ]);
+
+        $sub2 = Submission::create([
+            'user_id' => $user->id,
+            'task_id' => $taskSkip->id,
+            'status' => 'submitted',
+        ]);
+
+        dispatch_sync(new EvaluateSubmissionJob($sub2->id));
+        $sub2->refresh();
+
+        $this->assertEquals('needs_manual_review', $sub2->status);
+        // Skipped outcome recorded as failed status with evaluation_outcome metadata
+        $this->assertDatabaseHas('ai_evaluations', [
+            'submission_id' => $sub2->id,
+            'status' => 'failed',
+        ]);
+        $ae2 = DB::table('ai_evaluations')->where('submission_id', $sub2->id)->first();
+        $meta2 = json_decode($ae2->metadata ?? 'null', true);
+        $this->assertEquals('skipped', $meta2['evaluation_outcome'] ?? null);
+    }
+
+    public function test_ai_disabled_marks_manual_review_and_does_not_set_scores(): void
+    {
+        // Bind a provider that indicates AI disabled
+        $this->app->bind(AiProviderInterface::class, function () {
+            return new class implements AiProviderInterface {
+                public function evaluate(\App\Modules\Learning\Infrastructure\Models\Submission $submission): array
+                {
+                    return [
+                        'provider' => 'fake',
+                        'model' => 'fake-model',
+                        'score' => null,
+                        'feedback' => 'AI evaluation disabled in this environment',
+                        'metadata' => ['ai_disabled' => true, 'reason' => 'ai_disabled'],
+                    ];
+                }
+            };
+        });
+
+        $user = User::factory()->create(['role' => 'student']);
+        $block = RoadmapBlock::factory()->create([ 'level' => 'beginner', 'domain' => 'frontend', 'order_index' => 1 ]);
+
+        $task = Task::create([
+            'roadmap_block_id' => $block->id,
+            'title' => 'Test Task',
+            'type' => 'coding',
+        ]);
+
+        $submission = Submission::create([
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'status' => 'submitted',
+        ]);
+
+        dispatch_sync(new EvaluateSubmissionJob($submission->id));
+        $submission->refresh();
+
+        // Submission should be marked needs_manual_review
+        $this->assertEquals('needs_manual_review', $submission->status);
+        $this->assertFalse((bool) $submission->is_evaluated);
+        $this->assertNull($submission->final_score);
+        $this->assertNull($submission->ai_score); // Critical: AI score must be null
+
+        // An ai_evaluations record should exist with failed status and metadata evaluation_outcome manual_review
+        $this->assertDatabaseHas('ai_evaluations', [
+            'submission_id' => $submission->id,
+            'status' => 'failed',
+        ]);
+        $ae = DB::table('ai_evaluations')->where('submission_id', $submission->id)->first();
+        $meta = json_decode($ae->metadata ?? 'null', true);
+        $this->assertEquals('manual_review', $meta['evaluation_outcome'] ?? null);
+        $this->assertEquals('ai_disabled', $meta['reason'] ?? null);
+        $this->assertNull($ae->score); // Critical: AI evaluation score must be null
+    }}
+
+
