@@ -15,22 +15,23 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Register a new user and return token.
+     * Register a new user and send verification email.
+     * NO TOKEN is issued until email is verified.
      */
     public function register(RegisterRequest $request)
     {
         // 1) Validation via FormRequest (strict allow-list)
         $data = $request->validated();
 
-        // 2) إنشاء المستخدم في قاعدة البيانات
+        // 2) Create user in database
         $user = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
-        // 3) إنشاء توكن للمستخدم عبر Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // 3) Send email verification notification
+        $user->sendEmailVerificationNotification();
 
         // Security logging (without PII)
         Log::info('auth.register_success', [
@@ -38,25 +39,26 @@ class AuthController extends Controller
             'ip'      => $request->ip(),
         ]);
 
-        // 4) نرجع user + token كـ JSON
+        // 4) Return success message WITHOUT token
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
+            'message' => 'Registration successful. Please check your email to verify your account.',
+            'email'   => $user->email,
         ], 201);
     }
 
     /**
      * Login user and return new token.
+     * Requires email verification.
      */
     public function login(LoginRequest $request)
     {
         // 1) Validation via FormRequest
         $data = $request->validated();
 
-        // 2) البحث عن المستخدم
+        // 2) Find user
         $user = User::where('email', $data['email'])->first();
 
-        // 3) التحقق من صحة كلمة المرور
+        // 3) Check password
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             Log::warning('auth.login_failed', [
                 'email_hash' => hash('sha256', strtolower($data['email'])),
@@ -67,10 +69,21 @@ class AuthController extends Controller
             ]);
         }
 
-        // 4) (اختياري) حذف التوكنات القديمة
+        // 4) Check email verification
+        if (is_null($user->email_verified_at)) {
+            Log::warning('auth.login_unverified', [
+                'user_id' => $user->id,
+                'ip'      => $request->ip(),
+            ]);
+            return response()->json([
+                'message' => 'Please verify your email before logging in.',
+            ], 403);
+        }
+
+        // 5) Delete old tokens
         $user->tokens()->delete();
 
-        // 5) إنشاء توكن جديد
+        // 6) Create new token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         Log::info('auth.login_success', [

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Identity\Interface\Http\Controllers\AuthController;
+use App\Modules\Identity\Interface\Http\Controllers\EmailVerificationController;
 use App\Modules\Identity\Interface\Http\Controllers\AdminMonitoringController;
 use App\Modules\Identity\Interface\Http\Controllers\AdminUserController;
 
@@ -29,6 +30,17 @@ Route::prefix('auth')->group(function () {
 
         // POST /api/auth/logout
         Route::post('logout', [AuthController::class, 'logout']);
+
+        // Email verification routes
+        // GET /api/auth/email/verify/{id}/{hash}
+        Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+            ->middleware(['signed', 'throttle:6,1'])
+            ->name('verification.verify');
+
+        // POST /api/auth/email/resend
+        Route::post('email/resend', [EmailVerificationController::class, 'resend'])
+            ->middleware('throttle:6,1')
+            ->name('verification.send');
     });
 });
 

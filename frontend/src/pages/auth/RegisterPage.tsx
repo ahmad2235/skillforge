@@ -112,31 +112,14 @@ export function RegisterPage() {
         password,
       });
 
+      // Backend now returns message and email, NOT token
       const responseData = response.data as {
-        user: AuthUser;
-        token: string;
+        message: string;
+        email: string;
       };
 
-      // Backend may not return role, so use the selected role from form
-      const userWithRole: AuthUser = {
-        ...responseData.user,
-        role: (role as "student" | "business") || responseData.user.role || null,
-      };
-
-      // Store in auth context and localStorage
-      login(userWithRole, responseData.token);
-
-      // Redirect based on role
-      const intent = searchParams.get("intent");
-      if (intent === "placement") {
-        navigate("/student/placement/intro", { replace: true });
-      } else if (userWithRole.role === "student") {
-        navigate("/student");
-      } else if (userWithRole.role === "business") {
-        navigate("/business");
-      } else {
-        navigate("/");
-      }
+      // Redirect to verify email page
+      navigate("/auth/verify-email", { replace: true });
     } catch (err: any) {
       // Handle backend validation errors
       if (err?.status === 422) {

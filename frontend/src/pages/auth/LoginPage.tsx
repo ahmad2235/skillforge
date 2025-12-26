@@ -60,6 +60,16 @@ export function LoginPage() {
       else if (user.role === "admin") navigate("/admin");
       else navigate("/");
     } catch (err: any) {
+      // Check for email verification error (403)
+      if (err?.response?.status === 403) {
+        const message = err?.response?.data?.message || "";
+        if (message.toLowerCase().includes("verify") || message.toLowerCase().includes("email")) {
+          // Redirect to verify email page
+          navigate("/auth/verify-email", { replace: true });
+          return;
+        }
+      }
+
       const message =
         err?.response?.data?.message ||
         "Failed to login. Please check your credentials.";
