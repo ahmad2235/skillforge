@@ -69,8 +69,8 @@ class RepairAiDisabledSubmissionsTest extends TestCase
         $submission->refresh();
         $ae->refresh();
 
-        // Submission must now be needs_manual_review and scores null
-        $this->assertEquals('needs_manual_review', $submission->status);
+        // Submission must now be marked for manual review (evaluation_status) and scores null
+        $this->assertEquals(Submission::EVAL_MANUAL_REVIEW, $submission->evaluation_status);
         $this->assertNull($submission->ai_score);
         $this->assertNull($submission->final_score);
         $this->assertNull($submission->rubric_scores);

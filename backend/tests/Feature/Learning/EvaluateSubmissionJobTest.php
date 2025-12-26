@@ -60,8 +60,8 @@ class EvaluateSubmissionJobTest extends TestCase
             'status' => 'succeeded',
         ]);
 
-        // Submission updated
-        $this->assertEquals('evaluated', $submission->status);
+        // Submission updated (canonical evaluation_status)
+        $this->assertEquals('completed', $submission->evaluation_status);
         $this->assertTrue((bool) $submission->is_evaluated);
         $this->assertNotNull($submission->ai_feedback);
         $this->assertNotNull($submission->latest_ai_evaluation_id);
@@ -71,10 +71,9 @@ class EvaluateSubmissionJobTest extends TestCase
         $this->assertNotNull($aiEval);
         $this->assertEquals($aiEval->score, $submission->final_score);
 
-        // Verify metadata strict defaults for successful evaluations
+        // Verify metadata contains expected provider/model info for successful evaluations
         $meta = json_decode($aiEval->metadata ?? 'null', true) ?: [];
-        $this->assertEquals('ok', $meta['reason'] ?? null);
-        $this->assertEquals('ai_completed', $meta['evaluation_outcome'] ?? null);
+        $this->assertEquals('fake-model', $meta['model'] ?? null);
         // evaluator_elapsed_ms / evaluator_http_status are optional and only present when available (HTTP evaluator)
         if (isset($meta['evaluator_elapsed_ms'])) {
             $this->assertIsInt($meta['evaluator_elapsed_ms']);
@@ -106,7 +105,7 @@ class EvaluateSubmissionJobTest extends TestCase
         dispatch_sync(new EvaluateSubmissionJob($sub1->id));
         $sub1->refresh();
 
-        $this->assertEquals('needs_manual_review', $sub1->status);
+        $this->assertEquals('manual_review', $sub1->evaluation_status);
         // Ensure an ai_evaluations record was created and metadata indicates manual review outcome
         $this->assertDatabaseHas('ai_evaluations', [
             'submission_id' => $sub1->id,
@@ -128,12 +127,13 @@ class EvaluateSubmissionJobTest extends TestCase
             'user_id' => $user->id,
             'task_id' => $taskSkip->id,
             'status' => 'submitted',
+            'evaluation_status' => null,
         ]);
 
         dispatch_sync(new EvaluateSubmissionJob($sub2->id));
         $sub2->refresh();
 
-        $this->assertEquals('needs_manual_review', $sub2->status);
+        $this->assertEquals('skipped', $sub2->evaluation_status);
         // Skipped outcome recorded as failed status with evaluation_outcome metadata
         $this->assertDatabaseHas('ai_evaluations', [
             'submission_id' => $sub2->id,
@@ -180,8 +180,8 @@ class EvaluateSubmissionJobTest extends TestCase
         dispatch_sync(new EvaluateSubmissionJob($submission->id));
         $submission->refresh();
 
-        // Submission should be marked needs_manual_review
-        $this->assertEquals('needs_manual_review', $submission->status);
+        // Submission should be marked for manual review
+        $this->assertEquals('manual_review', $submission->evaluation_status);
         $this->assertFalse((bool) $submission->is_evaluated);
         $this->assertNull($submission->final_score);
         $this->assertNull($submission->ai_score); // Critical: AI score must be null

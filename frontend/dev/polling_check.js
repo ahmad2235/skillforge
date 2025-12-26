@@ -9,7 +9,7 @@ function deriveSemantic(payload) {
   if (evaluation?.status === 'succeeded') semanticDerived = 'completed';
   else if (evaluation?.status === 'failed') semanticDerived = 'failed';
 
-  const semantic = semanticFromTop ?? semanticFromAi ?? semanticDerived ?? (submissionStatus === 'needs_manual_review' ? 'manual_review' : null);
+  const semantic = semanticFromTop ?? semanticFromAi ?? semanticDerived ?? (payload?.evaluation_status === 'manual_review' || submissionStatus === 'needs_manual_review' ? 'manual_review' : null);
   return semantic;
 }
 

@@ -97,6 +97,38 @@ class TaskEvaluationService
                     $meta['evaluation_outcome'] = 'ai_completed';
                 }
 
+                // Preserve rubric_scores from provider and map per-criterion to legacy keys
+                $providerRubric = null;
+                if (isset($result['rubric_scores']) && is_array($result['rubric_scores'])) {
+                    $providerRubric = $result['rubric_scores'];
+                } elseif (isset($meta['rubric_scores']) && is_array($meta['rubric_scores'])) {
+                    $providerRubric = $meta['rubric_scores'];
+                }
+
+                if ($providerRubric !== null) {
+                    $meta['rubric_scores'] = $providerRubric;
+
+                    foreach ($providerRubric as $r) {
+                        $criterion = strtolower(str_replace(' ', '_', $r['criterion'] ?? ''));
+                        $scoreVal = $r['score'] ?? null;
+                        if ($scoreVal === null) continue;
+
+                        if (strpos($criterion, 'functional') !== false && !isset($meta['functional_score'])) {
+                            $meta['functional_score'] = $scoreVal;
+                        }
+
+                        if ((strpos($criterion, 'code') !== false || strpos($criterion, 'quality') !== false) && !isset($meta['code_quality_score'])) {
+                            $meta['code_quality_score'] = $scoreVal;
+                        }
+                    }
+
+                    // If provider didn't provide a top-level score, derive from rubric sum
+                    if (!isset($result['score']) || $result['score'] === null) {
+                        $sum = array_reduce($providerRubric, fn($acc, $r) => $acc + (($r['score'] ?? 0)), 0);
+                        $result['score'] = $sum;
+                    }
+                }
+
                 return [
                     'status' => 'completed',
                     'score' => $result['score'] ?? null,
@@ -260,6 +292,68 @@ class TaskEvaluationService
             // Persist meta back into evaluation payload
             $evaluation['meta'] = $meta;
 
+            // Normalize rubric_scores -> legacy per-category fields for backward compatibility
+            $rubricSource = null;
+            // Search for rubric_scores in several common nesting locations to be robust
+            if (!empty($evaluation['rubric_scores']) && is_array($evaluation['rubric_scores'])) {
+                $rubricSource = $evaluation['rubric_scores'];
+            } elseif (!empty($evaluation['meta']['rubric_scores']) && is_array($evaluation['meta']['rubric_scores'])) {
+                $rubricSource = $evaluation['meta']['rubric_scores'];
+            } elseif (!empty($meta['rubric_scores']) && is_array($meta['rubric_scores'])) {
+                $rubricSource = $meta['rubric_scores'];
+            } elseif (!empty($evaluation['meta']['meta']['rubric_scores']) && is_array($evaluation['meta']['meta']['rubric_scores'])) {
+                $rubricSource = $evaluation['meta']['meta']['rubric_scores'];
+            } elseif (!empty($meta['meta']['rubric_scores']) && is_array($meta['meta']['rubric_scores'])) {
+                $rubricSource = $meta['meta']['rubric_scores'];
+            }
+
+            if ((!isset($evaluation['functional_score']) || !isset($evaluation['code_quality_score'])) && $rubricSource !== null) {
+                $func = null; $codeq = null;
+                foreach ($rubricSource as $r) {
+                    $criterion = strtolower(str_replace(' ', '_', $r['criterion'] ?? ''));
+                    $scoreVal = $r['score'] ?? null;
+                    if ($scoreVal === null) continue;
+
+                    if (strpos($criterion, 'functional') !== false && $func === null) $func = $scoreVal;
+                    if ((strpos($criterion, 'code') !== false || strpos($criterion, 'quality') !== false) && $codeq === null) $codeq = $scoreVal;
+                }
+
+                if ($func !== null) $evaluation['functional_score'] = $evaluation['functional_score'] ?? $func;
+                if ($codeq !== null) $evaluation['code_quality_score'] = $evaluation['code_quality_score'] ?? $codeq;
+
+                // Ensure total_score equals sum of category scores when available
+                $sum = 0;
+                if (isset($evaluation['functional_score'])) $sum += (int)$evaluation['functional_score'];
+                if (isset($evaluation['code_quality_score'])) $sum += (int)$evaluation['code_quality_score'];
+                if ($sum > 0) $evaluation['total_score'] = $sum;
+
+                // Also persist rubric into meta for consistency and top-level so persister finds it
+                $evaluation['meta']['rubric_scores'] = $rubricSource;
+                $evaluation['rubric_scores'] = $rubricSource;
+            }
+
+            // Final fallback: if category scores missing but we have a total_score, split into functional/code-quality deterministically
+            if ((empty($evaluation['functional_score']) && empty($evaluation['code_quality_score'])) && isset($evaluation['total_score'])) {
+                $total = (int)$evaluation['total_score'];
+                // Give functional the first 70 points, remainder to code quality up to 30
+                $func = min(70, $total);
+                $codeq = max(0, min(30, $total - $func));
+
+                $evaluation['functional_score'] = $func;
+                $evaluation['code_quality_score'] = $codeq;
+
+                // Build a minimal rubric_scores structure so persistence and UI can consume it
+                if (empty($evaluation['rubric_scores'])) {
+                    $evaluation['rubric_scores'] = [
+                        ['criterion' => 'Functional', 'score' => $func, 'max_points' => 70],
+                        ['criterion' => 'Code Quality', 'score' => $codeq, 'max_points' => 30],
+                    ];
+                }
+                if (empty($evaluation['meta']['rubric_scores'])) {
+                    $evaluation['meta']['rubric_scores'] = $evaluation['rubric_scores'];
+                }
+            }
+
             // Extract score and feedback
             $score = $evaluation['total_score'] ?? null;
             $feedback = $this->buildFeedback($evaluation);
@@ -315,12 +409,17 @@ class TaskEvaluationService
             $parts[] = '⚠️ Evaluation did not meet the passing threshold (80+).';
         }
 
-        // Scores
+        // Scores (check both top-level and meta)
+        $meta = $evaluation['meta'] ?? $evaluation;
+        $funcScore = $evaluation['functional_score'] ?? $meta['functional_score'] ?? 0;
+        $codeScore = $evaluation['code_quality_score'] ?? $meta['code_quality_score'] ?? 0;
+        $totalScore = $evaluation['total_score'] ?? $meta['total_score'] ?? 0;
+        
         $parts[] = sprintf(
             'Functional: %d/70 | Code Quality: %d/30 | Total: %d/100',
-            $evaluation['functional_score'] ?? 0,
-            $evaluation['code_quality_score'] ?? 0,
-            $evaluation['total_score'] ?? 0
+            $funcScore,
+            $codeScore,
+            $totalScore
         );
 
         // Key findings
@@ -345,7 +444,7 @@ class TaskEvaluationService
 
         // Summary
         if ($summary = $evaluation['summary'] ?? null) {
-            $parts[] = "Summary: " . substr($summary, 0, 200) . (strlen($summary) > 200 ? '...' : '');
+            $parts[] = "Summary: " . $summary;
         }
 
         return implode("\n\n", array_filter($parts));

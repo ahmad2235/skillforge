@@ -25,7 +25,7 @@ class AdminReEvaluateTest extends TestCase
             'user_id' => $student->id,
             'task_id' => $task->id,
             'answer_text' => 'answer',
-            'status' => 'needs_manual_review',
+            'evaluation_status' => Submission::EVAL_MANUAL_REVIEW,
         ]);
 
         $this->actingAs($student, 'sanctum')
@@ -46,7 +46,7 @@ class AdminReEvaluateTest extends TestCase
             'user_id' => $student->id,
             'task_id' => $task->id,
             'answer_text' => 'answer',
-            'status' => 'needs_manual_review',
+            'evaluation_status' => Submission::EVAL_MANUAL_REVIEW,
         ]);
 
         $this->actingAs($admin, 'sanctum')

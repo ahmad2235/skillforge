@@ -79,6 +79,7 @@ class AdminSubmissionReviewTest extends TestCase
         $submission->refresh();
 
         $this->assertEquals('evaluated', $submission->status);
+        $this->assertEquals('completed', $submission->evaluation_status);
         $this->assertEquals('admin', $submission->evaluated_by);
         $this->assertEquals(92.5, $submission->final_score);
         $this->assertIsArray($submission->rubric_scores);
@@ -98,6 +99,7 @@ class AdminSubmissionReviewTest extends TestCase
             'task_id' => $task->id,
             'answer_text' => 'answer',
             'status' => 'evaluated',
+            'evaluation_status' => Submission::EVAL_COMPLETED,
             'final_score' => 50,
         ]);
 
@@ -107,5 +109,31 @@ class AdminSubmissionReviewTest extends TestCase
                 'final_score' => 90,
             ])
             ->assertStatus(403);
+    }
+
+    public function test_admin_can_queue_re_evaluate(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = User::factory()->create(['role' => 'student']);
+
+        $block = RoadmapBlock::factory()->create([ 'level' => 'beginner', 'domain' => 'frontend', 'order_index' => 1 ]);
+        $task = Task::factory()->create(['roadmap_block_id' => $block->id]);
+
+        $submission = Submission::create([
+            'user_id' => $student->id,
+            'task_id' => $task->id,
+            'answer_text' => 'answer',
+            'status' => 'submitted',
+            'evaluation_status' => null,
+        ]);
+
+        $this->actingAs($admin, 'sanctum')
+            ->postJson("/api/admin/learning/submissions/{$submission->id}/re-evaluate")
+            ->assertStatus(200)
+            ->assertJsonStructure(['message', 'submission_id', 'evaluation_request_id']);
+
+        $submission->refresh();
+        $this->assertEquals('queued', $submission->evaluation_status);
+        $this->assertDatabaseHas('ai_evaluations', ['submission_id' => $submission->id, 'status' => 'queued']);
     }
 }

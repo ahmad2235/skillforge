@@ -206,7 +206,7 @@ class TaskSubmissionTest extends TestCase
             'created_at' => now(),
         ]);
         $submission->latest_ai_evaluation_id = $ae2;
-        $submission->status = 'needs_manual_review';
+        $submission->evaluation_status = Submission::EVAL_MANUAL_REVIEW;
         $submission->save();
 
         $res3 = $this->getJson("/api/student/submissions/{$submission->id}");
@@ -225,7 +225,7 @@ class TaskSubmissionTest extends TestCase
             'created_at' => now(),
         ]);
         $submission->latest_ai_evaluation_id = $ae3;
-        $submission->status = 'needs_manual_review';
+        $submission->evaluation_status = Submission::EVAL_MANUAL_REVIEW;
         $submission->save();
 
         $res4 = $this->getJson("/api/student/submissions/{$submission->id}");

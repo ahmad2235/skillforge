@@ -33,12 +33,15 @@ class AiEvaluationService
     {
         return DB::transaction(function () use ($submission, $evaluationData) {
             // 1. Create new AI evaluation record (append-only history)
+            // Allow passing evaluation_request_id in $evaluationData for traceability
             $aiEvaluation = AiEvaluation::create([
                 'submission_id' => $submission->id,
+                'evaluation_request_id' => $evaluationData['evaluation_request_id'] ?? null,
                 'provider' => $evaluationData['provider'] ?? 'openai',
                 'model' => $evaluationData['model'] ?? null,
                 'prompt_version' => $evaluationData['prompt_version'] ?? null,
                 'status' => 'succeeded',
+                'semantic_status' => Submission::EVAL_COMPLETED,
                 'score' => $evaluationData['score'] ?? null,
                 'feedback' => $evaluationData['feedback'] ?? null,
                 'rubric_scores' => $evaluationData['rubric_scores'] ?? null,

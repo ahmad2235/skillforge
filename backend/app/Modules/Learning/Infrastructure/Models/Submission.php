@@ -13,6 +13,15 @@ class Submission extends Model
 
     protected $table = 'submissions';
 
+    // Canonical evaluation_status values: queued, evaluating, completed, timed_out, manual_review, failed, skipped
+    public const EVAL_QUEUED = 'queued';
+    public const EVAL_EVALUATING = 'evaluating';
+    public const EVAL_COMPLETED = 'completed';
+    public const EVAL_TIMED_OUT = 'timed_out';
+    public const EVAL_MANUAL_REVIEW = 'manual_review';
+    public const EVAL_FAILED = 'failed';
+    public const EVAL_SKIPPED = 'skipped';
+
     protected $fillable = [
         'user_id',
         'task_id',
@@ -26,7 +35,8 @@ class Submission extends Model
         'is_evaluated',
         'metadata',
         'submitted_at',
-        'evaluated_at'
+        'evaluated_at',
+        'evaluation_status'
     ];
 
     protected $casts = [

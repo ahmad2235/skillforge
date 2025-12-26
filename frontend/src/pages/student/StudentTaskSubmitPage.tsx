@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
 import { useSubmissionPolling } from "../../hooks/useSubmissionPolling";
+import { useAuth } from "../../hooks/useAuth";
 import { useAppToast } from "../../components/feedback/useAppToast";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { EmptyState } from "../../components/feedback/EmptyState";
@@ -43,21 +44,33 @@ export function StudentTaskSubmitPage() {
 
   // Start polling after we have a submission id
   const submissionId = submissionMeta?.id ?? null;
-  const { aiEvaluation, evaluationDebug, semanticStatus, isPolling, attempts, maxAttempts, progressPct, status: submissionStatus, stopReason, lastUpdatedAt, lastError, manualCheck } = useSubmissionPolling(submissionId, { intervalMs: 2500, maxAttempts: 24 });
+  const { aiEvaluation, evaluationDebug, finalScore, semanticStatus, isPolling, attempts, maxAttempts, progressPct, status: submissionStatus, stopReason, lastUpdatedAt, lastError, manualCheck, isEvaluating, isCompleted, isManualReview, isTimedOut, isFailed, isSkipped } = useSubmissionPolling(submissionId, { intervalMs: 2500, maxAttempts: 24 });
 
-  // Update UI when aiEvaluation or stopReason changes
+  const { user } = useAuth();
+
+  // Update UI when aiEvaluation or finalScore changes
   useEffect(() => {
     if (aiEvaluation) {
       if (aiEvaluation.feedback) setAiFeedback(aiEvaluation.feedback);
       if (typeof aiEvaluation.score === 'number') setAiScore(aiEvaluation.score);
     }
-  }, [aiEvaluation]);
+
+    // If a final_score (override) exists, prefer showing it as the displayed score
+    if (typeof finalScore === 'number') {
+      setAiScore(finalScore);
+    }
+  }, [aiEvaluation, finalScore]);
 
   useEffect(() => {
     if (stopReason === 'completed') {
       // ensure aiFeedback / aiScore reflect final evaluation (handled above)
     }
-  }, [stopReason]);
+
+    // If our polling timed out, do a one-off manual re-check in case the evaluator finished after the poll window
+    if (stopReason === 'timeout') {
+      manualCheck();
+    }
+  }, [stopReason, manualCheck]);
 
   // Poll for submission evaluation status and feedback
 
@@ -437,14 +450,42 @@ export function StudentTaskSubmitPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-slate-900">Feedback</h3>
+              {isCompleted && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700">Evaluation complete</span>
+                  {lastUpdatedAt && <span className="text-sm text-slate-500">{new Date(lastUpdatedAt).toLocaleString()}</span>}
+                </div>
+              )}
             </div>
-            {typeof aiScore === "number" && (
-              <span className="text-sm font-medium text-slate-900">Score: {aiScore} / 100</span>
-            )}
+            <div className="flex items-center gap-3">
+              {typeof finalScore === 'number' ? (
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-slate-900">{finalScore} <span className="text-sm font-medium text-slate-500">/ 100</span></div>
+                  <div className="text-xs text-slate-500">Final score</div>
+                </div>
+              ) : typeof aiScore === "number" ? (
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-slate-900">{aiScore} <span className="text-sm font-medium text-slate-500">/ 100</span></div>
+                  <div className="text-xs text-slate-500">AI score</div>
+                </div>
+              ) : (
+                <span className="text-sm text-slate-700">Score: pending</span>
+              )}
+
+
+            </div>
           </div>
 
+          {/* Styled feedback panel for completed evaluations */}
+          {isCompleted && (
+            <div className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 p-4">
+              <h4 className="text-sm font-semibold text-emerald-800">Automated feedback</h4>
+              <p className="mt-2 text-sm text-slate-700">{aiFeedback ?? 'No feedback available.'}</p>
+            </div>
+          )}
+
           {/* Polling / evaluating state: use semanticStatus (server-provided when available) */}
-          {semanticStatus === 'pending' ? (
+          {isEvaluating ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <svg className="h-4 w-4 animate-spin text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
@@ -458,13 +499,9 @@ export function StudentTaskSubmitPage() {
             </div>
           ) : null}
 
-          {/* Final feedback when evaluation completed */}
-          {semanticStatus === 'completed' && aiFeedback ? (
-            <p className="text-sm text-slate-700">{aiFeedback}</p>
-          ) : null}
 
-          {/* Debug panel (collapsible) */}
-          {submitted && (
+          {/* Debug panel (collapsible) - only for non-students/admins */}
+          {submitted && user?.role !== 'student' && (
             <details className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
               <summary className="cursor-pointer font-medium">Debug</summary>
               <div className="mt-2 text-sm text-slate-700">
@@ -478,18 +515,8 @@ export function StudentTaskSubmitPage() {
                 <p><strong>Evaluation debug:</strong></p>
                 <pre className="text-xs bg-white rounded border p-2">{JSON.stringify(aiEvaluation ? { aiEvaluation, evaluation_debug: evaluationDebug ?? 'none' } : (evaluationDebug ?? 'no-evaluation'), null, 2)}</pre>
 
-                {(stopReason === 'timeout') && (
+                {(isTimedOut) && (
                   <div className="mt-2 flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        await manualCheck();
-                        toastSuccess('Manual re-check performed');
-                      }}
-                    >
-                      Re-check now
-                    </Button>
-
                     <Button
                       variant="outline"
                       onClick={() => toastError('Please ask an admin to review this submission.')}
@@ -499,7 +526,7 @@ export function StudentTaskSubmitPage() {
                   </div>
                 )}
 
-                {(semanticStatus === 'manual_review' || semanticStatus === 'failed') && (
+                {(isManualReview || isFailed) && (
                   <div className="mt-2">
                     <Button
                       variant="outline"
@@ -515,9 +542,9 @@ export function StudentTaskSubmitPage() {
           )}
 
           {/* Unavailable / timeout */}
-          {(semanticStatus === 'manual_review' || semanticStatus === 'failed') && (
+          {(isManualReview || isFailed) && (
             <div className="space-y-2">
-              {semanticStatus === 'failed' ? (
+              {isFailed ? (
                 <div>
                   <p className="text-sm text-red-600">Evaluation failed.</p>
                   <p className="text-sm text-red-600">Reason: {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Unknown'}</p>
@@ -534,26 +561,11 @@ export function StudentTaskSubmitPage() {
               )}
 
               {/* Show diagnostic message when available (if not already shown) */}
-              {evaluationDebug?.message && semanticStatus !== 'failed' && (
+              {evaluationDebug?.message && !isFailed && (
                 <p className="text-sm text-red-600">Diagnostic: {evaluationDebug.message}</p>
               )}
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    // manual re-check of status
-                    const payload = await manualCheck();
-                    if (payload) {
-                      toastSuccess('Manual re-check performed');
-                    } else {
-                      toastError('Re-check failed. Please try again later.');
-                    }
-                  }}
-                >
-                  Re-check now
-                </Button>
-
                 <Button
                   variant="outline"
                   onClick={() => toastError('Please ask an admin to review this submission.')}
@@ -564,38 +576,22 @@ export function StudentTaskSubmitPage() {
             </div>
           )}
 
-          {semanticStatus === 'skipped' && (
+          {isSkipped && (
             <div className="space-y-2">
               <p className="text-sm text-slate-700">Skipped — {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'No reason provided'}</p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    const payload = await manualCheck();
-                    if (payload) {
-                      toastSuccess('Manual re-check performed');
-                    } else {
-                      toastError('Re-check failed. Please try again later.');
-                    }
-                  }}
-                >
-                  Re-check now
-                </Button>
-              </div>
+
             </div>
           )}
 
-          {stopReason === 'timeout' && semanticStatus === 'pending' && (
+          {isTimedOut && (
             <div className="space-y-2">
-              <p className="text-sm text-red-600">Evaluation timed out. Please try again later or ask an admin to review.</p>
+              <p className="text-sm text-red-600">Evaluation timed out. Please try re-checking or request a manual review.</p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    toastError('Please ask an admin to review this submission.');
-                  }}
+                  onClick={() => toastError('Please ask an admin to review this submission.')}
                 >
-                  Ask admin to review
+                  Request manual review
                 </Button>
               </div>
             </div>

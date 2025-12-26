@@ -63,8 +63,8 @@ class EvaluatorAiDisabledTest extends TestCase
         dispatch_sync(new EvaluateSubmissionJob($submission->id));
         $submission->refresh();
 
-        // Submission should be marked needs_manual_review (not evaluated)
-        $this->assertEquals('needs_manual_review', $submission->status);
+        // Submission should be marked for manual review (evaluation_status) and not evaluated
+        $this->assertEquals(Submission::EVAL_MANUAL_REVIEW, $submission->evaluation_status);
         $this->assertFalse((bool) $submission->is_evaluated);
 
         // **CRITICAL:** Scores must be NULL (not 0 or any number)
@@ -188,7 +188,7 @@ class EvaluatorAiDisabledTest extends TestCase
         $submission->refresh();
 
         // Should still be treated as manual review
-        $this->assertEquals('needs_manual_review', $submission->status);
+        $this->assertEquals(Submission::EVAL_MANUAL_REVIEW, $submission->evaluation_status);
         $this->assertFalse((bool) $submission->is_evaluated);
         $this->assertNull($submission->final_score);
         $this->assertNull($submission->ai_score);
@@ -235,7 +235,7 @@ class EvaluatorAiDisabledTest extends TestCase
         $submission->refresh();
 
         // Should be manual review for API errors too
-        $this->assertEquals('needs_manual_review', $submission->status);
+        $this->assertEquals(Submission::EVAL_MANUAL_REVIEW, $submission->evaluation_status);
         $this->assertNull($submission->final_score);
         $this->assertNull($submission->ai_score);
     }

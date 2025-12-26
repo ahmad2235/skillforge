@@ -71,7 +71,7 @@ class EvaluatorResilienceTest extends TestCase
 
         // Assert submission marked for manual review
         $submission->refresh();
-        $this->assertEquals('needs_manual_review', $submission->status);
+        $this->assertEquals(Submission::EVAL_MANUAL_REVIEW, $submission->evaluation_status);
         $this->assertStringContainsString('unavailable', strtolower($submission->ai_feedback));
         $this->assertFalse($submission->is_evaluated);
 
@@ -157,10 +157,10 @@ class EvaluatorResilienceTest extends TestCase
         $exception = new \Exception('Network timeout');
         $job->failed($exception);
 
-        // Assert submission marked for manual review
+        // Assert submission marked as failed (evaluation_status) and feedback updated
         $submission->refresh();
-        $this->assertEquals('needs_manual_review', $submission->status);
-        $this->assertStringContainsString('manual review', $submission->ai_feedback);
+        $this->assertEquals(Submission::EVAL_FAILED, $submission->evaluation_status);
+        $this->assertStringContainsString('evaluation failed', strtolower($submission->ai_feedback));
 
         // Assert ai_evaluations record exists
         $this->assertDatabaseHas('ai_evaluations', [
@@ -177,7 +177,7 @@ class EvaluatorResilienceTest extends TestCase
             'user_id' => $this->student->id,
             'task_id' => $this->task->id,
             'answer_text' => 'Solution 1',
-            'status' => 'evaluating',
+            'evaluation_status' => 'evaluating',
             'submitted_at' => now(),
         ]);
 
@@ -185,8 +185,8 @@ class EvaluatorResilienceTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'data' => [
-                'evaluation_status' => 'pending',
-                'user_message' => 'Evaluation in progress...',
+                'evaluation_status' => 'evaluating',
+                'user_message' => 'Evaluation in progress.',
             ],
         ]);
 
@@ -195,7 +195,7 @@ class EvaluatorResilienceTest extends TestCase
             'user_id' => $this->student->id,
             'task_id' => $this->task->id,
             'answer_text' => 'Solution 2',
-            'status' => 'needs_manual_review',
+            'evaluation_status' => Submission::EVAL_MANUAL_REVIEW,
             'ai_feedback' => 'AI unavailable',
             'submitted_at' => now(),
         ]);
@@ -204,8 +204,8 @@ class EvaluatorResilienceTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'data' => [
-                'evaluation_status' => 'unavailable',
-                'user_message' => 'AI evaluator is currently unavailable. Your submission will be reviewed manually.',
+                'evaluation_status' => 'manual_review',
+                'user_message' => 'Requires manual review by staff.',
             ],
         ]);
 

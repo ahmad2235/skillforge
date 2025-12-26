@@ -17,7 +17,7 @@ class RepairAiDisabledSubmissions extends Command
     /**
      * The description of the console command.
      */
-    protected $description = 'Repair submissions marked as "succeeded" when AI was disabled (metadata.ai_disabled=true). Converts them to "needs_manual_review" with null scores.';
+    protected $description = 'Repair submissions marked as "succeeded" when AI was disabled (metadata.ai_disabled=true). Converts them to evaluation_status="manual_review" with null scores.';
 
     /**
      * Execute the command.
@@ -114,9 +114,9 @@ class RepairAiDisabledSubmissions extends Command
                 DB::table('ai_evaluations')->where('id', $eval->id)->update($update);
                 $updatedEvals++;
 
-                // Repair submission record: set needs_manual_review and null snapshots
+                // Repair submission record: set evaluation_status to manual_review and null snapshots
                 $subUpdate = [
-                    'status' => 'needs_manual_review',
+                    'evaluation_status' => 'manual_review',
                     'ai_score' => null,
                     'final_score' => null,
                     'rubric_scores' => null,

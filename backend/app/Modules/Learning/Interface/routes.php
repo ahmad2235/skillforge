@@ -22,6 +22,7 @@ Route::middleware(['auth:sanctum', 'role:student'])
         Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])
             ->middleware('throttle:submissions');
         Route::get('/submissions/{submission}', [TaskController::class, 'getSubmission']);
+        Route::post('/submissions/{submission}/re-evaluate', [TaskController::class, 'reEvaluate'])->middleware('throttle:submissions');
     });
 
 // =======================

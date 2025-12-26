@@ -22,7 +22,9 @@ class AiEvaluation extends Model
         'provider',
         'model',
         'prompt_version',
+        'evaluation_request_id',
         'status',
+        'semantic_status',
         'score',
         'feedback',
         'rubric_scores',
@@ -38,6 +40,7 @@ class AiEvaluation extends Model
         'score' => 'float',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'evaluation_request_id' => 'string',
     ];
 
     /**

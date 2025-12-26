@@ -116,14 +116,18 @@ class RoadmapService
                 'answer_text'    => $data['answer_text'] ?? null,
                 'attachment_url' => $data['attachment_url'] ?? null,
                 'status'         => 'submitted',
+                'evaluation_status' => Submission::EVAL_QUEUED,
                 'metadata'       => $metadata,
                 'submitted_at'   => now(),
             ]);
 
-            // Create a queued AI evaluation record immediately to avoid eval_count=0 and UI timeouts
+            // Create a queued AI evaluation record immediately and attach an evaluation_request_id
+            $evaluationRequestId = (string) \Illuminate\Support\Str::uuid();
             $aiEval = AiEvaluation::create([
                 'submission_id' => $submission->id,
+                'evaluation_request_id' => $evaluationRequestId,
                 'status'        => 'queued',
+                'semantic_status' => Submission::EVAL_QUEUED,
                 'score'         => null,
                 'feedback'      => null,
                 'metadata'      => [

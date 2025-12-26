@@ -47,17 +47,30 @@ class EvaluateSubmissionJob implements ShouldQueue
             return;
         }
 
+        Log::info("EvaluateSubmissionJob invoked", ['submission_id' => $submission->id]);
+
         try {
             Log::info("Evaluating submission {$submission->id}...");
 
-            // Update status to evaluating
-            $submission->update(['status' => 'evaluating']);
+            // Update canonical evaluation status to evaluating
+            $submission->update(['status' => 'evaluating', 'evaluation_status' => 'evaluating']);
+            Log::info("Submission {$submission->id} evaluation_status set to evaluating", ['evaluation_request_id' => null]);
+
+            // Create an evaluation_request_id to track this run
+            $evaluationRequestId = (string) \Illuminate\Support\Str::uuid();
+            Log::info("Evaluation run started", ['submission_id' => $submission->id, 'evaluation_request_id' => $evaluationRequestId]);
+
 
             // Call the evaluation service
             $evaluation = $evaluationService->evaluateSubmission($submission);
 
             // Check if evaluator was unavailable
             if (($evaluation['status'] ?? null) === 'unavailable') {
+                // Map unavailable outcome to manual_review or skipped depending on metadata
+                $outcome = $evaluation['metadata']['evaluation_outcome'] ?? 'manual_review';
+                $submission->evaluation_status = $outcome === 'skipped' ? 'skipped' : 'manual_review';
+                $submission->save();
+
                 $this->handleUnavailableEvaluator($submission, $evaluation, $aiLogger);
                 return;
             }
@@ -73,12 +86,14 @@ class EvaluateSubmissionJob implements ShouldQueue
             $submission->status = 'evaluated';
             $submission->save();
 
-            // Create ai_evaluations record for audit trail
+            // Create ai_evaluations record for audit trail and include evaluation_request_id
             $ae = AiEvaluation::create([
                 'submission_id' => $submission->id,
+                'evaluation_request_id' => $evaluationRequestId,
                 'provider' => 'openai',
                 'model' => $evaluation['metadata']['model'] ?? null,
                 'status' => 'succeeded',
+                'semantic_status' => 'completed',
                 'score' => $evaluation['score'],
                 'feedback' => $evaluation['feedback'],
                 'rubric_scores' => $evaluation['metadata']['rubric_scores'] ?? null,
@@ -87,9 +102,38 @@ class EvaluateSubmissionJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            // Update submission pointer to latest evaluation
-            $submission->latest_ai_evaluation_id = $ae->id;
-            $submission->save();
+            // Before overwriting the submission snapshot, ensure this job is writing the latest run
+            // If a newer latest_ai_evaluation exists and has a different evaluation_request_id, do not overwrite
+            $submission->refresh();
+            if ($submission->latest_ai_evaluation_id) {
+                $latest = $submission->latestAiEvaluationResolved();
+                if ($latest && $latest->evaluation_request_id && $latest->evaluation_request_id !== $evaluationRequestId && $latest->completed_at && $latest->completed_at->gt($ae->completed_at)) {
+                    Log::warning("Stale evaluation job for submission {$submission->id}; new evaluation exists (ae={$latest->id}). Skipping snapshot update.");
+                } else {
+                    // Update submission snapshot and canonical evaluation_status
+                    $submission->ai_score = $evaluation['score'];
+                    $submission->ai_feedback = $evaluation['feedback'];
+                    $submission->ai_metadata = $evaluation['metadata'];
+                    $submission->final_score = $evaluation['score'] ?? null;
+                    $submission->rubric_scores = $evaluation['metadata']['rubric_scores'] ?? null;
+                    $submission->is_evaluated = true;
+                    $submission->evaluated_at = now();
+                    $submission->evaluation_status = 'completed';
+                    $submission->latest_ai_evaluation_id = $ae->id;
+                    $submission->save();
+                }
+            } else {
+                $submission->ai_score = $evaluation['score'];
+                $submission->ai_feedback = $evaluation['feedback'];
+                $submission->ai_metadata = $evaluation['metadata'];
+                $submission->final_score = $evaluation['score'] ?? null;
+                $submission->rubric_scores = $evaluation['metadata']['rubric_scores'] ?? null;
+                $submission->is_evaluated = true;
+                $submission->evaluated_at = now();
+                $submission->evaluation_status = 'completed';
+                $submission->latest_ai_evaluation_id = $ae->id;
+                $submission->save();
+            }
 
             Log::info("Submission {$submission->id} evaluated successfully. Score: {$evaluation['score']}");
 
@@ -127,7 +171,7 @@ class EvaluateSubmissionJob implements ShouldQueue
      * 
      * When AI is disabled or evaluation fails, we must:
      * - NOT set score snapshots (keep ai_score, final_score, rubric_scores NULL)
-     * - Mark submission as needs_manual_review
+     * - Mark submission for manual review (set evaluation_status = 'manual_review')
      * - Create ai_evaluations record with status='failed'
      */
     private function handleUnavailableEvaluator(Submission $submission, array $evaluation, AiLogger $aiLogger): void
@@ -140,7 +184,7 @@ class EvaluateSubmissionJob implements ShouldQueue
         $submission->ai_metadata = $evaluation['metadata'];
         $submission->is_evaluated = false;
         $submission->evaluated_at = null;
-        $submission->status = 'needs_manual_review';
+        // Don't modify the submission lifecycle 'status' field here; use evaluation_status instead
         $submission->save();
 
         // Select ai_evaluation status based on evaluation metadata outcome
@@ -158,8 +202,10 @@ class EvaluateSubmissionJob implements ShouldQueue
 
         $ae = AiEvaluation::create([
             'submission_id' => $submission->id,
+            'evaluation_request_id' => $evaluation['metadata']['evaluation_request_id'] ?? null,
             'provider' => 'openai',
             'status' => $dbStatus,
+            'semantic_status' => $aiStatus,
             'score' => null, // Explicitly null - no AI score for manual review
             'feedback' => $evaluation['feedback'] ?? null,
             'error_message' => $evaluation['feedback'] ?? null,
@@ -168,8 +214,9 @@ class EvaluateSubmissionJob implements ShouldQueue
             'completed_at' => now(),
         ]);
 
-        // Update latest pointer
+        // Update latest pointer and canonical evaluation_status
         $submission->latest_ai_evaluation_id = $ae->id;
+        $submission->evaluation_status = $aiStatus === 'skipped' ? 'skipped' : 'manual_review';
         $submission->save();
 
         // Log the unavailability / manual review
@@ -187,7 +234,7 @@ class EvaluateSubmissionJob implements ShouldQueue
             ]
         );
 
-        Log::warning("Evaluator unavailable for submission {$submission->id}. Marked for manual review. Outcome: {$aiStatus}");
+        Log::warning("Evaluator unavailable for submission {$submission->id}. Marked for manual review. Outcome: {$aiStatus}", ['evaluation_request_id' => $ae->evaluation_request_id]);
     }
 
     /**
@@ -201,7 +248,8 @@ class EvaluateSubmissionJob implements ShouldQueue
             return;
         }
 
-        $submission->status = 'needs_manual_review';
+        // Do not set legacy 'status' here; mark the evaluation_status as failed for auditing
+        $submission->evaluation_status = 'failed';
         $submission->ai_feedback = 'Evaluation failed after multiple attempts. Awaiting manual review.';
         $submission->ai_metadata = [
             'error' => 'job_failed',
@@ -209,6 +257,7 @@ class EvaluateSubmissionJob implements ShouldQueue
             'failed_at' => now()->toISOString(),
         ];
         $submission->save();
+        Log::error("Submission {$submission->id} evaluation failed and marked for manual review", ['error' => $exception->getMessage()]);
 
         // Create ai_evaluations record
         $ae = AiEvaluation::create([
@@ -223,7 +272,8 @@ class EvaluateSubmissionJob implements ShouldQueue
 
         // Ensure submission points to this latest ai_evaluation row
         $submission->latest_ai_evaluation_id = $ae->id;
-        $submission->status = 'needs_manual_review';
+        // Mark the evaluation_status as failed (do not modify legacy 'status' lifecycle)
+        $submission->evaluation_status = 'failed';
         $submission->ai_feedback = 'Evaluation failed after multiple attempts. Awaiting manual review.';
         $submission->ai_metadata = ['error' => 'job_failed', 'message' => $exception->getMessage(), 'failed_at' => now()->toISOString()];
         $submission->save();
