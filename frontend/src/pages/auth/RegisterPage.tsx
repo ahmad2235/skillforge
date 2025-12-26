@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { apiClient } from "../../lib/apiClient";
+import { apiClient, ensureCsrfCookie } from "../../lib/apiClient";
 import { getSafeErrorMessage } from "../../lib/errors";
 import { safeLogError } from "../../lib/logger";
 import { useAuth } from "../../hooks/useAuth";
@@ -105,6 +105,9 @@ export function RegisterPage() {
     setIsSubmitting(true);
 
     try {
+      // Ensure we have a fresh CSRF cookie before attempting registration
+      await ensureCsrfCookie();
+
       // Call backend register endpoint
       const response = await apiClient.post("/auth/register", {
         name: name.trim(),
