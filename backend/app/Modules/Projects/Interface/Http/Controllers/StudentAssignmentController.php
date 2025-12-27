@@ -21,8 +21,15 @@ class StudentAssignmentController extends Controller
     {
         $student = Auth::user();
 
-        $status      = $request->query('status'); // invited / accepted / completed ...
-        $assignments = $this->assignmentService->listStudentAssignments($student, $status);
+        $status = $request->query('status'); // invited / accepted / completed ...
+        
+        // Map 'active' frontend status to backend statuses
+        if ($status === 'active') {
+            // You might want to include 'in_progress' if you add that status later
+            $assignments = $this->assignmentService->listStudentAssignments($student, 'accepted');
+        } else {
+            $assignments = $this->assignmentService->listStudentAssignments($student, $status);
+        }
 
         return response()->json([
             'data' => $assignments,

@@ -23,6 +23,13 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login'])
         ->middleware('throttle:login');
 
+    // Email verification - PUBLIC route secured by signed URL
+    // The signed middleware validates the cryptographic signature (no auth token needed)
+    // GET /api/auth/email/verify/{id}/{hash}
+    Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
     // هذه المسارات تحتاج أن يكون المستخدم مسجّل دخول (token)
     Route::middleware('auth:sanctum')->group(function () {
         // GET /api/auth/me
@@ -31,12 +38,7 @@ Route::prefix('auth')->group(function () {
         // POST /api/auth/logout
         Route::post('logout', [AuthController::class, 'logout']);
 
-        // Email verification routes
-        // GET /api/auth/email/verify/{id}/{hash}
-        Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-            ->middleware(['signed', 'throttle:6,1'])
-            ->name('verification.verify');
-
+        // Resend verification email - requires auth (user must be logged in)
         // POST /api/auth/email/resend
         Route::post('email/resend', [EmailVerificationController::class, 'resend'])
             ->middleware('throttle:6,1')

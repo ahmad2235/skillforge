@@ -96,6 +96,9 @@ class EmailVerificationTest extends TestCase
 
     /**
      * Test email verification marks user as verified.
+     *
+     * IMPORTANT: This test verifies that verification works WITHOUT auth token.
+     * The signed URL itself is the authentication mechanism.
      */
     public function test_email_verification_marks_user_as_verified(): void
     {
@@ -107,21 +110,18 @@ class EmailVerificationTest extends TestCase
             'email_verified_at' => null,
         ]);
 
-        // Create a signed verification URL
+        // Create a signed verification URL (this is what gets emailed to user)
         $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
-        // Create a token for the user (they need to be authenticated to verify)
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         // Extract the path from the full URL
         $path = parse_url($verificationUrl, PHP_URL_PATH) . '?' . parse_url($verificationUrl, PHP_URL_QUERY);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson($path);
+        // NO AUTH TOKEN - user clicks link from email in browser
+        $response = $this->getJson($path);
 
         $response->assertStatus(200)
             ->assertJson([

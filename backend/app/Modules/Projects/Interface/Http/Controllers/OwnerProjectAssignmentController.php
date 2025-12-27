@@ -10,12 +10,76 @@ use App\Modules\Projects\Infrastructure\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Modules\Projects\Infrastructure\Models\ProjectAssignment;
+use App\Modules\Projects\Infrastructure\Models\ProjectMilestoneSubmission;
+
 class OwnerProjectAssignmentController extends Controller
 {
     public function __construct(
         private readonly RecommendationService $recommendationService,
         private readonly ProjectAssignmentService $assignmentService
     ) {}
+
+    /**
+     * Get submissions for a specific assignment
+     * GET /api/business/projects/assignments/{assignment}/submissions
+     */
+    public function submissions(int $assignmentId)
+    {
+        $owner = Auth::user();
+        $assignment = ProjectAssignment::with(['project.milestones', 'milestoneSubmissions'])
+            ->findOrFail($assignmentId);
+
+        $this->authorize('view', $assignment->project);
+
+        // Organize data: milestones with their submission (if any)
+        $milestones = $assignment->project->milestones->map(function ($milestone) use ($assignment) {
+            $submission = $assignment->milestoneSubmissions
+                ->where('project_milestone_id', $milestone->id)
+                ->first();
+            
+            return [
+                'milestone' => $milestone,
+                'submission' => $submission
+            ];
+        });
+
+        return response()->json([
+            'data' => $milestones
+        ]);
+    }
+
+    /**
+     * Review a milestone submission
+     * POST /api/business/projects/submissions/{submission}/review
+     */
+    public function reviewSubmission(Request $request, int $submissionId)
+    {
+        $owner = Auth::user();
+        
+        $data = $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'feedback' => 'nullable|string'
+        ]);
+
+        $submission = ProjectMilestoneSubmission::with('assignment.project')->findOrFail($submissionId);
+        
+        if ($submission->assignment->project->owner_id !== $owner->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $submission->update([
+            'status' => $data['status'],
+            'review_feedback' => $data['feedback'] ?? null,
+            'reviewed_by' => $owner->id,
+            'reviewed_at' => now()
+        ]);
+
+        return response()->json([
+            'message' => 'Submission reviewed successfully',
+            'data' => $submission
+        ]);
+    }
 
     /**
      * المرشحين (candidates) لمشروع معيّن — يمرّ عبر AI hook

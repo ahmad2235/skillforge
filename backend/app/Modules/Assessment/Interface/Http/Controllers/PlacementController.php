@@ -16,9 +16,14 @@ class PlacementController extends Controller
     // GET /api/student/assessment/placement/questions
     public function getQuestions(Request $request)
     {
-        $user = Auth::user();
+        $request->validate([
+            'domain' => 'nullable|in:frontend,backend',
+        ]);
 
-        $questions = $this->placementService->getQuestionsForUser($user);
+        $user = Auth::user();
+        $domain = $request->query('domain');
+
+        $questions = $this->placementService->getQuestionsForUser($user, $domain);
 
         return response()->json([
             'data' => $questions,

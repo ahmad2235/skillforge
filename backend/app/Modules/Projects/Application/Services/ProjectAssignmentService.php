@@ -63,6 +63,7 @@ class ProjectAssignmentService
     public function listProjectAssignments(Project $project): Collection
     {
         return ProjectAssignment::query()
+            ->with(['user', 'milestoneSubmissions'])
             ->where('project_id', $project->id)
             ->orderByDesc('created_at')
             ->get();
@@ -78,6 +79,16 @@ class ProjectAssignmentService
         array $metadata = []
     ): ProjectAssignment {
         return DB::transaction(function () use ($project, $student, $teamId, $metadata) {
+            // Check if project is already taken
+            $hasActiveAssignment = ProjectAssignment::query()
+                ->where('project_id', $project->id)
+                ->whereIn('status', ['accepted', 'completed'])
+                ->exists();
+            
+            if ($hasActiveAssignment) {
+                abort(422, 'This project is already assigned to a student.');
+            }
+
             // منع تكرار الدعوة ما دام مو removed
             $existing = ProjectAssignment::query()
                 ->where('project_id', $project->id)
@@ -136,8 +147,22 @@ class ProjectAssignmentService
         }
 
         if ($action === 'accept') {
+            // Check race condition
+            $hasActiveAssignment = ProjectAssignment::query()
+                ->where('project_id', $assignment->project_id)
+                ->whereIn('status', ['accepted', 'completed'])
+                ->where('id', '!=', $assignment->id)
+                ->exists();
+
+            if ($hasActiveAssignment) {
+                abort(422, 'This project has already been taken by another student.');
+            }
+
             $assignment->status      = 'accepted';
             $assignment->assigned_at = now();     // تقدّر تحفظ وقت التعيين هنا
+            
+            // Update project status
+            $assignment->project->update(['status' => 'in_progress']);
         } elseif ($action === 'decline') {
             $assignment->status = 'declined';
         } else {
@@ -183,6 +208,9 @@ class ProjectAssignmentService
             $assignment->status         = 'completed';
             $assignment->completed_at   = now();
             $assignment->save();
+
+            // Update project status
+            $assignment->project->update(['status' => 'completed']);
 
             return $assignment;
         });

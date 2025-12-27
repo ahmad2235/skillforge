@@ -24,6 +24,8 @@ Route::middleware(['auth:sanctum', 'role:business'])
             ->middleware('throttle:assignments');
         Route::post('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'invite'])
             ->middleware('throttle:assignments');
+        Route::get('/projects/assignments/{assignment}/submissions', [OwnerProjectAssignmentController::class, 'submissions']);
+        Route::post('/projects/submissions/{submission}/review', [OwnerProjectAssignmentController::class, 'reviewSubmission']);
         Route::post('/projects/assignments/{assignment}/complete', [OwnerProjectAssignmentController::class, 'completeWithFeedback']);
 
         Route::get('/projects/{project}/milestones', [OwnerProjectMilestoneController::class, 'index']);
