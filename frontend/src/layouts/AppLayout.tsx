@@ -28,24 +28,6 @@ const AppLayout = ({ children }: { children?: ReactNode }) => {
     return false;
   }, [location.pathname]);
 
-  const breadcrumbSlot = useMemo(() => {
-    const segments = location.pathname.split("/").filter(Boolean);
-    const current = segments[segments.length - 1] ?? "Home";
-    const title = current
-      .replace(/[-_]/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || "Home";
-
-    return (
-      <div className="flex items-center gap-2 text-sm text-slate-600">
-        <span className="text-slate-700">Home</span>
-        <span aria-hidden className="text-slate-400">
-          /
-        </span>
-        <span className="font-medium text-slate-900">{title}</span>
-      </div>
-    );
-  }, [location.pathname]);
-
   return (
     <div className={`min-h-screen text-slate-900 ${fullBleed ? "" : "bg-slate-50"}`}>
       {/* Skip to content - visually hidden off-screen, visible on focus */}
@@ -63,7 +45,6 @@ const AppLayout = ({ children }: { children?: ReactNode }) => {
 
       <Topbar
         onToggleSidebar={() => setMobileNavOpen(true)}
-        leftSlot={fullBleed ? undefined : breadcrumbSlot}
         fullBleed={fullBleed}
       />
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { apiClient } from "../../lib/apiClient";
 import { safeLogError } from "../../lib/logger";
@@ -14,6 +14,7 @@ import { useNavigation } from "../../components/navigation/NavigationContext";
 import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { useAppToast } from "../../components/feedback/useAppToast";
+import { useAuth } from "../../hooks/useAuth";
 
 type PlacementQuestion = {
   id: number;
@@ -28,6 +29,8 @@ type PlacementQuestion = {
 export const PlacementInProgressPage = () => {
   const { setPlacementMode } = useNavigation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, login, token } = useAuth();
   const { toastError } = useAppToast();
   const [hintOpen, setHintOpen] = useState(false);
 
@@ -39,12 +42,23 @@ export const PlacementInProgressPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ answer?: string }>({});
 
+  // Determine domain from location state (passed from Intro) or user profile
+  const domain = location.state?.domain || user?.domain;
+
   // Extract fetchQuestions so we can reuse it for retries
   const fetchQuestions = async () => {
+    if (!domain) {
+      // If no domain is selected, redirect back to intro/choose path
+      navigate("/student/placement/intro", { replace: true });
+      return;
+    }
+
     setLoading(true);
     setError(false);
     try {
-      const res = await apiClient.get("/student/assessment/placement/questions");
+      const res = await apiClient.get("/student/assessment/placement/questions", {
+        params: { domain }
+      });
       const data = res.data.data ?? res.data;
       setQuestions(Array.isArray(data) ? data : []);
     } catch (err: unknown) {
@@ -92,9 +106,21 @@ export const PlacementInProgressPage = () => {
           question_id: q.id,
           answer: answers[q.id] ?? "",
         })),
+        domain,
       };
       const res = await apiClient.post("/student/assessment/placement/submit", payload);
       const data = res.data.data ?? res.data;
+
+      // Update user context so Sidebar reflects the new level immediately
+      if (user && token) {
+        const updatedUser = { 
+          ...user, 
+          level: data.suggested_level, 
+          domain: data.suggested_domain 
+        };
+        login(updatedUser, token);
+      }
+
       navigate("/student/placement/results", { state: data });
     } catch (err: unknown) {
       safeLogError(err, "PlacementSubmit");
@@ -136,14 +162,6 @@ export const PlacementInProgressPage = () => {
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-10 p-4 sm:p-6">
-      <nav className="flex items-center gap-2 text-sm text-slate-600">
-        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">Home</Link>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-700">Placement</span>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">In progress</span>
-      </nav>
-
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold text-slate-900">Placement in progress</h1>
         <p className="text-base text-slate-700">Answer what you can. Skips are okay—we're mapping your starting point.</p>

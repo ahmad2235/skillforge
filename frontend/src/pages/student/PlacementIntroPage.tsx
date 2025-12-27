@@ -1,64 +1,101 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
 import { useNavigation } from "../../components/navigation/NavigationContext";
-
-const reassurancePoints = [
-  "Skip any question—skipping helps accuracy.",
-  "Autosaves as you go.",
-  "Takes about 20 minutes.",
-];
+import { useAuth } from "../../hooks/useAuth";
+import { Code, Server, CheckCircle, ArrowRight } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 export const PlacementIntroPage = () => {
   const { setPlacementMode } = useNavigation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [selectedDomain, setSelectedDomain] = useState<"frontend" | "backend" | null>(null);
 
   useEffect(() => {
     setPlacementMode(true);
-  }, [setPlacementMode]);
+    if (user?.domain) {
+      setSelectedDomain(user.domain as "frontend" | "backend");
+    }
+  }, [setPlacementMode, user]);
+
+  const handleStart = () => {
+    if (selectedDomain) {
+      navigate("/student/placement/progress", { state: { domain: selectedDomain } });
+    }
+  };
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-10 p-6 sm:p-8">
-      <nav className="flex items-center gap-2 text-sm text-slate-600">
-        <a href="/" className="font-medium text-slate-700 hover:text-slate-900">Home</a>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-700">Placement</span>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">Intro</span>
-      </nav>
-
       <header className="space-y-2 text-center">
-        <h1 className="text-3xl font-semibold text-slate-900">Placement intro</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">Choose Your Path</h1>
         <p className="text-base text-slate-700">
-          Find your starting point so we can match you to the right tasks.
+          Select a specialization to begin your personalized placement test.
         </p>
       </header>
 
-      <main className="space-y-7">
-        <div className="space-y-3 text-center">
-          <h2 className="text-2xl font-semibold text-slate-900">
-            Find your starting point
-          </h2>
-          <p className="text-base text-slate-700">
-            This short placement isn't a pass/fail test. It maps where you are now so your roadmap fits you from the first task.
-          </p>
+      <main className="space-y-8 max-w-3xl mx-auto w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Card
+            className={cn(
+              "p-8 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center relative overflow-hidden",
+              selectedDomain === "frontend" ? "border-primary bg-primary/5 ring-2 ring-primary ring-offset-2" : "hover:shadow-md"
+            )}
+            onClick={() => setSelectedDomain("frontend")}
+          >
+            {selectedDomain === "frontend" && (
+              <div className="absolute top-3 right-3 text-primary">
+                <CheckCircle size={24} />
+              </div>
+            )}
+            <div className="p-4 rounded-full bg-blue-100 text-blue-600">
+              <Code size={40} />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl mb-2">Frontend Development</h3>
+              <p className="text-sm text-muted-foreground">
+                Master React, UI/UX, and modern web interfaces.
+              </p>
+            </div>
+          </Card>
+
+          <Card
+            className={cn(
+              "p-8 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center relative overflow-hidden",
+              selectedDomain === "backend" ? "border-primary bg-primary/5 ring-2 ring-primary ring-offset-2" : "hover:shadow-md"
+            )}
+            onClick={() => setSelectedDomain("backend")}
+          >
+            {selectedDomain === "backend" && (
+              <div className="absolute top-3 right-3 text-primary">
+                <CheckCircle size={24} />
+              </div>
+            )}
+            <div className="p-4 rounded-full bg-green-100 text-green-600">
+              <Server size={40} />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl mb-2">Backend Development</h3>
+              <p className="text-sm text-muted-foreground">
+                Build robust APIs, databases, and server logic.
+              </p>
+            </div>
+          </Card>
         </div>
 
-        <ul className="mx-auto flex max-w-md list-disc flex-col gap-2 pl-5 text-sm text-slate-700">
-          {reassurancePoints.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-
-        <div className="flex flex-col items-center gap-3 pt-2">
-          <Button size="lg" className="w-full max-w-xs text-base" onClick={() => navigate("/student/placement/progress")}>
-            Start Your Placement
+        <div className="flex flex-col items-center gap-4 pt-4">
+          <Button 
+            size="lg" 
+            className="w-full max-w-xs text-lg h-12 gap-2" 
+            onClick={handleStart}
+            disabled={!selectedDomain}
+          >
+            Start Placement Test <ArrowRight size={18} />
           </Button>
-          <Button variant="ghost" className="text-sm" onClick={() => { setPlacementMode(false); navigate('/student/roadmap'); }}>
-            Do it later
-          </Button>
-          <p className="text-xs text-slate-600">
-            You can skip any question; progress saves automatically.
+          
+          <p className="text-sm text-slate-500">
+            Takes about 20 minutes • Autosaves progress
           </p>
         </div>
       </main>

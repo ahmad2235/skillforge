@@ -38,6 +38,7 @@ type Project = {
   description?: string;
   created_at?: string;
   createdAt?: string;
+  updated_at?: string;
   required_level?: string;
   estimated_duration_weeks?: number | string;
   duration?: string;
@@ -81,7 +82,10 @@ export const BusinessProjectDetailsPage = () => {
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isChangingStatus, setIsChangingStatus] = useState<boolean>(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [statusConfirmOpen, setStatusConfirmOpen] = useState<boolean>(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -227,6 +231,51 @@ export const BusinessProjectDetailsPage = () => {
     }
   };
 
+  const handleChangeStatus = async (newStatus: string) => {
+    if (!project) return;
+    setIsChangingStatus(true);
+    try {
+      await apiClient.post(`/business/projects/${project.id}/status`, {
+        status: newStatus,
+      });
+      toastSuccess(`Project status changed to ${newStatus}`);
+      setStatusConfirmOpen(false);
+      setPendingStatus(null);
+      loadProject();
+    } catch (err: any) {
+      const status = err?.status ?? err?.response?.status;
+      if (status === 401) {
+        setUnauthorized(true);
+      } else {
+        toastError(formatError(err));
+      }
+    } finally {
+      setIsChangingStatus(false);
+    }
+  };
+
+  const openStatusConfirm = (status: string) => {
+    setPendingStatus(status);
+    setStatusConfirmOpen(true);
+  };
+
+  const getNextStatusActions = () => {
+    const currentStatus = project?.status?.toLowerCase();
+    const actions: { label: string; status: string; variant: "default" | "outline" | "destructive" }[] = [];
+    
+    if (currentStatus === "draft") {
+      actions.push({ label: "Publish Project", status: "open", variant: "default" });
+    } else if (currentStatus === "open") {
+      actions.push({ label: "Start Work", status: "in_progress", variant: "default" });
+      actions.push({ label: "Cancel Project", status: "cancelled", variant: "destructive" });
+    } else if (currentStatus === "in_progress") {
+      actions.push({ label: "Mark Completed", status: "completed", variant: "default" });
+      actions.push({ label: "Cancel Project", status: "cancelled", variant: "destructive" });
+    }
+    
+    return actions;
+  };
+
   const hasMilestones = useMemo(() => milestones.length > 0, [milestones]);
 
   if (isLoading) {
@@ -261,6 +310,23 @@ export const BusinessProjectDetailsPage = () => {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
+      {project.status === 'completed' && (
+        <div className="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-emerald-900">Project Completed</h3>
+                    <p className="text-emerald-700 text-sm">This project has been successfully completed on {formatDate(project.updated_at || new Date().toISOString())}.</p>
+                </div>
+            </div>
+            <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-100" onClick={() => navigate(`/business/projects/${project.id}/assignments`)}>
+                View Final Results
+            </Button>
+        </div>
+      )}
+
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold text-slate-900">{project.title}</h1>
@@ -280,24 +346,50 @@ export const BusinessProjectDetailsPage = () => {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={() => {
-              navigate(`/business/projects/${project.id}/candidates`, {
-                state: { projectTitle: project.title },
-              });
-            }}
-          >
-            View candidates
-          </Button>
+          {project.status !== 'completed' && getNextStatusActions().map((action) => (
+            <Button
+              key={action.status}
+              variant={action.variant}
+              onClick={() => openStatusConfirm(action.status)}
+            >
+              {action.label}
+            </Button>
+          ))}
+          
+          {project.status !== 'completed' && (
+            <Button
+              onClick={() => {
+                navigate(`/business/projects/${project.id}/candidates`, {
+                  state: { projectTitle: project.title },
+                });
+              }}
+            >
+              View candidates
+            </Button>
+          )}
+          
           <Button
             variant="outline"
-            onClick={openEditWithProject}
+            onClick={() => {
+              navigate(`/business/projects/${project.id}/assignments`);
+            }}
           >
-            Edit project
+            View assignments
           </Button>
-          <Button variant="destructive" onClick={() => setDeleteConfirmOpen(true)}>
-            Delete project
-          </Button>
+          
+          {project.status !== 'completed' && (
+            <>
+              <Button
+                variant="outline"
+                onClick={openEditWithProject}
+              >
+                Edit project
+              </Button>
+              <Button variant="destructive" onClick={() => setDeleteConfirmOpen(true)}>
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </header>
 
@@ -512,6 +604,34 @@ export const BusinessProjectDetailsPage = () => {
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={statusConfirmOpen} onOpenChange={setStatusConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change project status?</DialogTitle>
+          </DialogHeader>
+
+          <div className="py-2 text-sm text-muted-foreground">
+            {pendingStatus === "open" && "Publishing will make this project visible to candidates."}
+            {pendingStatus === "in_progress" && "This indicates work has started on the project."}
+            {pendingStatus === "completed" && "This will mark the project as finished."}
+            {pendingStatus === "cancelled" && "This will cancel the project. This action cannot be undone."}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusConfirmOpen(false)} disabled={isChangingStatus}>
+              Cancel
+            </Button>
+            <Button
+              variant={pendingStatus === "cancelled" ? "destructive" : "default"}
+              onClick={() => pendingStatus && handleChangeStatus(pendingStatus)}
+              disabled={isChangingStatus}
+            >
+              {isChangingStatus ? "Updating..." : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>

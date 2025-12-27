@@ -313,7 +313,7 @@ export default function AdminMilestoneSubmissionsPage() {
                 <p><span className="font-medium text-foreground">Status:</span> {getSubmissionStatusBadge(selected.status).label}</p>
                 {selected.attachment_url ? (
                   <p>
-                    <a className="text-primary underline" href={selected.attachment_url} target="_blank" rel="noreferrer">
+                    <a className="text-primary hover:text-primary-dark transition-colors" href={selected.attachment_url} target="_blank" rel="noreferrer">
                       View attachment
                     </a>
                   </p>

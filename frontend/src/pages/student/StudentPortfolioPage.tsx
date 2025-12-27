@@ -85,7 +85,7 @@ export function StudentPortfolioPage() {
                     href={item.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-sky-600 hover:underline"
+                    className="text-sm text-sky-600 hover:text-sky-700 transition-colors"
                   >
                     GitHub
                   </a>
@@ -95,7 +95,7 @@ export function StudentPortfolioPage() {
                     href={item.live_demo_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-emerald-600 hover:underline"
+                    className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
                   >
                     Live Demo
                   </a>

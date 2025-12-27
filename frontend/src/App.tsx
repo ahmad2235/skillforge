@@ -21,6 +21,7 @@ import { StudentRoadmapPage } from "./pages/student/StudentRoadmapPage";
 import { StudentBlockTasksPage } from "./pages/student/StudentBlockTasksPage";
 import { StudentTaskSubmitPage } from "./pages/student/StudentTaskSubmitPage";
 import { StudentAssignmentsPage } from "./pages/student/StudentAssignmentsPage";
+import { StudentAssignmentMilestonesPage } from "./pages/student/StudentAssignmentMilestonesPage";
 import { StudentPortfolioPage } from "./pages/student/StudentPortfolioPage";
 import { StudentPortfolioCreatePage } from "./pages/student/StudentPortfolioCreatePage";
 import { StudentPlacementPage } from "./pages/student/StudentPlacementPage";
@@ -32,6 +33,7 @@ import { BusinessProjectCreatePage } from "./pages/business/BusinessProjectCreat
 import { BusinessProjectDetailsPage } from "./pages/business/BusinessProjectDetailsPage";
 import { BusinessProjectCandidatesPage } from "./pages/business/BusinessProjectCandidatesPage";
 import { BusinessProjectAssignmentsPage } from "./pages/business/BusinessProjectAssignmentsPage";
+import { BusinessProjectSubmissionReviewPage } from "./pages/business/BusinessProjectSubmissionReviewPage";
 import BusinessMonitoringPage from "./pages/business/BusinessMonitoringPage";
 import StudentProfilePage from "./pages/student/StudentProfilePage";
 import BusinessProfilePage from "./pages/business/BusinessProfilePage";
@@ -101,6 +103,14 @@ function AppShell() {
             element={
               <ProtectedRoute requiredRole="student">
                 <StudentAssignmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/assignments/:assignmentId/milestones"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <StudentAssignmentMilestonesPage />
               </ProtectedRoute>
             }
           />
@@ -203,6 +213,14 @@ function AppShell() {
             element={
               <ProtectedRoute requiredRole="business">
                 <BusinessProjectAssignmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/business/projects/:projectId/assignments/:assignmentId/review"
+            element={
+              <ProtectedRoute requiredRole="business">
+                <BusinessProjectSubmissionReviewPage />
               </ProtectedRoute>
             }
           />

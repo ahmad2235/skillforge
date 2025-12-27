@@ -43,7 +43,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren, Erro
                 {this.state.stack && <pre className="mt-2 text-xs">{this.state.stack}</pre>}
                 <div className="mt-2">
                   <button
-                    className="text-xs text-sky-300 hover:underline"
+                    className="text-xs text-brand hover:text-brand/80 transition-colors"
                     onClick={() => {
                       const payload = `Error: ${this.state.message}\n\n${this.state.stack ?? ""}`;
                       if (navigator?.clipboard?.writeText) {

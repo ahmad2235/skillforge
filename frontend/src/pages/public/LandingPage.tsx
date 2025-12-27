@@ -29,8 +29,8 @@ export function LandingPage() {
         <div className="max-w-[1200px] mx-auto text-center space-y-8">
           <div className="space-y-4">
             <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-              Stop proving you <span className="text-sky-400">learned</span>.<br />
-              Start proving you can <span className="text-sky-400">do</span>.
+              Stop proving you <span className="text-brand">learned</span>.<br />
+              Start proving you can <span className="text-brand">do</span>.
             </h1>
             <p className="text-xl text-slate-300">
               SkillForge validates your real programming skills through hands-on tasks—so employers see evidence, not just certificates.
@@ -68,7 +68,7 @@ export function LandingPage() {
           <div className="grid sm:grid-cols-3 gap-8 mb-12">
             <Card className="bg-slate-800/50 border-slate-700 p-6">
               <div className="flex items-start gap-4">
-                <div className="text-2xl font-bold text-sky-400 flex-shrink-0">1</div>
+                <div className="text-2xl font-bold text-brand flex-shrink-0">1</div>
                 <p className="text-slate-300">
                   You finished courses, collected certificates, and still get ignored.
                 </p>
@@ -76,7 +76,7 @@ export function LandingPage() {
             </Card>
             <Card className="bg-slate-800/50 border-slate-700 p-6">
               <div className="flex items-start gap-4">
-                <div className="text-2xl font-bold text-sky-400 flex-shrink-0">2</div>
+                <div className="text-2xl font-bold text-brand flex-shrink-0">2</div>
                 <p className="text-slate-300">
                   Employers don't trust what they can't verify.
                 </p>
@@ -84,7 +84,7 @@ export function LandingPage() {
             </Card>
             <Card className="bg-slate-800/50 border-slate-700 p-6">
               <div className="flex items-start gap-4">
-                <div className="text-2xl font-bold text-sky-400 flex-shrink-0">3</div>
+                <div className="text-2xl font-bold text-brand flex-shrink-0">3</div>
                 <p className="text-slate-300">
                   Your portfolio sits there, but nobody knows if you actually built it.
                 </p>
@@ -94,8 +94,8 @@ export function LandingPage() {
 
           <div className="text-center">
             <p className="text-lg text-slate-300">
-              SkillForge changes the question from <span className="font-semibold text-sky-400">"What did you learn?"</span> to{" "}
-              <span className="font-semibold text-sky-400">"What can you build?"</span>
+              SkillForge changes the question from <span className="font-semibold text-brand">"What did you learn?"</span> to{" "}
+              <span className="font-semibold text-brand">"What can you build?"</span>
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export function LandingPage() {
 
           <div className="grid sm:grid-cols-3 gap-8">
             <Card className="bg-slate-800/50 border-slate-700 p-8">
-              <h3 className="text-xl font-bold mb-4 text-sky-400">Students</h3>
+              <h3 className="text-xl font-bold mb-4 text-brand">Students</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-slate-400 font-semibold mb-1">The pain:</p>
@@ -180,7 +180,7 @@ export function LandingPage() {
             </Card>
 
             <Card className="bg-slate-800/50 border-slate-700 p-8">
-              <h3 className="text-xl font-bold mb-4 text-sky-400">Employers</h3>
+              <h3 className="text-xl font-bold mb-4 text-brand">Employers</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-slate-400 font-semibold mb-1">The pain:</p>
@@ -198,7 +198,7 @@ export function LandingPage() {
             </Card>
 
             <Card className="bg-slate-800/50 border-slate-700 p-8">
-              <h3 className="text-xl font-bold mb-4 text-sky-400">Educators & Admins</h3>
+              <h3 className="text-xl font-bold mb-4 text-brand">Educators & Admins</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-slate-400 font-semibold mb-1">The pain:</p>

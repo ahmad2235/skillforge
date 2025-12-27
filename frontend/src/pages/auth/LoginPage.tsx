@@ -128,7 +128,7 @@ export function LoginPage() {
                 <label htmlFor="password" className="block text-sm font-medium text-slate-200">
                   Password
                 </label>
-                <Link to="/auth/forgot-password" className="text-xs text-sky-400 hover:text-sky-300">
+                <Link to="/auth/forgot-password" className="text-xs text-brand hover:text-brand/80 transition-colors">
                   Forgot?
                 </Link>
               </div>
@@ -167,7 +167,7 @@ export function LoginPage() {
 
           <div className="text-center text-sm text-slate-400">
             Don't have an account?{" "}
-            <Link to="/auth/register" className="text-sky-400 hover:text-sky-300 font-medium">
+            <Link to="/auth/register" className="text-brand hover:text-brand/80 font-medium transition-colors">
               Create one
             </Link>
           </div>

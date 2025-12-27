@@ -103,12 +103,6 @@ export function StudentPlacementPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-5xl p-6 sm:p-8 space-y-6">
-        <nav className="flex items-center gap-2 text-sm text-slate-400">
-          <a href="/" className="hover:text-slate-200">Home</a>
-          <span>/</span>
-          <span>Placement</span>
-        </nav>
-
         <header className="space-y-2">
           <h1 className="text-2xl font-bold">Placement Assessment</h1>
           <p className="text-slate-300 text-sm">

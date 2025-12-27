@@ -30,14 +30,6 @@ export const PlacementResultsPage = () => {
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-10 p-6 sm:p-8">
-      <nav className="flex items-center gap-2 text-sm text-slate-600">
-        <a href="/" className="font-medium text-slate-700 hover:text-slate-900">Home</a>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-700">Placement</span>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">Results</span>
-      </nav>
-
       <header className="space-y-2 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Placement results</h1>
         <p className="text-base text-slate-700">Here's where you'll start. Your roadmap adapts as you progress.</p>

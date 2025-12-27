@@ -11,6 +11,7 @@ import { EmptyState } from "../../components/feedback/EmptyState";
 import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { useAppToast } from "../../components/feedback/useAppToast";
+import { PlacementWizard } from "../../components/student/PlacementWizard";
 
 type BlockData = {
   id?: number | null;
@@ -229,12 +230,12 @@ export function StudentRoadmapPage() {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
         <Card className="space-y-3 border border-slate-200 bg-white p-6 shadow-sm text-center">
-          <h3 className="text-lg font-semibold text-slate-900">No roadmap content yet</h3>
+          <h3 className="text-lg font-semibold text-slate-900">Start Your Learning Journey</h3>
           <p className="text-sm text-slate-700">
-            There are no blocks or tasks available for your roadmap right now. Check back later or explore courses to start learning.
+            It looks like you haven't set up your roadmap yet. Take a quick placement test to personalize your learning path.
           </p>
           <div className="mt-4 flex justify-center">
-            <Button onClick={() => navigate("/catalog")}>Browse courses</Button>
+            <PlacementWizard onComplete={fetchRoadmap} />
           </div>
         </Card>
       </div>
@@ -244,12 +245,6 @@ export function StudentRoadmapPage() {
   // Success / existing rendering
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-4 sm:p-6">
-      <nav className="flex items-center gap-2 text-sm text-slate-600">
-        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">Home</Link>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">Roadmap</span>
-      </nav>
-
       <header className="space-y-2 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-3xl font-semibold text-slate-900">Your personalized roadmap</h1>
         <p className="text-base text-slate-700">This path updates as you complete tasks.</p>

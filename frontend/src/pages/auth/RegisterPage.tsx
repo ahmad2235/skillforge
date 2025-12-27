@@ -328,7 +328,7 @@ export function RegisterPage() {
           {/* Login Link */}
           <div className="text-center text-sm text-slate-400">
             Already have an account?{" "}
-            <Link to="/auth/login" className="text-sky-400 hover:text-sky-300 font-medium">
+            <Link to="/auth/login" className="text-brand hover:text-brand/80 font-medium transition-colors">
               Sign in
             </Link>
           </div>

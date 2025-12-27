@@ -13,10 +13,25 @@ export interface ProjectSummary {
 export interface ProjectAssignment {
   id: number;
   project_id: number;
-  status: AssignmentStatus;
+  user_id: number;
+  status: string; // "invited" | "accepted" | "completed" | "declined" | "removed"
   // Backend returns project attached with the assignment
   project?: ProjectSummary;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  milestone_submissions?: Array<{
+    id: number;
+    status: string;
+    reviewed_at?: string;
+  }>;
   metadata?: Record<string, unknown> | null;
+  student_rating?: number;
+  student_feedback?: string;
+  business_rating?: number;
+  business_feedback?: string;
 }
 
 export interface PortfolioItem {

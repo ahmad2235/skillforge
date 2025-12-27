@@ -250,23 +250,6 @@ export function StudentTaskSubmitPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
-      <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">
-          Home
-        </Link>
-        <span className="text-slate-400">/</span>
-        <Link
-          to="/student/roadmap"
-          className="font-medium text-slate-700 hover:text-slate-900"
-        >
-          Roadmap
-        </Link>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-700">Tasks</span>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">{headingTitle}</span>
-      </nav>
-
       <header className="space-y-2">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-semibold text-slate-900">{headingTitle}</h1>

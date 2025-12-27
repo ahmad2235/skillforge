@@ -263,7 +263,7 @@ export default function AdminLearningSubmissionsPage() {
                 <div>
                   <p className="text-sm font-medium">Answer</p>
                   <div className="rounded-lg border p-3 text-sm text-muted-foreground">{selected.answer_text || 'No answer provided'}</div>
-                  {selected.attachment_url && <p className="mt-2"><a className="text-primary underline" href={selected.attachment_url} target="_blank" rel="noreferrer">View attachment</a></p>}
+                  {selected.attachment_url && <p className="mt-2"><a className="text-primary hover:text-primary-dark transition-colors" href={selected.attachment_url} target="_blank" rel="noreferrer">View attachment</a></p>}
                 </div>
 
                 <div>

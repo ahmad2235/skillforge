@@ -112,21 +112,6 @@ export function StudentBlockTasksPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
-      <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-        <Link to="/" className="font-medium text-slate-700 hover:text-slate-900">
-          Home
-        </Link>
-        <span className="text-slate-400">/</span>
-        <Link
-          to="/student/roadmap"
-          className="font-medium text-slate-700 hover:text-slate-900"
-        >
-          Roadmap
-        </Link>
-        <span className="text-slate-400">/</span>
-        <span className="font-medium text-slate-900">{breadcrumbTitle}</span>
-      </nav>
-
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold text-slate-900">
           {blockTitle ? `${blockTitle} — Tasks` : "Learning block — Tasks"}

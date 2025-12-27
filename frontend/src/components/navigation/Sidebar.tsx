@@ -28,14 +28,14 @@ const NavItem = ({ label, path, active, collapsed, onNavigate }: NavItemProps) =
     className={
       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative group " +
       (active
-        ? "bg-blue-50 text-blue-700"
-        : "text-slate-700 hover:bg-slate-100 hover:text-slate-900")
+        ? "bg-primary/10 text-primary"
+        : "text-muted-foreground hover:bg-accent hover:text-foreground")
     }
     aria-current={active ? "page" : undefined}
   >
     {/* Active indicator bar */}
     {active && (
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-lg" aria-hidden="true" />
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-lg" aria-hidden="true" />
     )}
     
     {/* Icon indicator */}
@@ -43,8 +43,8 @@ const NavItem = ({ label, path, active, collapsed, onNavigate }: NavItemProps) =
       className={
         "inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-xs font-semibold transition-colors " +
         (active
-          ? "bg-blue-200 text-blue-700"
-          : "bg-slate-200 text-slate-600 group-hover:bg-slate-300")
+          ? "bg-primary/20 text-primary"
+          : "bg-muted text-muted-foreground group-hover:bg-muted/80")
       }
       aria-hidden="true"
     >
@@ -73,8 +73,28 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
 
   const navGroups = useMemo(() => {
     if (!user?.role) return [];
-    return roleNavConfig[user.role] ?? [];
-  }, [user?.role]);
+    const groups = roleNavConfig[user.role] ?? [];
+
+    // If student, customize the Placement link based on status
+    if (user.role === "student") {
+      return groups.map((group) => ({
+        ...group,
+        items: group.items.map((item) => {
+          if (item.label === "Placement") {
+            // If placement is done (level exists), point to results
+            if (user.level) {
+              return { ...item, path: "/student/placement/results" };
+            }
+            // Otherwise keep default (Intro/Choose Path)
+            return item;
+          }
+          return item;
+        }),
+      }));
+    }
+
+    return groups;
+  }, [user?.role, user?.level]);
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`);

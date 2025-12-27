@@ -217,7 +217,7 @@ export function AdminBlockTasksPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link to="/admin/learning/blocks" className="hover:underline">
+              <Link to="/admin/learning/blocks" className="hover:text-foreground transition-colors">
                 Blocks
               </Link>
               <span>/</span>
