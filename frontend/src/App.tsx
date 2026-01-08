@@ -1,46 +1,73 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { LandingPage } from "./pages/public/LandingPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { VerifyEmailPage } from "./pages/auth/VerifyEmailPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
-import { StudentDashboardPage } from "./pages/student/StudentDashboardPage";
-import { BusinessDashboardPage } from "./pages/business/BusinessDashboardPage";
-import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-import { AdminLearningBlocksPage } from "./pages/admin/AdminLearningBlocksPage";
-import { AdminBlockTasksPage } from "./pages/admin/AdminBlockTasksPage";
-import { AdminAssessmentQuestionsPage } from "./pages/admin/AdminAssessmentQuestionsPage";
-import AdminMonitoringPage from "./pages/admin/AdminMonitoringPage";
-import AdminUsersPage from "./pages/admin/AdminUsersPage";
-import { AdminStudentsPage } from "./pages/admin/AdminStudentsPage";
-import AdminProjectsPage from "./pages/admin/AdminProjectsPage";
-import AdminMilestoneSubmissionsPage from "./pages/admin/AdminMilestoneSubmissionsPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import { NotFoundPage } from "./pages/errors/NotFoundPage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
-import { StudentRoadmapPage } from "./pages/student/StudentRoadmapPage";
-import { StudentBlockTasksPage } from "./pages/student/StudentBlockTasksPage";
-import { StudentTaskSubmitPage } from "./pages/student/StudentTaskSubmitPage";
-import { StudentAssignmentsPage } from "./pages/student/StudentAssignmentsPage";
-import { StudentAssignmentMilestonesPage } from "./pages/student/StudentAssignmentMilestonesPage";
-import { StudentPortfolioPage } from "./pages/student/StudentPortfolioPage";
-import { StudentPortfolioCreatePage } from "./pages/student/StudentPortfolioCreatePage";
-import { StudentPlacementPage } from "./pages/student/StudentPlacementPage";
-import { PlacementIntroPage } from "./pages/student/PlacementIntroPage";
-import { PlacementInProgressPage } from "./pages/student/PlacementInProgressPage";
-import { PlacementResultsPage } from "./pages/student/PlacementResultsPage";
-import { BusinessProjectsListPage } from "./pages/business/BusinessProjectsListPage";
-import { BusinessProjectCreatePage } from "./pages/business/BusinessProjectCreatePage";
-import { BusinessProjectDetailsPage } from "./pages/business/BusinessProjectDetailsPage";
-import { BusinessProjectCandidatesPage } from "./pages/business/BusinessProjectCandidatesPage";
-import { BusinessProjectAssignmentsPage } from "./pages/business/BusinessProjectAssignmentsPage";
-import { BusinessProjectSubmissionReviewPage } from "./pages/business/BusinessProjectSubmissionReviewPage";
-import BusinessMonitoringPage from "./pages/business/BusinessMonitoringPage";
-import StudentProfilePage from "./pages/student/StudentProfilePage";
-import BusinessProfilePage from "./pages/business/BusinessProfilePage";
-import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import AppLayout from "./layouts/AppLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import { NavigationProvider } from "./components/navigation/NavigationContext";
+import { ToastProvider } from "./components/feedback/ToastProvider";
+
+// ─────────────────────────────────────────────────────────────
+// Lazy-loaded pages (code-split for performance)
+// These are role-specific pages that don't need to load upfront
+// ─────────────────────────────────────────────────────────────
+
+// Student pages
+const StudentDashboardPage = lazy(() => import("./pages/student/StudentDashboardPage").then(m => ({ default: m.StudentDashboardPage })));
+const StudentRoadmapPage = lazy(() => import("./pages/student/StudentRoadmapPage").then(m => ({ default: m.StudentRoadmapPage })));
+const StudentBlockTasksPage = lazy(() => import("./pages/student/StudentBlockTasksPage").then(m => ({ default: m.StudentBlockTasksPage })));
+const StudentTaskSubmitPage = lazy(() => import("./pages/student/StudentTaskSubmitPage").then(m => ({ default: m.StudentTaskSubmitPage })));
+const StudentAssignmentsPage = lazy(() => import("./pages/student/StudentAssignmentsPage").then(m => ({ default: m.StudentAssignmentsPage })));
+const AcceptInvitePage = lazy(() => import("./pages/student/AcceptInvitePage").then(m => ({ default: m.AcceptInvitePage })));
+const StudentAssignmentMilestonesPage = lazy(() => import("./pages/student/StudentAssignmentMilestonesPage").then(m => ({ default: m.StudentAssignmentMilestonesPage })));
+const StudentPortfolioPage = lazy(() => import("./pages/student/StudentPortfolioPage").then(m => ({ default: m.StudentPortfolioPage })));
+const StudentPortfolioCreatePage = lazy(() => import("./pages/student/StudentPortfolioCreatePage").then(m => ({ default: m.StudentPortfolioCreatePage })));
+const StudentPortfolioDetailPage = lazy(() => import("./pages/student/StudentPortfolioDetailPage").then(m => ({ default: m.StudentPortfolioDetailPage })));
+const StudentPortfolioEditPage = lazy(() => import("./pages/student/StudentPortfolioEditPage").then(m => ({ default: m.StudentPortfolioEditPage })));
+const StudentPlacementPage = lazy(() => import("./pages/student/StudentPlacementPage").then(m => ({ default: m.StudentPlacementPage })));
+const PlacementIntroPage = lazy(() => import("./pages/student/PlacementIntroPage").then(m => ({ default: m.PlacementIntroPage })));
+const PlacementInProgressPage = lazy(() => import("./pages/student/PlacementInProgressPage").then(m => ({ default: m.PlacementInProgressPage })));
+const PlacementResultsPage = lazy(() => import("./pages/student/PlacementResultsPage").then(m => ({ default: m.PlacementResultsPage })));
+const StudentProfilePage = lazy(() => import("./pages/student/StudentProfilePage"));
+
+// Business pages
+const BusinessDashboardPage = lazy(() => import("./pages/business/BusinessDashboardPage").then(m => ({ default: m.BusinessDashboardPage })));
+const BusinessProjectsListPage = lazy(() => import("./pages/business/BusinessProjectsListPage").then(m => ({ default: m.BusinessProjectsListPage })));
+const BusinessProjectCreatePage = lazy(() => import("./pages/business/BusinessProjectCreatePage").then(m => ({ default: m.BusinessProjectCreatePage })));
+const BusinessProjectDetailsPage = lazy(() => import("./pages/business/BusinessProjectDetailsPage").then(m => ({ default: m.BusinessProjectDetailsPage })));
+const BusinessProjectCandidatesPage = lazy(() => import("./pages/business/BusinessProjectCandidatesPage").then(m => ({ default: m.BusinessProjectCandidatesPage })));
+const BusinessProjectAssignmentsPage = lazy(() => import("./pages/business/BusinessProjectAssignmentsPage").then(m => ({ default: m.BusinessProjectAssignmentsPage })));
+const BusinessProjectSubmissionReviewPage = lazy(() => import("./pages/business/BusinessProjectSubmissionReviewPage").then(m => ({ default: m.BusinessProjectSubmissionReviewPage })));
+const BusinessMonitoringPage = lazy(() => import("./pages/business/BusinessMonitoringPage"));
+const BusinessProfilePage = lazy(() => import("./pages/business/BusinessProfilePage"));
+
+// Admin pages
+const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const AdminLearningBlocksPage = lazy(() => import("./pages/admin/AdminLearningBlocksPage").then(m => ({ default: m.AdminLearningBlocksPage })));
+const AdminBlockTasksPage = lazy(() => import("./pages/admin/AdminBlockTasksPage").then(m => ({ default: m.AdminBlockTasksPage })));
+const AdminAssessmentQuestionsPage = lazy(() => import("./pages/admin/AdminAssessmentQuestionsPage").then(m => ({ default: m.AdminAssessmentQuestionsPage })));
+const AdminMonitoringPage = lazy(() => import("./pages/admin/AdminMonitoringPage"));
+const AdminUsersPage = lazy(() => import("./pages/admin/AdminUsersPage"));
+const AdminStudentsPage = lazy(() => import("./pages/admin/AdminStudentsPage").then(m => ({ default: m.AdminStudentsPage })));
+const AdminProjectsPage = lazy(() => import("./pages/admin/AdminProjectsPage"));
+const AdminMilestoneSubmissionsPage = lazy(() => import("./pages/admin/AdminMilestoneSubmissionsPage"));
+const AdminProfilePage = lazy(() => import("./pages/admin/AdminProfilePage"));
+
+// Chat page (uses socket.io-client)
+const ChatPage = lazy(() => import("./pages/ChatPage").then(m => ({ default: m.ChatPage })));
+
+// Minimal loading fallback for lazy routes
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <div className="text-slate-400 text-sm">Loading...</div>
+  </div>
+);
 
 function AppShell() {
   return (
@@ -52,6 +79,7 @@ function AppShell() {
           <Route path="/auth/register" element={<RegisterPage />} />
           <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
           <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
         <Route element={<AppLayout />}>
@@ -60,7 +88,9 @@ function AppShell() {
             path="/student"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentDashboardPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -69,7 +99,9 @@ function AppShell() {
             path="/student/roadmap"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentRoadmapPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentRoadmapPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -77,7 +109,9 @@ function AppShell() {
             path="/student/blocks/:id"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentBlockTasksPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentBlockTasksPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -86,7 +120,9 @@ function AppShell() {
             path="/student/tasks/:id/submit"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentTaskSubmitPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentTaskSubmitPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -94,7 +130,9 @@ function AppShell() {
             path="/student/tasks/:id"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentTaskSubmitPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentTaskSubmitPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -102,7 +140,19 @@ function AppShell() {
             path="/student/assignments"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentAssignmentsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentAssignmentsPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accept-invite/:assignmentId"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Suspense fallback={<PageLoader />}>
+                  <AcceptInvitePage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -110,7 +160,9 @@ function AppShell() {
             path="/student/assignments/:assignmentId/milestones"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentAssignmentMilestonesPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentAssignmentMilestonesPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -118,7 +170,39 @@ function AppShell() {
             path="/student/portfolios"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentPortfolioPage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentPortfolioPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/portfolios/create"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Suspense fallback={<PageLoader />}>
+                  <StudentPortfolioCreatePage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/portfolios/:id"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Suspense fallback={<PageLoader />}>
+                  <StudentPortfolioDetailPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/portfolios/:id/edit"
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Suspense fallback={<PageLoader />}>
+                  <StudentPortfolioEditPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -126,7 +210,9 @@ function AppShell() {
             path="/student/profile"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentProfilePage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentProfilePage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -134,7 +220,9 @@ function AppShell() {
             path="/student/projects/assignments/:assignment/portfolio"
             element={
               <ProtectedRoute requiredRole="student">
-                <StudentPortfolioCreatePage />
+                <Suspense fallback={<PageLoader />}>
+                  <StudentPortfolioCreatePage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -146,7 +234,9 @@ function AppShell() {
             path="/student/placement/intro"
             element={
               <ProtectedRoute requiredRole="student">
-                <PlacementIntroPage />
+                <Suspense fallback={<PageLoader />}>
+                  <PlacementIntroPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -154,7 +244,9 @@ function AppShell() {
             path="/student/placement/progress"
             element={
               <ProtectedRoute requiredRole="student">
-                <PlacementInProgressPage />
+                <Suspense fallback={<PageLoader />}>
+                  <PlacementInProgressPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -162,7 +254,9 @@ function AppShell() {
             path="/student/placement/results"
             element={
               <ProtectedRoute requiredRole="student">
-                <PlacementResultsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <PlacementResultsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -172,7 +266,9 @@ function AppShell() {
             path="/business"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessDashboardPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -180,7 +276,9 @@ function AppShell() {
             path="/business/projects"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectsListPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectsListPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -188,7 +286,9 @@ function AppShell() {
             path="/business/projects/new"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectCreatePage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectCreatePage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -196,7 +296,9 @@ function AppShell() {
             path="/business/projects/:projectId"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectDetailsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectDetailsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -204,7 +306,9 @@ function AppShell() {
             path="/business/projects/:projectId/candidates"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectCandidatesPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectCandidatesPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -212,7 +316,9 @@ function AppShell() {
             path="/business/projects/:projectId/assignments"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectAssignmentsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectAssignmentsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -220,7 +326,9 @@ function AppShell() {
             path="/business/projects/:projectId/assignments/:assignmentId/review"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProjectSubmissionReviewPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProjectSubmissionReviewPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -228,7 +336,9 @@ function AppShell() {
             path="/business/monitoring"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessMonitoringPage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessMonitoringPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -236,7 +346,21 @@ function AppShell() {
             path="/business/profile"
             element={
               <ProtectedRoute requiredRole="business">
-                <BusinessProfilePage />
+                <Suspense fallback={<PageLoader />}>
+                  <BusinessProfilePage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Chat (protected to authenticated users; ChatPage will enforce role) */}
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<PageLoader />}>
+                  <ChatPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -246,7 +370,9 @@ function AppShell() {
             path="/admin"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminDashboardPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -254,7 +380,9 @@ function AppShell() {
             path="/admin/profile"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminProfilePage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminProfilePage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -262,7 +390,9 @@ function AppShell() {
             path="/admin/dashboard"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminDashboardPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminDashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -270,7 +400,9 @@ function AppShell() {
             path="/admin/students"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminStudentsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminStudentsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -278,7 +410,9 @@ function AppShell() {
             path="/admin/users"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminUsersPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminUsersPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -286,7 +420,9 @@ function AppShell() {
             path="/admin/learning/blocks"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminLearningBlocksPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminLearningBlocksPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -294,7 +430,9 @@ function AppShell() {
             path="/admin/learning/blocks/:blockId/tasks"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminBlockTasksPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminBlockTasksPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -302,7 +440,9 @@ function AppShell() {
             path="/admin/assessment/questions"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminAssessmentQuestionsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminAssessmentQuestionsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -310,7 +450,9 @@ function AppShell() {
             path="/admin/monitoring"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminMonitoringPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminMonitoringPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -318,7 +460,9 @@ function AppShell() {
             path="/admin/projects"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminProjectsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminProjectsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -326,7 +470,9 @@ function AppShell() {
             path="/admin/milestones/submissions"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AdminMilestoneSubmissionsPage />
+                <Suspense fallback={<PageLoader />}>
+                  <AdminMilestoneSubmissionsPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -356,7 +502,9 @@ function AppShell() {
 function App() {
   return (
     <BrowserRouter>
-      <AppShell />
+      <ToastProvider>
+        <AppShell />
+      </ToastProvider>
     </BrowserRouter>
   );
 }

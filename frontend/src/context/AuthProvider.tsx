@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { apiClient } from "../lib/apiClient";
 import type { AuthUser, UserRole } from "./AuthContext";
 import { AuthContext } from "./AuthContext";
 
@@ -13,37 +14,98 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [initialized, setInitialized] = useState(false);
 
   const role: UserRole = user?.role ?? null;
-  // A user is considered authenticated only when BOTH a token and a user object are present.
-  const isAuthenticated = !!token && !!user;
+  // A user is considered authenticated when a user object is present.
+  // For session-based auth (Sanctum SPA), token will be null and auth is via cookies.
+  const isAuthenticated = !!user;
 
-  // Load initial state from localStorage once and clean up stale values when mismatched
+  // Load cached auth then verify session with backend to avoid redirect loops when cookie exists but cache is empty
   useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem("sf_token");
-      const storedUser = localStorage.getItem("sf_user");
+    let cancelled = false;
 
-      if (storedToken && storedUser) {
-        const parsedUser: AuthUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setUser(parsedUser);
-      } else {
-        // Clean up any stale or mismatched items
-        if (storedToken && !storedUser) {
-          // token without a user is invalid -> remove token
+    const bootstrap = async () => {
+      try {
+        const storedToken = localStorage.getItem("sf_token");
+        const storedUser = localStorage.getItem("sf_user");
+        const validStoredToken = storedToken && storedToken !== 'undefined' ? storedToken : null;
+
+        if (storedUser) {
+          try {
+            const parsedUser: AuthUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            setToken(validStoredToken);
+          } catch {
+            localStorage.removeItem('sf_user');
+            localStorage.removeItem('sf_token');
+          }
+        } else if (validStoredToken) {
           localStorage.removeItem("sf_token");
         }
-        if (!storedToken && storedUser) {
-          // user without a token is stale -> remove stored user
+      } catch {
+        localStorage.removeItem("sf_token");
+        localStorage.removeItem("sf_user");
+      }
+
+      // Server-side check ensures session cookies are honored even if local cache is empty/stale
+      try {
+        const response = await apiClient.get("/auth/me");
+        if (cancelled) return;
+        const serverUser: AuthUser | undefined = (response.data as any)?.user ?? response.data;
+        if (serverUser) {
+          setUser(serverUser);
+          setToken(null);
+          localStorage.setItem("sf_user", JSON.stringify(serverUser));
+          localStorage.removeItem("sf_token");
+        } else {
+          setUser(null);
+          setToken(null);
           localStorage.removeItem("sf_user");
+          localStorage.removeItem("sf_token");
+        }
+      } catch {
+        if (cancelled) return;
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("sf_user");
+        localStorage.removeItem("sf_token");
+      } finally {
+        if (!cancelled) {
+          setInitialized(true);
         }
       }
-    } catch {
+    };
+
+    bootstrap();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const login = useCallback((nextUser: AuthUser, nextToken?: string | null) => {
+    setUser(nextUser);
+    setToken(nextToken ?? null);
+
+    if (nextToken) {
+      localStorage.setItem("sf_token", nextToken);
+    } else {
       localStorage.removeItem("sf_token");
-      localStorage.removeItem("sf_user");
-    } finally {
-      setInitialized(true);
+    }
+    localStorage.setItem("sf_user", JSON.stringify(nextUser));
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('AuthProvider: login', { nextUser, nextToken, cookie: document.cookie });
     }
   }, []);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("sf_token");
+    localStorage.removeItem("sf_user");
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('AuthProvider: logout, cleared auth state');
+    }
+  }, []);
+
 
   // Sync logout with global event (e.g., 401/403 from axios)
   useEffect(() => {
@@ -58,27 +120,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         window.removeEventListener("sf:auth-logout", onForcedLogout);
       }
     };
-  }, []);
+  }, [logout]);
 
-  function login(nextUser: AuthUser, nextToken: string) {
-    setUser(nextUser);
-    setToken(nextToken);
-
-    localStorage.setItem("sf_token", nextToken);
-    localStorage.setItem("sf_user", JSON.stringify(nextUser));
-  }
-
-  function logout() {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("sf_token");
-    localStorage.removeItem("sf_user");
-  }
+  const contextValue = useMemo(
+    () => ({ user, token, role, isAuthenticated, initialized, login, logout }),
+    [user, token, role, isAuthenticated, initialized, login, logout]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{ user, token, role, isAuthenticated, initialized, login, logout }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

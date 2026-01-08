@@ -205,7 +205,7 @@ export default function AdminMilestoneSubmissionsPage() {
   }, [isRejectOpen]);
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Milestone submissions</h1>
         <p className="text-sm text-muted-foreground">Review and moderate project milestone submissions.</p>

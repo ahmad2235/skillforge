@@ -62,8 +62,8 @@ class OpenAIClient:
 
     def validate(self, model: str, timeout: int = 10) -> bool:
         try:
-            # tiny ping prompt
-            _ = self.call_model("Ping", model=model, timeout=timeout)
+            # tiny ping prompt requesting JSON to avoid parse errors
+            _ = self.call_model('Return JSON: {"ping": "pong"}', model=model, timeout=timeout)
             return True
         except OpenAIError as e:
             # If the provider returned non-JSON for the ping (parse_error), treat the provider as available

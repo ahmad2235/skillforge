@@ -205,7 +205,7 @@ class EvaluatorResilienceTest extends TestCase
         $response->assertJson([
             'data' => [
                 'evaluation_status' => 'manual_review',
-                'user_message' => 'Requires manual review by staff.',
+                'user_message' => 'Needs manual review',
             ],
         ]);
 
@@ -215,6 +215,7 @@ class EvaluatorResilienceTest extends TestCase
             'task_id' => $this->task->id,
             'answer_text' => 'Solution 3',
             'status' => 'evaluated',
+            'evaluation_status' => 'completed',
             'is_evaluated' => true,
             'ai_score' => 90,
             'ai_feedback' => 'Great work!',
@@ -227,7 +228,7 @@ class EvaluatorResilienceTest extends TestCase
         $response->assertJson([
             'data' => [
                 'evaluation_status' => 'completed',
-                'user_message' => 'Evaluation complete.',
+                'user_message' => 'Evaluation complete',
             ],
         ]);
     }

@@ -20,13 +20,13 @@ export const StudentFirstTaskPage = () => {
   }, [setPlacementMode]);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 p-4 sm:p-6">
+    <div className="mx-auto max-w-4xl space-y-8 p-4 sm:p-6 animate-page-enter">
       <header className="space-y-3">
-        <h1 className="text-3xl font-semibold text-slate-900">First task</h1>
-        <p className="text-base text-slate-700">Start with a focused task to build momentum. You can save drafts and revisit anytime.</p>
+        <h1 className="text-3xl font-semibold text-foreground">First task</h1>
+        <p className="text-base text-muted-foreground">Start with a focused task to build momentum. You can save drafts and revisit anytime.</p>
         <div className="space-y-1">
-          <p className="text-sm text-slate-600">Block: HTML Fundamentals</p>
-          <p className="text-sm text-slate-600">~20–30 minutes</p>
+          <p className="text-sm text-muted-foreground">Block: HTML Fundamentals</p>
+          <p className="text-sm text-muted-foreground">~20–30 minutes</p>
         </div>
       </header>
 
@@ -39,14 +39,14 @@ export const StudentFirstTaskPage = () => {
           </div>
         ) : (
           <>
-            <p className="text-base text-slate-700">
+            <p className="text-base text-muted-foreground">
               Build a simple responsive landing section with a headline, subheadline, and primary button. Keep the layout centered and readable on mobile.
             </p>
-            <Card className="space-y-2 border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-              <div className="font-semibold text-slate-800">Expected output</div>
+            <Card className="space-y-2 border border-slate-800 bg-slate-900/80 p-4 text-sm text-slate-200">
+              <div className="font-semibold text-foreground">Expected output</div>
               <p>Centered hero with headline, supporting text, and a primary call-to-action button.</p>
             </Card>
-            <p className="text-sm text-slate-600">Reviewed automatically with feedback.</p>
+            <p className="text-sm text-muted-foreground">Reviewed automatically with feedback.</p>
           </>
         )}
       </section>
@@ -60,11 +60,11 @@ export const StudentFirstTaskPage = () => {
 
         <Collapsible open={hintOpen} onOpenChange={setHintOpen}>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="px-0 text-sm text-slate-700">
+            <Button variant="ghost" className="px-0 text-sm text-slate-200">
               {hintOpen ? "Hide hint" : "Show hint"}
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+          <CollapsibleContent className="mt-2 rounded-md border border-slate-800 bg-slate-900/70 p-3 text-sm text-slate-200">
             {/* TODO: wire dynamic hints */}
             Start with semantic HTML, keep spacing consistent, and test at 360px width.
           </CollapsibleContent>
@@ -77,12 +77,12 @@ export const StudentFirstTaskPage = () => {
             {/* TODO: handle submission */}
             Submit
           </Button>
-          <Button variant="ghost" className="text-sm text-slate-700">
+          <Button variant="ghost" className="text-sm text-slate-200">
             {/* TODO: handle save draft */}
             Save draft
           </Button>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-muted-foreground">
           You'll see feedback shortly; retries allowed.
         </p>
       </section>

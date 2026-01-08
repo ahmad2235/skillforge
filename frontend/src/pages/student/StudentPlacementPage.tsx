@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../lib/apiClient";
 import { getSafeErrorMessage } from "../../lib/errors";
 import { safeLogError } from "../../lib/logger";
@@ -18,6 +19,15 @@ interface PlacementQuestion {
   metadata?: Record<string, unknown> | null;
 }
 
+interface QuestionResult {
+  question_id: number;
+  question_text: string;
+  type: "mcq" | "text";
+  score: number;
+  is_correct: boolean;
+  feedback: string | null;
+}
+
 interface PlacementResult {
   placement_result_id: number;
   score: number;
@@ -25,9 +35,11 @@ interface PlacementResult {
   suggested_domain: "frontend" | "backend";
   total_questions: number;
   correct_count: number;
+  question_results?: QuestionResult[];
 }
 
 export function StudentPlacementPage() {
+  const navigate = useNavigate();
   const [domain, setDomain] = useState<DomainOption>("frontend");
   const [questions, setQuestions] = useState<PlacementQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -91,7 +103,11 @@ export function StudentPlacementPage() {
         payload
       );
       const data = response.data?.data ?? response.data;
-      setResult(data as PlacementResult);
+      const placementResult = data as PlacementResult;
+      setResult(placementResult);
+      
+      // Navigate to results page with full result data
+      navigate("/student/placement/results", { state: placementResult });
     } catch (err: any) {
       safeLogError(err, "PlacementSubmit");
       setError(getSafeErrorMessage(err));

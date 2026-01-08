@@ -53,6 +53,8 @@ type Milestone = {
   due?: string;
   hint?: string;
   description?: string;
+  is_required?: boolean;
+  order_index?: number;
 };
 
 const activity = [
@@ -91,9 +93,26 @@ export const BusinessProjectDetailsPage = () => {
     description: "",
     domain: "",
     required_level: "",
+    complexity: "low",
     estimated_duration_weeks: "",
   });
+  const [requirementsPdfUpdate, setRequirementsPdfUpdate] = useState<File | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Add milestone dialog state
+  const [isAddMilestoneOpen, setIsAddMilestoneOpen] = useState<boolean>(false);
+  const [milestoneForm, setMilestoneForm] = useState({
+    title: "",
+    description: "",
+    due_date: "",
+    is_required: true,
+  });
+  const [milestoneFormErrors, setMilestoneFormErrors] = useState<Record<string, string>>({});
+  const [isCreatingMilestone, setIsCreatingMilestone] = useState<boolean>(false);
+
+  // Milestone details dialog state
+  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+  const [isMilestoneDetailsOpen, setIsMilestoneDetailsOpen] = useState<boolean>(false);
 
   const formatError = (err: any) => {
     const message = err?.response?.data?.message || err?.message;
@@ -116,9 +135,16 @@ export const BusinessProjectDetailsPage = () => {
       try {
         const milestonesRes = await apiClient.get(`/business/projects/${projectId}/milestones`);
         const milestonePayload = (milestonesRes.data?.data ?? milestonesRes.data ?? []) as Milestone[];
-        setMilestones(Array.isArray(milestonePayload) ? milestonePayload : []);
+        const milestonesWithStatus = (Array.isArray(milestonePayload) ? milestonePayload : []).map(m => ({
+          ...m,
+          status: m.status || "not_started"
+        }));
+        setMilestones(milestonesWithStatus);
       } catch (milestoneErr: any) {
-        const fallback = Array.isArray(projectPayload?.milestones) ? projectPayload.milestones : [];
+        const fallback = Array.isArray(projectPayload?.milestones) ? projectPayload.milestones.map(m => ({
+          ...m,
+          status: m.status || "not_started"
+        })) : [];
         setMilestones(fallback);
 
         if (milestoneErr?.status === 401) {
@@ -154,8 +180,10 @@ export const BusinessProjectDetailsPage = () => {
       description: project.description || "",
       domain: project.domain || "",
       required_level: project.required_level || project.level || "",
+      complexity: (project as any).complexity || "low",
       estimated_duration_weeks: project.estimated_duration_weeks?.toString() || "",
     });
+    setRequirementsPdfUpdate(null);
     setFormErrors({});
     setIsEditOpen(true);
   };
@@ -181,12 +209,21 @@ export const BusinessProjectDetailsPage = () => {
     setIsSaving(true);
     setFormErrors({});
     try {
-      await apiClient.put(`/business/projects/${project.id}`, {
-        title: form.title,
-        description: form.description,
-        domain: form.domain,
-        required_level: form.required_level,
-        estimated_duration_weeks: form.estimated_duration_weeks ? Number(form.estimated_duration_weeks) : undefined,
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      if (form.domain) formData.append("domain", form.domain);
+      if (form.required_level) formData.append("required_level", form.required_level);
+      if (form.complexity) formData.append("complexity", form.complexity);
+      if (form.estimated_duration_weeks) {
+        formData.append("estimated_duration_weeks", String(Number(form.estimated_duration_weeks)));
+      }
+      if (requirementsPdfUpdate) {
+        formData.append("requirements_pdf", requirementsPdfUpdate);
+      }
+
+      await apiClient.put(`/business/projects/${project.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       toastSuccess("Updated");
       setIsEditOpen(false);
@@ -259,6 +296,50 @@ export const BusinessProjectDetailsPage = () => {
     setStatusConfirmOpen(true);
   };
 
+  const handleAddMilestone = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!project) return;
+
+    setIsCreatingMilestone(true);
+    setMilestoneFormErrors({});
+
+    try {
+      await apiClient.post(`/business/projects/${project.id}/milestones`, {
+        title: milestoneForm.title,
+        description: milestoneForm.description || undefined,
+        due_date: milestoneForm.due_date || undefined,
+        is_required: milestoneForm.is_required,
+      });
+
+      toastSuccess("Milestone added successfully");
+      setIsAddMilestoneOpen(false);
+      setMilestoneForm({
+        title: "",
+        description: "",
+        due_date: "",
+        is_required: true,
+      });
+      loadProject();
+    } catch (err: any) {
+      const status = err?.status ?? err?.response?.status;
+      if (status === 401) {
+        setUnauthorized(true);
+        setIsAddMilestoneOpen(false);
+      } else if (status === 422) {
+        const errors = err?.response?.data?.errors || {};
+        const mapped: Record<string, string> = {};
+        Object.keys(errors).forEach((key) => {
+          mapped[key] = Array.isArray(errors[key]) ? errors[key][0] : errors[key];
+        });
+        setMilestoneFormErrors(mapped);
+      } else {
+        toastError(formatError(err));
+      }
+    } finally {
+      setIsCreatingMilestone(false);
+    }
+  };
+
   const getNextStatusActions = () => {
     const currentStatus = project?.status?.toLowerCase();
     const actions: { label: string; status: string; variant: "default" | "outline" | "destructive" }[] = [];
@@ -277,6 +358,49 @@ export const BusinessProjectDetailsPage = () => {
   };
 
   const hasMilestones = useMemo(() => milestones.length > 0, [milestones]);
+
+  // Project theming - compute HSL tokens based on domain or project metadata
+  const projectTheme = useMemo(() => {
+    if (!project) return null;
+
+    // Allow explicit theme via project.metadata.theme_hsl (e.g., "199 89% 60%")
+    const explicit = (project as any)?.metadata?.theme_hsl;
+    if (explicit) {
+      return {
+        accent: explicit,
+        accentForeground: "210 40% 98%",
+        brand: explicit,
+      };
+    }
+
+    // Fallback mapping by domain
+    const domain = (project.domain || "").toLowerCase();
+    const palette: Record<string, { accent: string; accentForeground: string; brand: string }> = {
+      frontend: { accent: "199 89% 60%", accentForeground: "222 47% 11%", brand: "199 89% 60%" }, // sky
+      backend: { accent: "267 60% 50%", accentForeground: "222 47% 11%", brand: "267 60% 50%" }, // purple
+      default: { accent: "200 80% 40%", accentForeground: "210 40% 98%", brand: "200 80% 40%" },
+    };
+
+    return palette[domain] ?? palette.default;
+  }, [project]);
+
+  const themeStyle = useMemo(() => {
+    if (!projectTheme) return undefined;
+    // Using CSS variables; cast to any for TS compatibility
+    return {
+      ['--accent' as any]: projectTheme.accent,
+      ['--accent-foreground' as any]: projectTheme.accentForeground,
+      ['--brand' as any]: projectTheme.brand,
+    } as React.CSSProperties;
+  }, [projectTheme]);
+
+  const cardStyle = useMemo(() => {
+    if (!projectTheme) return undefined;
+    return {
+      borderColor: `hsl(${projectTheme.accent} / 14%)`,
+      backgroundColor: 'hsl(var(--card))',
+    } as React.CSSProperties;
+  }, [projectTheme]);
 
   if (isLoading) {
     return (
@@ -309,19 +433,19 @@ export const BusinessProjectDetailsPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6 animate-page-enter" style={themeStyle}>
       {project.status === 'completed' && (
-        <div className="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="w-full rounded-lg p-4 flex items-center justify-between animate-card-enter shadow-lg" style={{ backgroundColor: projectTheme ? `hsl(${projectTheme.accent} / 14%)` : undefined, border: projectTheme ? `1px solid hsl(${projectTheme.accent} / 18%)` : undefined }}>
             <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: projectTheme ? `hsl(${projectTheme.accent} / 20%)` : undefined, color: projectTheme ? `hsl(${projectTheme.accentForeground})` : undefined }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <div>
-                    <h3 className="text-lg font-semibold text-emerald-900">Project Completed</h3>
-                    <p className="text-emerald-700 text-sm">This project has been successfully completed on {formatDate(project.updated_at || new Date().toISOString())}.</p>
+              <h3 className="text-lg font-semibold text-foreground">Project Completed</h3>
+              <p className="text-sm text-muted-foreground">This project has been successfully completed on {formatDate(project.updated_at || new Date().toISOString())}.</p>
                 </div>
             </div>
-            <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-100" onClick={() => navigate(`/business/projects/${project.id}/assignments`)}>
+          <Button className="hover:bg-opacity-90" style={{ backgroundColor: projectTheme ? `hsl(${projectTheme.accent})` : undefined, color: projectTheme ? `hsl(${projectTheme.accentForeground})` : undefined, borderColor: projectTheme ? `hsl(${projectTheme.accent} / 22%)` : undefined }} onClick={() => navigate(`/business/projects/${project.id}/assignments`)}>
                 View Final Results
             </Button>
         </div>
@@ -329,12 +453,15 @@ export const BusinessProjectDetailsPage = () => {
 
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-slate-900">{project.title}</h1>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+          <div className="flex items-center gap-3">
+            <span className="inline-block h-2 w-14 rounded" style={{ backgroundColor: projectTheme ? `hsl(${projectTheme.accent})` : undefined }} />
+            <h1 className="text-3xl font-semibold" style={{ color: projectTheme ? `hsl(${projectTheme.accentForeground})` : undefined }}>{project.title}</h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <Badge variant="outline" className="capitalize">
               {project.domain}
             </Badge>
-            <span className="text-slate-600">• Level: {project.level}</span>
+            <span className="text-muted-foreground">• Level: {project.level}</span>
             {(() => {
               const badge = getProjectStatusBadge(project.status);
               return (
@@ -402,28 +529,26 @@ export const BusinessProjectDetailsPage = () => {
         />
       ) : (
         <>
-          <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+          <Card className="space-y-3 border p-4 shadow-sm" style={cardStyle}>
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-slate-900">Summary</h2>
-              <p className="text-sm text-slate-700">{project.description}</p>
+              <h2 className="text-lg font-semibold text-foreground">Summary</h2>
+              <p className="text-sm text-muted-foreground">{project.description}</p>
             </div>
-            <div className="flex flex-wrap gap-4 text-sm text-slate-700">
-              <span className="text-slate-600">Created: {formatDate(project.created_at ?? project.createdAt)}</span>
-              {project.duration && <span className="text-slate-600">Duration: {project.duration}</span>}
-              <span className="text-slate-600">ID: {project.id}</span>
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <span className="text-muted-foreground">Created: {formatDate(project.created_at ?? project.createdAt)}</span>
+              {project.duration && <span className="text-muted-foreground">Duration: {project.duration}</span>}
+              <span className="text-muted-foreground">ID: {project.id}</span>
             </div>
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">Milestones</h2>
+                <h2 className="text-lg font-semibold text-foreground">Milestones</h2>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    // TODO: add milestone action
-                  }}
+                  onClick={() => setIsAddMilestoneOpen(true)}
                 >
                   Add milestone
                 </Button>
@@ -434,22 +559,23 @@ export const BusinessProjectDetailsPage = () => {
                   {milestones.map((m) => {
                     const badge = getMilestoneStatusBadge(m.status);
                     return (
-                      <Card key={m.id} className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+                      <Card key={m.id} className="space-y-3 border p-4 shadow-sm" style={cardStyle}>
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="space-y-1">
-                            <p className="text-sm font-semibold text-slate-900">{m.title}</p>
-                            <p className="text-xs text-slate-600">Due {formatDate(m.due_date ?? m.due)}</p>
+                            <p className="text-sm font-semibold text-foreground">{m.title}</p>
+                            <p className="text-xs text-muted-foreground">Due {formatDate(m.due_date ?? m.due)}</p>
                           </div>
                           <Badge variant={badge.variant} className={badge.className}>
                             {badge.label}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-700">{m.hint || m.description}</p>
+                        <p className="text-sm text-muted-foreground">{m.hint || m.description}</p>
                         <div className="flex flex-wrap items-center gap-2">
                           <Button
                             size="sm"
                             onClick={() => {
-                              // TODO: navigate to milestone details
+                              setSelectedMilestone(m);
+                              setIsMilestoneDetailsOpen(true);
                             }}
                           >
                             Open
@@ -473,17 +599,17 @@ export const BusinessProjectDetailsPage = () => {
                   title="No milestones yet"
                   description="Add milestones to track progress clearly."
                   primaryActionLabel="Add milestone"
-                  onPrimaryAction={() => {}}
+                  onPrimaryAction={() => setIsAddMilestoneOpen(true)}
                 />
               )}
             </div>
 
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-slate-900">Recent activity</h2>
-              <Card className="divide-y divide-slate-200 border border-slate-200 bg-white shadow-sm">
+              <h2 className="text-lg font-semibold text-foreground">Recent activity</h2>
+              <Card className="divide-y divide-muted border border-border bg-card shadow-sm">
                 {activity.map((item) => (
                   <div key={item.title} className="flex items-center justify-between gap-3 p-4">
-                    <p className="text-sm font-medium text-slate-900">{item.title}</p>
+                    <p className="text-sm font-medium text-foreground">{item.title}</p>
                     <Badge variant="outline" className="text-xs">
                       {item.badge}
                     </Badge>
@@ -537,8 +663,7 @@ export const BusinessProjectDetailsPage = () => {
                   <SelectContent>
                     <SelectItem value="frontend">Frontend</SelectItem>
                     <SelectItem value="backend">Backend</SelectItem>
-                    <SelectItem value="fullstack">Fullstack</SelectItem>
-                    <SelectItem value="ai">AI</SelectItem>
+                    <SelectItem value="fullstack">Full Stack</SelectItem>
                   </SelectContent>
                 </Select>
                 {formErrors.domain && <p className="text-xs text-red-600">{formErrors.domain}</p>}
@@ -560,6 +685,35 @@ export const BusinessProjectDetailsPage = () => {
                 </Select>
                 {formErrors.required_level && <p className="text-xs text-red-600">{formErrors.required_level}</p>}
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label>Complexity</Label>
+              <Select
+                value={form.complexity}
+                onValueChange={(value) => setForm((f) => ({ ...f, complexity: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select complexity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+              {formErrors.complexity && <p className="text-xs text-red-600">{formErrors.complexity}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-requirements-pdf">Update Requirements PDF (optional)</Label>
+              <Input
+                id="edit-requirements-pdf"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setRequirementsPdfUpdate(e.target.files?.[0] || null)}
+              />
+              <p className="text-xs text-slate-400">Upload new PDF to re-analyze and update project attributes.</p>
             </div>
 
             <div className="space-y-1">
@@ -632,6 +786,134 @@ export const BusinessProjectDetailsPage = () => {
               disabled={isChangingStatus}
             >
               {isChangingStatus ? "Updating..." : "Confirm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAddMilestoneOpen} onOpenChange={setIsAddMilestoneOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add milestone</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleAddMilestone} className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="milestone-title">Title *</Label>
+              <Input
+                id="milestone-title"
+                value={milestoneForm.title}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="e.g., Setup project structure"
+                required
+              />
+              {milestoneFormErrors.title && <p className="text-xs text-red-600">{milestoneFormErrors.title}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="milestone-description">Description</Label>
+              <Textarea
+                id="milestone-description"
+                value={milestoneForm.description}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Describe what the student needs to accomplish..."
+                rows={3}
+              />
+              {milestoneFormErrors.description && <p className="text-xs text-red-600">{milestoneFormErrors.description}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="milestone-due-date">Due date</Label>
+              <Input
+                id="milestone-due-date"
+                type="date"
+                value={milestoneForm.due_date}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, due_date: e.target.value }))}
+              />
+              {milestoneFormErrors.due_date && <p className="text-xs text-red-600">{milestoneFormErrors.due_date}</p>}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                id="milestone-required"
+                type="checkbox"
+                checked={milestoneForm.is_required}
+                onChange={(e) => setMilestoneForm((f) => ({ ...f, is_required: e.target.checked }))}
+                className="rounded"
+              />
+              <Label htmlFor="milestone-required">Required milestone</Label>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddMilestoneOpen(false)} disabled={isCreatingMilestone}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCreatingMilestone}>
+                {isCreatingMilestone ? "Adding..." : "Add milestone"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMilestoneDetailsOpen} onOpenChange={setIsMilestoneDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedMilestone?.title}</DialogTitle>
+          </DialogHeader>
+
+          {selectedMilestone && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <p className="text-sm text-muted-foreground">
+                  {selectedMilestone.description || selectedMilestone.hint || "No description provided."}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>Status</Label>
+                  <div>
+                    {(() => {
+                      const badge = getMilestoneStatusBadge(selectedMilestone.status);
+                      return (
+                        <Badge variant={badge.variant} className={badge.className}>
+                          {badge.label}
+                        </Badge>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label>Due Date</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(selectedMilestone.due_date ?? selectedMilestone.due) || "No due date"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label>Required</Label>
+                <p className="text-sm text-muted-foreground">
+                  {selectedMilestone.is_required ? "Yes" : "No"}
+                </p>
+              </div>
+
+              {/* TODO: Add submissions list if available */}
+              <div className="space-y-2">
+                <Label>Submissions</Label>
+                <p className="text-sm text-muted-foreground">
+                  Submissions for this milestone will be displayed here once implemented.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsMilestoneDetailsOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

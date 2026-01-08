@@ -21,7 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->validateCsrfTokens();
 
     $middleware->api(prepend: [
+        \App\Http\Middleware\RejectBearerTokenMiddleware::class,
         \App\Http\Middleware\SecurityHeadersMiddleware::class,
+        \App\Http\Middleware\SecurityLoggingMiddleware::class,
     ]);
 
     // -------------------------

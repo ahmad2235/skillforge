@@ -75,11 +75,11 @@ export function AdminRoadmapBlocksPage() {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-8 animate-page-enter">
       <div className="max-w-6xl mx-auto py-8 px-4 space-y-6">
         <header className="space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">Learning Roadmap Blocks</h1>
-          <p className="text-slate-700 text-sm">
+          <h1 className="text-2xl font-bold text-foreground">Learning Roadmap Blocks</h1>
+          <p className="text-muted-foreground text-sm">
             Manage the learning blocks for each level & domain. Each block can
             contain multiple tasks.
           </p>

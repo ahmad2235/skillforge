@@ -1,0 +1,43 @@
+
+// Create QA test users
+$userA = App\Models\User::create([
+    'name' => 'QA Test Student',
+    'email' => 'qa-student-' . time() . '@test.dev',
+    'password' => Hash::make('password123'),
+    'role' => 'student',
+    'email_verified_at' => now(),
+    'is_active' => true,
+]);
+$tokenA = $userA->createToken('qa-test')->plainTextToken;
+echo "USER A (STUDENT)\n";
+echo "ID: " . $userA->id . "\n";
+echo "Email: " . $userA->email . "\n";
+echo "Token: " . $tokenA . "\n\n";
+
+$userB = App\Models\User::create([
+    'name' => 'QA Test Business',
+    'email' => 'qa-business-' . time() . '@test.dev',
+    'password' => Hash::make('password123'),
+    'role' => 'business',
+    'email_verified_at' => now(),
+    'is_active' => true,
+]);
+$tokenB = $userB->createToken('qa-test')->plainTextToken;
+echo "USER B (BUSINESS)\n";
+echo "ID: " . $userB->id . "\n";
+echo "Email: " . $userB->email . "\n";
+echo "Token: " . $tokenB . "\n\n";
+
+$userC = App\Models\User::create([
+    'name' => 'QA Test Admin',
+    'email' => 'qa-admin-' . time() . '@test.dev',
+    'password' => Hash::make('password123'),
+    'role' => 'admin',
+    'email_verified_at' => now(),
+    'is_active' => true,
+]);
+$tokenC = $userC->createToken('qa-test')->plainTextToken;
+echo "USER C (ADMIN)\n";
+echo "ID: " . $userC->id . "\n";
+echo "Email: " . $userC->email . "\n";
+echo "Token: " . $tokenC . "\n";

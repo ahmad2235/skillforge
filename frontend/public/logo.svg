@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <!-- Icon: Three connected blocks showing progression -->
+  <g id="icon">
+    <!-- Block 1: Small foundation -->
+    <rect x="4" y="28" width="12" height="12" rx="2" fill="#0ea5e9" opacity="0.6"/>
+    
+    <!-- Block 2: Medium growing -->
+    <rect x="18" y="20" width="12" height="20" rx="2" fill="#0ea5e9" opacity="0.8"/>
+    
+    <!-- Block 3: Large mastery -->
+    <rect x="32" y="8" width="12" height="32" rx="2" fill="#0ea5e9"/>
+    
+    <!-- Connection lines showing flow -->
+    <path d="M16 34 L18 30" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    <path d="M30 30 L32 24" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  </g>
+  
+  <!-- Text: SkillForge -->
+  <g id="text" fill="#0f172a">
+    <!-- Skill -->
+    <path d="M60 18 Q60 15 63 15 Q65 15 65 17 Q65 19 63 19 L61 19 Q59 19 59 21 Q59 23 61 23 L63 23 Q66 23 66 26 Q66 29 63 29 Q60 29 60 26" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M72 15 L72 29 M72 15 L77 29 M77 15 L77 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M82 15 L82 29 M82 29 L87 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M92 15 L92 29 M92 15 L97 29 M97 15 L97 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M102 15 L102 29 M102 15 L107 15 M102 22 L106 22" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Forge -->
+    <path d="M116 15 L116 29 M116 15 L121 15 M116 22 L120 22" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M125 15 Q129 15 129 19 Q129 22 125 22 Q129 22 129 26 Q129 29 125 29 Q125 15 125 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M134 15 L134 29 M134 22 Q134 19 137 19 L139 19 Q142 19 142 22 L142 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M147 15 Q151 15 151 19 L151 22 Q151 23 150 23 L148 23 M147 15 L147 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M156 15 L156 29 M156 15 L161 15 M156 22 L160 22 M156 29 L161 29" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

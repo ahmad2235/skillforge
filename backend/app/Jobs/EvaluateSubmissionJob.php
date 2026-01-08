@@ -10,6 +10,7 @@ use App\Notifications\TaskEvaluationComplete;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class EvaluateSubmissionJob implements ShouldQueue
 {
@@ -25,6 +26,16 @@ class EvaluateSubmissionJob implements ShouldQueue
      */
     public $backoff = [10, 30, 60];
 
+    /**
+     * The maximum number of seconds the job can run before timing out.
+     */
+    public $timeout = 120;
+
+    /**
+     * Delete the job if its models no longer exist.
+     */
+    public $deleteWhenMissingModels = true;
+
     private int $submissionId;
 
     /**
@@ -33,6 +44,17 @@ class EvaluateSubmissionJob implements ShouldQueue
     public function __construct(int $submissionId)
     {
         $this->submissionId = $submissionId;
+    }
+
+    /**
+     * Determine the time at which the job should timeout.
+     * 
+     * This ensures the job has a hard deadline and will trigger failed() if exceeded.
+     * Total time: tries(3) × (timeout(120) + max_backoff(60)) = 540 seconds max
+     */
+    public function retryUntil(): Carbon
+    {
+        return now()->addMinutes(10); // 10 minutes total lifetime
     }
 
     /**
@@ -238,44 +260,64 @@ class EvaluateSubmissionJob implements ShouldQueue
     }
 
     /**
-     * Handle job failure after all retries exhausted.
+     * Handle job failure after all retries exhausted or timeout exceeded.
+     * 
+     * CRITICAL: This method MUST write a terminal evaluation_status to ensure
+     * no submission remains in 'queued' or 'evaluating' state after job completion.
      */
     public function failed(\Throwable $exception): void
     {
         $submission = Submission::find($this->submissionId);
         
         if (!$submission) {
+            Log::warning("EvaluateSubmissionJob::failed() - Submission {$this->submissionId} not found");
             return;
         }
 
-        // Do not set legacy 'status' here; mark the evaluation_status as failed for auditing
-        $submission->evaluation_status = 'failed';
-        $submission->ai_feedback = 'Evaluation failed after multiple attempts. Awaiting manual review.';
+        // Determine if this was a timeout vs other failure
+        // Only MaxAttemptsExceededException or explicit Laravel timeout exceptions count as timeout
+        $exceptionClass = get_class($exception);
+        $isTimeout = str_contains($exceptionClass, 'MaxAttemptsExceededException')
+            || str_contains($exceptionClass, 'TimeoutException')
+            || str_contains($exceptionClass, 'JobTimedOutException');
+        
+        $terminalStatus = $isTimeout ? Submission::EVAL_TIMED_OUT : Submission::EVAL_FAILED;
+        $userMessage = $isTimeout 
+            ? 'Evaluation timed out. Your submission will be reviewed manually.'
+            : 'Evaluation failed after multiple attempts. Awaiting manual review.';
+
+        // Update submission with terminal state
+        $submission->evaluation_status = $terminalStatus;
+        $submission->ai_feedback = $userMessage;
         $submission->ai_metadata = [
-            'error' => 'job_failed',
+            'error' => $isTimeout ? 'job_timeout' : 'job_failed',
+            'exception_class' => $exceptionClass,
             'message' => $exception->getMessage(),
             'failed_at' => now()->toISOString(),
         ];
         $submission->save();
-        Log::error("Submission {$submission->id} evaluation failed and marked for manual review", ['error' => $exception->getMessage()]);
+        
+        Log::info("Submission {$submission->id} evaluation set to terminal state: {$terminalStatus}");
 
-        // Create ai_evaluations record
+        // Create ai_evaluations record with semantic_status matching the terminal state
+        $semanticStatus = $isTimeout ? 'timed_out' : 'failed';
         $ae = AiEvaluation::create([
             'submission_id' => $submission->id,
             'provider' => 'openai',
             'status' => 'failed',
-            'error_message' => 'Job failed: ' . $exception->getMessage(),
-            'metadata' => ['exception' => get_class($exception), 'evaluation_outcome' => 'manual_review'],
+            'semantic_status' => $semanticStatus,
+            'error_message' => ($isTimeout ? 'Job timeout: ' : 'Job failed: ') . $exception->getMessage(),
+            'metadata' => [
+                'exception' => get_class($exception),
+                'evaluation_outcome' => $semanticStatus,
+                'is_timeout' => $isTimeout,
+            ],
             'started_at' => now(),
             'completed_at' => now(),
         ]);
 
         // Ensure submission points to this latest ai_evaluation row
         $submission->latest_ai_evaluation_id = $ae->id;
-        // Mark the evaluation_status as failed (do not modify legacy 'status' lifecycle)
-        $submission->evaluation_status = 'failed';
-        $submission->ai_feedback = 'Evaluation failed after multiple attempts. Awaiting manual review.';
-        $submission->ai_metadata = ['error' => 'job_failed', 'message' => $exception->getMessage(), 'failed_at' => now()->toISOString()];
         $submission->save();
 
         // Log the failure
@@ -287,7 +329,8 @@ class EvaluateSubmissionJob implements ShouldQueue
                 'task_id' => $submission->task_id,
             ],
             [
-                'status' => 'failed',
+                'status' => $terminalStatus,
+                'is_timeout' => $isTimeout,
                 'error' => $exception->getMessage(),
             ]
         );

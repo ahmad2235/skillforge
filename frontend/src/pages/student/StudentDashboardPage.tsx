@@ -27,7 +27,7 @@ export function StudentDashboardPage() {
   }, []);
 
   const activeAssignments = assignments.filter(a => a.status === 'accepted');
-  const invitedAssignments = assignments.filter(a => a.status === 'invited');
+  const invitedAssignments = assignments.filter(a => a.status === 'pending');
   const completedAssignments = assignments.filter(a => a.status === 'completed');
 
   if (isLoading) {
@@ -42,7 +42,7 @@ export function StudentDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold text-foreground">Welcome back!</h1>
         <p className="text-base text-muted-foreground">
@@ -59,9 +59,9 @@ export function StudentDashboardPage() {
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {invitedAssignments.map((assignment) => (
-              <Card key={assignment.id} className="p-4 border-l-4 border-l-blue-500">
-                <h3 className="font-semibold text-lg">{assignment.project?.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+              <Card key={assignment.id} className="p-4 border-l-4 border-l-sky-500 bg-slate-900/80 border-slate-800 shadow-xl">
+                <h3 className="font-semibold text-lg text-slate-50">{assignment.project?.title}</h3>
+                <p className="text-sm text-slate-300 line-clamp-2 mb-4">
                   {assignment.project?.description}
                 </p>
                 <Link to="/student/assignments">
@@ -85,13 +85,13 @@ export function StudentDashboardPage() {
         {activeAssignments.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {activeAssignments.map((assignment) => (
-              <Card key={assignment.id} className="p-6 space-y-4">
+              <Card key={assignment.id} className="p-6 space-y-4 bg-slate-900/80 border-slate-800 shadow-xl">
                 <div>
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-lg">{assignment.project?.title}</h3>
+                    <h3 className="font-semibold text-lg text-slate-50">{assignment.project?.title}</h3>
                     <Badge>In Progress</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-slate-300 mt-1">
                     {assignment.project?.description}
                   </p>
                 </div>
@@ -105,10 +105,10 @@ export function StudentDashboardPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-8 text-center bg-muted/30 border-dashed">
-            <p className="text-muted-foreground mb-4">You don't have any active projects right now.</p>
+          <Card className="p-8 text-center bg-slate-900/60 border-dashed border-slate-800">
+            <p className="text-slate-300 mb-4">You don't have any active projects right now.</p>
             <Link to="/student/roadmap">
-              <Button variant="outline">Check Roadmap</Button>
+              <Button variant="outline" className="border-slate-700">Check Roadmap</Button>
             </Link>
           </Card>
         )}
@@ -120,20 +120,20 @@ export function StudentDashboardPage() {
           <h2 className="text-xl font-semibold text-foreground">Completed Projects</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {completedAssignments.map((assignment) => (
-              <Card key={assignment.id} className="p-4 bg-muted/20">
+              <Card key={assignment.id} className="p-4 bg-slate-900/70 border-slate-800">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium">{assignment.project?.title}</h3>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                  <h3 className="font-medium text-slate-50">{assignment.project?.title}</h3>
+                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-200 border-emerald-500/40">
                     Completed
                   </Badge>
                 </div>
                 {assignment.student_rating && (
-                  <div className="text-xs text-amber-500 mb-3">
+                  <div className="text-xs text-amber-300 mb-3">
                     {"★".repeat(assignment.student_rating)}
                   </div>
                 )}
                 <Link to="/student/portfolios">
-                  <Button variant="outline" size="sm" className="w-full">View in Portfolio</Button>
+                  <Button variant="outline" size="sm" className="w-full border-slate-700">View in Portfolio</Button>
                 </Link>
               </Card>
             ))}

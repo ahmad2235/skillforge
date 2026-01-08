@@ -1,42 +1,45 @@
+/* SkillForge Animation System - must come before @tailwind */
+@import './styles/animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Light Mode: Slate 50 background, Sky 700 primary (Accessible) */
-    --background: 210 40% 98%; /* Slate 50 */
-    --foreground: 222 47% 11%; /* Slate 900 */
+    /* Default theme (matches Landing Page dark palette) */
+    --background: 222 47% 6%; /* Slate 950 */
+    --foreground: 210 40% 96%; /* Slate 50 */
     
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 222 47% 11%; /* Slate 900 */
+    --card: 222 47% 11%; /* Slate 900 */
+    --card-foreground: 210 40% 96%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 96%;
     
-    --primary: 200 98% 32%; /* Sky 700 - WCAG AA compliant on white */
-    --primary-foreground: 0 0% 100%;
+    --primary: 199 89% 60%; /* Sky 400/500 */
+    --primary-foreground: 210 40% 96%;
     
-    --secondary: 210 40% 96.1%; /* Slate 100 */
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 217.2 32.6% 17.5%; /* Slate 800 */
+    --secondary-foreground: 210 40% 96%;
     
-    --muted: 210 40% 96.1%; /* Slate 100 */
-    --muted-foreground: 215 16% 47%; /* Slate 500 */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 74%;
     
-    --accent: 210 40% 96.1%; /* Slate 100 */
-    --accent-foreground: 222 47% 11%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 96%;
     
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%; /* Slate 200 */
-    --input: 214.3 31.8% 91.4%;
-    --ring: 200 98% 39%; /* Sky 600 */
+    --border: 217.2 32.6% 17.5%; /* Slate 800 */
+    --input: 217.2 32.6% 17.5%;
+    --ring: 199 89% 60%; /* Sky 400 */
     
     --radius: 0.75rem;
     
     /* Brand token for specific branding moments */
-    --brand: 200 98% 32%; /* Sky 700 */
+    --brand: 199 89% 60%;
   }
  
   .dark {
@@ -90,21 +93,37 @@
     background-color: hsl(var(--background));
   }
   h1 {
-    @apply text-3xl font-semibold leading-tight text-slate-900;
+    @apply text-3xl font-semibold leading-tight text-slate-100;
   }
   h2 {
-    @apply text-2xl font-semibold leading-snug text-slate-900;
+    @apply text-2xl font-semibold leading-snug text-slate-100;
   }
   h3 {
-    @apply text-xl font-semibold leading-snug text-slate-900;
+    @apply text-xl font-semibold leading-snug text-slate-100;
   }
   p {
-    @apply text-base text-slate-700;
+    @apply text-base text-slate-300;
   }
   a {
-    @apply text-primary transition-colors duration-200;
+    @apply text-sky-400 transition-colors duration-200;
   }
   a:hover {
-    @apply text-primary/80 no-underline;
+    @apply text-sky-300 no-underline;
+  }
+  
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }

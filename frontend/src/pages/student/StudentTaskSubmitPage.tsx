@@ -11,6 +11,7 @@ import { EmptyState } from "../../components/feedback/EmptyState";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
+import { TaskDescription } from "../../components/task/TaskDescription";
 
 type ErrorState = "invalid" | "not-found" | "generic";
 
@@ -182,6 +183,15 @@ export function StudentTaskSubmitPage() {
     } catch (err: unknown) {
       safeLogError(err, "TaskSubmit");
 
+      // Handle locked task (already passed) - 403
+      if (isAxiosError(err) && err.response?.status === 403) {
+        const message = err.response?.data?.message ?? "You have already passed this task.";
+        setFormMessage(message);
+        setSubmitted(true); // Disable form since task is locked
+        toastError(message);
+        return;
+      }
+
       // Validation errors (422) -> show inline and persist until user edits
       if (isAxiosError(err) && err.response?.status === 422) {
         const validation = err.response?.data?.errors ?? {};
@@ -214,8 +224,8 @@ export function StudentTaskSubmitPage() {
     return (
       <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
         <div className="space-y-2">
-          <div className="h-8 w-48 animate-pulse rounded-md bg-slate-200" />
-          <div className="h-4 w-72 animate-pulse rounded-md bg-slate-200" />
+          <div className="h-8 w-48 animate-pulse rounded-md bg-slate-800" />
+          <div className="h-4 w-72 animate-pulse rounded-md bg-slate-800" />
         </div>
         <SkeletonList rows={4} />
       </div>
@@ -249,37 +259,37 @@ export function StudentTaskSubmitPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 animate-page-enter">
       <header className="space-y-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-semibold text-slate-900">{headingTitle}</h1>
+          <h1 className="text-3xl font-semibold text-foreground">{headingTitle}</h1>
           {submitted && (
-            <Badge variant="outline" className="text-emerald-700">Submitted</Badge>
+            <Badge variant="outline" className="text-emerald-200 border-emerald-500/40 bg-emerald-500/10">Submitted</Badge>
           )}
         </div>
-        <p className="text-base text-slate-700">Submit your answer below to complete this task.</p>
+        <p className="text-base text-slate-300">Submit your answer below to complete this task.</p>
       </header>
 
-      <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+      <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/30">
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-slate-900">Task details</h3>
-          <p className="text-sm text-slate-700">{task?.description || "No description provided."}</p>
+          <h3 className="text-lg font-semibold text-slate-50">Task details</h3>
+          <div className="text-sm text-slate-300"><TaskDescription description={task?.description} /></div>
         </div>
 
         {submitted ? (
-          <Badge variant="outline" className="text-emerald-700">Submitted</Badge>
+          <Badge variant="outline" className="text-emerald-200 border-emerald-500/40 bg-emerald-500/10">Submitted</Badge>
         ) : null}
       </Card>
 
       {!submitted ? (
         <form onSubmit={handleSubmit} aria-busy={formSubmitting} className="space-y-4">
-          <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+          <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/30">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-900" htmlFor="answer_text">Your answer</label>
+              <label className="text-sm font-medium text-slate-100" htmlFor="answer_text">Your answer</label>
               <textarea
                 id="answer_text"
                 disabled={isSubmitting}
-                className="min-h-[160px] w-full rounded-md border border-slate-300 p-2 text-sm disabled:opacity-60 disabled:bg-slate-50"
+                className="min-h-[160px] w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm text-slate-100 placeholder:text-slate-500 disabled:opacity-60 disabled:bg-slate-900/70"
                 placeholder="Write your solution, explanation, or notes..."
                 value={answerText}
                 onChange={(e) => {
@@ -290,11 +300,11 @@ export function StudentTaskSubmitPage() {
                 aria-invalid={!!fieldErrors.answer}
                 aria-describedby={fieldErrors.answer ? "answer-error" : "answer-help"}
               />
-              <p id="answer-help" className="text-xs text-slate-500">
+              <p id="answer-help" className="text-xs text-slate-400">
                 Provide your answer, link, or upload details.
               </p>
               {fieldErrors.answer && (
-                <p id="answer-error" role="alert" className="text-sm text-red-600">
+                <p id="answer-error" role="alert" className="text-sm text-red-300">
                   {fieldErrors.answer}
                 </p>
               )}
@@ -302,7 +312,7 @@ export function StudentTaskSubmitPage() {
 
             <div className="space-y-2">
               {/** Show as required when task requires an attachment */}
-              <label className="text-sm font-medium text-slate-900" htmlFor="attachment_url">
+              <label className="text-sm font-medium text-slate-100" htmlFor="attachment_url">
                 {((task?.metadata as any)?.requires_attachment ?? false) ? (
                   <>GitHub Repo URL <span className="text-red-600">*</span></>
                 ) : (
@@ -314,7 +324,7 @@ export function StudentTaskSubmitPage() {
                 type="url"
                 disabled={isSubmitting}
                 required={(task?.metadata as any)?.requires_attachment ?? false}
-                className="w-full rounded-md border border-slate-300 p-2 text-sm disabled:opacity-60 disabled:bg-slate-50"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm text-slate-100 placeholder:text-slate-500 disabled:opacity-60 disabled:bg-slate-900/70"
                 placeholder={((task?.metadata as any)?.requires_attachment ?? false) ? "https://github.com/username/repo" : "https://your-hosted-solution.example.com"}
                 value={attachmentUrl}
                 onChange={(e) => {
@@ -325,13 +335,16 @@ export function StudentTaskSubmitPage() {
                 aria-invalid={!!fieldErrors.attachment}
                 aria-describedby={fieldErrors.attachment ? "attachment-error" : "attachment-help"}
               />
-              <p id="attachment-help" className="text-xs text-slate-500">
+              <p id="attachment-help" className="text-xs text-slate-400">
                 {((task?.metadata as any)?.requires_attachment ?? false)
                   ? (task?.metadata as any)?.attachment_hint ?? 'Public GitHub repository URL (e.g., https://github.com/user/repo)'
                   : 'Must start with https:// if provided.'}
               </p>
+              <p className="text-xs text-amber-300 mt-1">
+                Note: The automated link checker is temporarily unavailable and cannot fetch repository contents right now — please still provide the real GitHub repository URL; we will validate the link shortly.
+              </p>
               {fieldErrors.attachment && (
-                <p id="attachment-error" role="alert" className="text-sm text-red-600">
+                <p id="attachment-error" role="alert" className="text-sm text-red-300">
                   {fieldErrors.attachment}
                 </p>
               )}
@@ -339,13 +352,13 @@ export function StudentTaskSubmitPage() {
 
             {/* How to run it (optional) */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-900" htmlFor="run_status">
+              <label className="text-sm font-medium text-slate-100" htmlFor="run_status">
                 How to run it <span className="text-slate-400">(optional)</span>
               </label>
               <textarea
                 id="run_status"
                 disabled={isSubmitting}
-                className="min-h-[80px] w-full rounded-md border border-slate-300 p-2 text-sm disabled:opacity-60 disabled:bg-slate-50"
+                className="min-h-[80px] w-full rounded-lg border border-slate-700 bg-slate-900 p-3 text-sm text-slate-100 placeholder:text-slate-500 disabled:opacity-60 disabled:bg-slate-900/70"
                 placeholder="e.g., npm install && npm start, or python main.py"
                 value={studentRunStatus}
                 onChange={(e) => {
@@ -354,13 +367,13 @@ export function StudentTaskSubmitPage() {
                 }}
                 aria-describedby="run-status-help"
               />
-              <p id="run-status-help" className="text-xs text-slate-500">
+              <p id="run-status-help" className="text-xs text-slate-400">
                 Brief instructions on how to run/test your project (helps the evaluator).
               </p>
             </div>
 
             {formMessage && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+              <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-200">
                 {formMessage}
               </div>
             )}
@@ -398,12 +411,12 @@ export function StudentTaskSubmitPage() {
 
       {submitted && (
         <div className="mt-3">
-          <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+          <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/30">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-slate-900">Submission status</h3>
-                <div className="flex items-center gap-3 text-sm text-slate-700">
-                  <Badge variant="outline" className="text-emerald-700">Submitted</Badge>
+                <h3 className="text-lg font-semibold text-slate-50">Submission status</h3>
+                <div className="flex items-center gap-3 text-sm text-slate-300">
+                  <Badge variant="outline" className="text-emerald-200 border-emerald-500/40 bg-emerald-500/10">Submitted</Badge>
                   <span>{submissionMeta.submittedAt ? `Submitted at ${new Date(submissionMeta.submittedAt).toLocaleString()}` : (submissionMeta.updatedAt ? `Submitted at ${new Date(submissionMeta.updatedAt).toLocaleString()}` : 'Submitted just now')}</span>
                   {submissionMeta.id ? <span className="text-slate-500">ID: {submissionMeta.id}</span> : null}
                 </div>
@@ -429,31 +442,52 @@ export function StudentTaskSubmitPage() {
       )}
 
       {submitted && (
-        <Card className="space-y-3 border border-slate-200 bg-white p-4 shadow-sm">
+        <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/30">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Feedback</h3>
               {isCompleted && (
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700">Evaluation complete</span>
-                  {lastUpdatedAt && <span className="text-sm text-slate-500">{new Date(lastUpdatedAt).toLocaleString()}</span>}
+                  <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2 py-1 text-sm font-medium text-emerald-200">Evaluation complete</span>
+                  {lastUpdatedAt && <span className="text-sm text-slate-400">{new Date(lastUpdatedAt).toLocaleString()}</span>}
+                </div>
+              )}
+              {isManualReview && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-sm font-medium text-amber-200">Manual review needed</span>
+                </div>
+              )}
+              {isFailed && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-red-500/10 px-2 py-1 text-sm font-medium text-red-200">Evaluation failed</span>
+                </div>
+              )}
+              {isTimedOut && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-sm font-medium text-orange-200">Evaluation timed out</span>
+                </div>
+              )}
+              {isSkipped && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-slate-700/40 px-2 py-1 text-sm font-medium text-slate-200">Evaluation skipped</span>
                 </div>
               )}
             </div>
             <div className="flex items-center gap-3">
               {typeof finalScore === 'number' ? (
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-900">{finalScore} <span className="text-sm font-medium text-slate-500">/ 100</span></div>
-                  <div className="text-xs text-slate-500">Final score</div>
+                  <div className="text-2xl font-bold text-slate-50">{finalScore} <span className="text-sm font-medium text-slate-400">/ 100</span></div>
+                  <div className="text-xs text-slate-400">Final score</div>
                 </div>
               ) : typeof aiScore === "number" ? (
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-slate-900">{aiScore} <span className="text-sm font-medium text-slate-500">/ 100</span></div>
-                  <div className="text-xs text-slate-500">AI score</div>
+                  <div className="text-2xl font-bold text-slate-50">{aiScore} <span className="text-sm font-medium text-slate-400">/ 100</span></div>
+                  <div className="text-xs text-slate-400">AI score</div>
                 </div>
-              ) : (
-                <span className="text-sm text-slate-700">Score: pending</span>
-              )}
+              ) : (isManualReview || isFailed || isTimedOut || isSkipped) ? (
+                <span className="text-sm text-slate-400">Awaiting manual review</span>
+              ) : isEvaluating ? (
+                <span className="text-sm text-slate-400">Evaluating...</span>
+              ) : null}
 
 
             </div>
@@ -461,9 +495,34 @@ export function StudentTaskSubmitPage() {
 
           {/* Styled feedback panel for completed evaluations */}
           {isCompleted && (
-            <div className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 p-4">
-              <h4 className="text-sm font-semibold text-emerald-800">Automated feedback</h4>
-              <p className="mt-2 text-sm text-slate-700">{aiFeedback ?? 'No feedback available.'}</p>
+            <div className="mt-3 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-4">
+              <h4 className="text-sm font-semibold text-emerald-200">Automated feedback</h4>
+              <p className="mt-2 text-sm text-slate-200">{aiFeedback ?? 'No feedback available.'}</p>
+            </div>
+          )}
+
+          {/* Feedback panel for manual review states */}
+          {(isManualReview || isFailed || isTimedOut || isSkipped) && !isCompleted && (
+            <div className={`mt-3 rounded-md border p-4 ${
+              isTimedOut ? 'border-orange-500/40 bg-orange-500/10' :
+              isFailed ? 'border-red-500/40 bg-red-500/10' :
+              isManualReview ? 'border-amber-500/40 bg-amber-500/10' :
+              'border-slate-700 bg-slate-900/60'
+            }`}>
+              <h4 className={`text-sm font-semibold ${
+                isTimedOut ? 'text-orange-200' :
+                isFailed ? 'text-red-200' :
+                isManualReview ? 'text-amber-200' :
+                'text-slate-200'
+              }`}>
+                {isTimedOut && 'Evaluation Timed Out'}
+                {isFailed && 'Evaluation Failed'}
+                {isManualReview && 'Manual Review Required'}
+                {isSkipped && 'Evaluation Skipped'}
+              </h4>
+              <p className="mt-2 text-sm text-slate-200">
+                {aiFeedback ?? 'Your submission will be reviewed manually by an instructor. No automated score is available.'}
+              </p>
             </div>
           )}
 
@@ -471,13 +530,13 @@ export function StudentTaskSubmitPage() {
           {isEvaluating ? (
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <svg className="h-4 w-4 animate-spin text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
-                <p className="text-sm text-slate-700">Evaluating... <span className="text-xs text-slate-500">(Attempt {attempts} / {maxAttempts})</span></p>
+                <svg className="h-4 w-4 animate-spin text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
+                <p className="text-sm text-slate-200">Evaluating... <span className="text-xs text-slate-400">(Attempt {attempts} / {maxAttempts})</span></p>
               </div>
 
               {/* Progress bar */}
-              <div className="w-full rounded bg-slate-100 h-2 overflow-hidden">
-                <div className="h-2 bg-emerald-500" style={{ width: `${progressPct}%` }} />
+              <div className="w-full rounded bg-slate-800 h-2 overflow-hidden">
+                <div className="h-2 bg-emerald-400 transition-all duration-500 ease-out" style={{ width: `${progressPct}%` }} />
               </div>
             </div>
           ) : null}
@@ -485,9 +544,9 @@ export function StudentTaskSubmitPage() {
 
           {/* Debug panel (collapsible) - only for non-students/admins */}
           {submitted && user?.role !== 'student' && (
-            <details className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
+            <details className="mt-3 rounded border border-slate-800 bg-slate-900/70 p-3">
               <summary className="cursor-pointer font-medium">Debug</summary>
-              <div className="mt-2 text-sm text-slate-700">
+              <div className="mt-2 text-sm text-slate-200">
                 <p><strong>Endpoint:</strong> <code>/api/student/submissions/{submissionMeta.id}</code></p>
                 <p><strong>Submission ID:</strong> {submissionMeta.id ?? 'N/A'}</p>
                 <p><strong>Submission status:</strong> {submissionStatus ?? 'N/A'}</p>
@@ -496,7 +555,7 @@ export function StudentTaskSubmitPage() {
                 <p><strong>Last updated at:</strong> {lastUpdatedAt ?? 'N/A'}</p>
                 <p><strong>Last error:</strong> {lastError ?? 'N/A'}</p>
                 <p><strong>Evaluation debug:</strong></p>
-                <pre className="text-xs bg-white rounded border p-2">{JSON.stringify(aiEvaluation ? { aiEvaluation, evaluation_debug: evaluationDebug ?? 'none' } : (evaluationDebug ?? 'no-evaluation'), null, 2)}</pre>
+                <pre className="text-xs bg-slate-900 rounded border border-slate-800 p-2 text-slate-200">{JSON.stringify(aiEvaluation ? { aiEvaluation, evaluation_debug: evaluationDebug ?? 'none' } : (evaluationDebug ?? 'no-evaluation'), null, 2)}</pre>
 
                 {(isTimedOut) && (
                   <div className="mt-2 flex items-center gap-2">
@@ -529,13 +588,13 @@ export function StudentTaskSubmitPage() {
             <div className="space-y-2">
               {isFailed ? (
                 <div>
-                  <p className="text-sm text-red-600">Evaluation failed.</p>
-                  <p className="text-sm text-red-600">Reason: {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Unknown'}</p>
+                  <p className="text-sm text-red-300">Evaluation failed.</p>
+                  <p className="text-sm text-red-300">Reason: {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Unknown'}</p>
                 </div>
               ) : (
                 <div>
                   {/* manual_review */}
-                  <p className="text-sm text-red-600">{
+                  <p className="text-sm text-red-300">{
                     aiEvaluation?.meta?.reason === 'ai_disabled'
                       ? 'AI evaluation is disabled. Your submission will be reviewed manually.'
                       : aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'Needs manual review'
@@ -561,20 +620,54 @@ export function StudentTaskSubmitPage() {
 
           {isSkipped && (
             <div className="space-y-2">
-              <p className="text-sm text-slate-700">Skipped — {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'No reason provided'}</p>
+              <p className="text-sm text-slate-200">Skipped — {aiEvaluation?.meta?.reason ?? evaluationDebug?.message ?? 'No reason provided'}</p>
 
             </div>
           )}
 
           {isTimedOut && (
             <div className="space-y-2">
-              <p className="text-sm text-red-600">Evaluation timed out. Please try re-checking or request a manual review.</p>
+              <p className="text-sm text-red-300">Evaluation timed out. Please try re-checking or request a manual review.</p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   onClick={() => toastError('Please ask an admin to review this submission.')}
                 >
                   Request manual review
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Handle frontend polling timeout when server status is still evaluating */}
+          {stopReason === 'timeout' && isEvaluating && (
+            <div className="space-y-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-4">
+              <p className="text-sm text-amber-200 font-medium">Evaluation is still in progress</p>
+              <p className="text-sm text-amber-200">The AI evaluator is taking longer than expected. Your submission is being processed and results will be available soon.</p>
+              <div className="flex items-center gap-2 mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const result = await manualCheck();
+                    if (result) {
+                      const status = result?.evaluation_status;
+                      if (status && ['completed', 'manual_review', 'failed', 'skipped', 'timed_out'].includes(status)) {
+                        toastSuccess('Evaluation complete! Refreshing...');
+                      } else {
+                        toastError('Still evaluating. Please try again in a moment.');
+                      }
+                    }
+                  }}
+                >
+                  Check status
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/student/roadmap')}
+                >
+                  Return to roadmap
                 </Button>
               </div>
             </div>

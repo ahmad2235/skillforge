@@ -24,7 +24,7 @@ class ProjectAssignmentSeeder extends Seeder
                 'user_id' => $student->id,
             ],
             [
-                'status' => 'invited',
+                'status' => 'pending',
                 'metadata' => ['source' => 'seeder'],
             ]
         );

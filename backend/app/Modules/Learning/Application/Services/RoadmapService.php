@@ -11,6 +11,7 @@ use App\Modules\Learning\Infrastructure\Models\AiEvaluation;
 use App\Modules\Learning\Infrastructure\Models\UserRoadmapBlock;
 use Illuminate\Support\Facades\DB;
 use App\Modules\AI\Application\Services\TaskEvaluationService;
+use App\Modules\Assessment\Infrastructure\Models\PlacementResult;
 
 class RoadmapService
 {
@@ -19,15 +20,21 @@ class RoadmapService
     ) {}
     public function getStudentRoadmap(User $user)
     {
-        if (!$user->level || !$user->domain) {
+        // Roadmap must be based on active placement result
+        $placement = PlacementResult::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$placement) {
             return collect();
         }
 
         $numAssigned = (int) config('skillforge.placement.num_assigned_blocks', 3);
 
         $blocks = RoadmapBlock::query()
-            ->where('level', $user->level)
-            ->where('domain', $user->domain)
+            ->where('level', $placement->final_level)
+            ->where('domain', $placement->final_domain)
             ->orderBy('order_index')
             ->get();
 
@@ -71,10 +78,39 @@ class RoadmapService
             }
         }
 
-        return $blocks->values()->map(function (RoadmapBlock $block, int $index) use ($userBlocks, $numAssigned) {
+        return $blocks->values()->map(function (RoadmapBlock $block, int $index) use ($userBlocks, $numAssigned, $user) {
             $userBlock = $userBlocks->get($block->id);
 
             $defaultStatus = $index < $numAssigned ? 'assigned' : 'locked';
+
+            // Get all tasks for this block
+            $tasks = Task::query()
+                ->where('roadmap_block_id', $block->id)
+                ->get();
+
+            $totalTasks = $tasks->count();
+            $completedTasksCount = 0;
+            $totalScore = 0;
+
+            // Check completion status for each task
+            foreach ($tasks as $task) {
+                $bestSubmission = Submission::query()
+                    ->where('user_id', $user->id)
+                    ->where('task_id', $task->id)
+                    ->where('is_evaluated', true)
+                    ->whereNotNull('ai_score')
+                    ->where('ai_score', '>=', 80)
+                    ->orderByDesc('ai_score')
+                    ->first();
+
+                if ($bestSubmission) {
+                    $completedTasksCount++;
+                    $totalScore += $bestSubmission->ai_score;
+                }
+            }
+
+            $averageScore = $completedTasksCount > 0 ? round($totalScore / $completedTasksCount, 2) : null;
+            $isBlockComplete = $totalTasks > 0 && $completedTasksCount === $totalTasks;
 
             return [
                 'id'              => $block->id,
@@ -85,21 +121,58 @@ class RoadmapService
                 'is_optional'     => (bool) $block->is_optional,
                 'status'          => $userBlock?->status ?? $defaultStatus,
                 'completed_at'    => $userBlock?->completed_at ?? null,
+                'total_tasks'     => $totalTasks,
+                'completed_tasks' => $completedTasksCount,
+                'block_score'     => $averageScore,
+                'is_complete'     => $isBlockComplete,
             ];
         });
     }
 
     public function getTasksForBlock(User $user, int $blockId)
     {
-        return Task::query()
+        $tasks = Task::query()
             ->where('roadmap_block_id', $blockId)
             ->get();
+
+        // For each task, check if student has a completed submission (score >= 80)
+        return $tasks->map(function ($task) use ($user) {
+            $bestSubmission = Submission::query()
+                ->where('user_id', $user->id)
+                ->where('task_id', $task->id)
+                ->where('is_evaluated', true)
+                ->whereNotNull('ai_score')
+                ->orderByDesc('ai_score')
+                ->first();
+
+            $isCompleted = $bestSubmission && $bestSubmission->ai_score >= 80;
+            $score = $bestSubmission ? $bestSubmission->ai_score : null;
+
+            return array_merge($task->toArray(), [
+                'is_completed' => $isCompleted,
+                'score' => $score,
+                'can_retry' => !$isCompleted, // Can retry if not completed (failed or no submission)
+            ]);
+        });
     }
 
     public function submitTask(User $user, int $taskId, array $data): array
     {
         $submission = DB::transaction(function () use ($user, $taskId, $data) {
             $task = Task::findOrFail($taskId);
+
+            // Check if student already has a passing submission for this task
+            $passingSubmission = Submission::query()
+                ->where('user_id', $user->id)
+                ->where('task_id', $taskId)
+                ->where('is_evaluated', true)
+                ->whereNotNull('ai_score')
+                ->where('ai_score', '>=', 80)
+                ->first();
+
+            if ($passingSubmission) {
+                throw new \Exception('You have already passed this task with a score of ' . round($passingSubmission->ai_score) . '/100. No resubmission allowed.');
+            }
 
             // Build submission metadata including student_run_status
             $metadata = $data['metadata'] ?? [];

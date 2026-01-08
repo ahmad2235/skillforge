@@ -3,12 +3,13 @@ import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { EmptyState } from "../../components/feedback/EmptyState";
 import { Link, useNavigate } from "react-router-dom";
+import { Briefcase, Users, CheckCircle, TrendingUp } from "lucide-react";
 
 const stats = [
-  { label: "Open projects", value: "8" },
-  { label: "Candidates in review", value: "14" },
-  { label: "Active assignments", value: "6" },
-  { label: "Milestones on track", value: "82%" },
+  { label: "Open projects", value: "8", icon: Briefcase, color: "text-primary bg-primary/15" },
+  { label: "Candidates in review", value: "14", icon: Users, color: "text-purple-200 bg-purple-500/15" },
+  { label: "Active assignments", value: "6", icon: CheckCircle, color: "text-emerald-200 bg-emerald-500/15" },
+  { label: "Milestones on track", value: "82%", icon: TrendingUp, color: "text-amber-200 bg-amber-500/15" },
 ];
 
 const recentActivity = [
@@ -21,21 +22,33 @@ export function BusinessDashboardPage() {
   const hasProjects = true; // TODO: wire real data
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6 animate-page-enter text-slate-100">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-900">Business dashboard</h1>
-        <p className="text-base text-slate-700">
+        <h1 className="text-3xl font-semibold text-slate-100">Business dashboard</h1>
+        <p className="text-base text-slate-300">
           Manage projects, review candidates, and track milestones.
         </p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((item) => (
-          <Card key={item.label} className="space-y-2 border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-slate-600">{item.label}</p>
-            <p className="text-2xl font-semibold text-slate-900">{item.value}</p>
-          </Card>
-        ))}
+        {stats.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <Card 
+              key={item.label} 
+              className="space-y-3 border border-slate-800 bg-slate-900/80 p-4 shadow-xl shadow-slate-950/30 hover:shadow-slate-950/40 transition-shadow animate-card-enter"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-slate-400">{item.label}</p>
+                <div className={`p-2 rounded-lg ${item.color.replace('text-', 'text-').replace('bg-', 'bg-')}`}>
+                  <Icon size={16} />
+                </div>
+              </div>
+              <p className="text-2xl font-semibold text-slate-100">{item.value}</p>
+            </Card>
+          );
+        })}
       </section>
 
       <section className="flex flex-wrap items-center gap-3">
@@ -48,14 +61,14 @@ export function BusinessDashboardPage() {
       </section>
 
       {hasProjects ? (
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">Recent activity</h2>
-          <Card className="divide-y divide-slate-200 border border-slate-200 bg-white shadow-sm">
+        <section className="space-y-3 animate-card-enter" style={{ animationDelay: "200ms" }}>
+          <h2 className="text-lg font-semibold text-slate-100">Recent activity</h2>
+          <Card className="divide-y divide-slate-800 border border-slate-800 bg-slate-900/80 shadow-xl shadow-slate-950/30">
             {recentActivity.map((item) => (
-              <div key={item.title} className="flex items-center justify-between gap-3 p-4">
+              <div key={item.title} className="flex items-center justify-between gap-3 p-4 hover:bg-slate-800 transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-slate-900">{item.title}</p>
-                  <p className="text-xs text-slate-600">Just now</p>
+                  <p className="text-sm font-medium text-slate-100">{item.title}</p>
+                  <p className="text-xs text-slate-400">Just now</p>
                 </div>
                 <Badge variant="outline" className="text-xs">
                   {item.status}

@@ -20,6 +20,11 @@ class PlacementResult extends Model
         'overall_score',
         'details',
         'is_active',
+        // async status fields
+        'status',
+        'evaluation_started_at',
+        'evaluation_completed_at',
+        'pending_answers',
         // required canonical fields
         'score',
         'suggested_level',
@@ -31,6 +36,9 @@ class PlacementResult extends Model
         'details' => 'array',
         'is_active' => 'boolean',
         'metadata' => 'array',
+        'pending_answers' => 'array',
+        'evaluation_started_at' => 'datetime',
+        'evaluation_completed_at' => 'datetime',
     ];
 
     // الطالب صاحب النتيجة

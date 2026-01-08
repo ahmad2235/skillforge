@@ -18,13 +18,22 @@ class ProjectMilestoneSubmissionService
 
     public function listMilestonesForAssignment(ProjectAssignment $assignment): Collection
     {
-        return $assignment->project
+        $milestones = $assignment->project
             ->milestones()
             ->with(['submissions' => function ($query) use ($assignment) {
-                $query->where('project_assignment_id', $assignment->id);
+                // For team assignments, load all team submissions
+                if ($assignment->team_id) {
+                    $query->whereHas('assignment', function ($q) use ($assignment) {
+                        $q->where('team_id', $assignment->team_id);
+                    });
+                } else {
+                    $query->where('project_assignment_id', $assignment->id);
+                }
             }])
             ->orderBy('order_index')
             ->get();
+
+        return $milestones;
     }
 
     public function submitMilestone(
@@ -43,6 +52,15 @@ class ProjectMilestoneSubmissionService
 
         if (!in_array($assignment->status, ['accepted', 'completed'], true)) {
             abort(422, 'Assignment must be accepted before submitting milestones.');
+        }
+
+        // For team assignments: validate domain restrictions
+        if ($assignment->team_id && $milestone->domain) {
+            $studentDomain = $student->domain;
+            // Student can only submit milestones for their domain (or fullstack can submit any)
+            if ($studentDomain !== 'fullstack' && $studentDomain !== $milestone->domain) {
+                abort(403, "You can only submit {$studentDomain} milestones. This milestone is for {$milestone->domain} members.");
+            }
         }
 
         return DB::transaction(function () use ($student, $assignment, $milestone, $data) {

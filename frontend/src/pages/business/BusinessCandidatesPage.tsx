@@ -30,14 +30,14 @@ type Candidate = {
 };
 
 const statusStyles: Record<string, string> = {
-  applied: "bg-slate-100 text-slate-800 border-slate-200",
-  shortlisted: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  invited: "bg-blue-100 text-blue-800 border-blue-200",
-  assigned: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  in_progress: "bg-amber-100 text-amber-800 border-amber-200",
+  applied: "bg-slate-900/60 text-slate-200 border-slate-700",
+  shortlisted: "bg-emerald-500/15 text-emerald-100 border-emerald-500/30",
+  invited: "bg-primary/15 text-primary border-primary/40",
+  assigned: "bg-indigo-500/15 text-indigo-100 border-indigo-500/30",
+  in_progress: "bg-amber-500/15 text-amber-100 border-amber-500/30",
 };
 
-const avatarBg = ["bg-indigo-100 text-indigo-800", "bg-amber-100 text-amber-800", "bg-emerald-100 text-emerald-800"];
+const avatarBg = ["bg-indigo-500/20 text-indigo-100", "bg-amber-500/20 text-amber-100", "bg-emerald-500/20 text-emerald-100"];
 
 const statusLabel = (value?: string) => {
   if (!value) return "Unknown";
@@ -162,8 +162,8 @@ export const BusinessCandidatesPage = () => {
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-slate-900">{projectTitle}</h1>
-          <p className="text-base text-slate-700">Ranked by demonstrated skills and project fit.</p>
+          <h1 className="text-3xl font-semibold text-foreground">{projectTitle}</h1>
+          <p className="text-base text-muted-foreground">Ranked by demonstrated skills and project fit.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline">Export</Button>
@@ -172,10 +172,10 @@ export const BusinessCandidatesPage = () => {
       </header>
 
       {filtersOpen && (
-        <Card className="space-y-4 border border-slate-200 bg-white p-4 shadow-sm">
+        <Card className="space-y-4 border border-border bg-card p-4 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-900">Domain</p>
+              <p className="text-sm font-medium text-foreground">Domain</p>
               <Select defaultValue="any">
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -189,7 +189,7 @@ export const BusinessCandidatesPage = () => {
               </Select>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-900">Level</p>
+              <p className="text-sm font-medium text-foreground">Level</p>
               <Select defaultValue="any">
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -203,11 +203,11 @@ export const BusinessCandidatesPage = () => {
               </Select>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-900">Min score</p>
+              <p className="text-sm font-medium text-foreground">Min score</p>
               <Input type="number" min={0} max={100} placeholder="70" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-900">Status</p>
+              <p className="text-sm font-medium text-foreground">Status</p>
               <Select defaultValue="any">
                 <SelectTrigger>
                   <SelectValue placeholder="Any" />
@@ -216,7 +216,7 @@ export const BusinessCandidatesPage = () => {
                   <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="applied">Applied</SelectItem>
                   <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                  <SelectItem value="invited">Invited</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="assigned">Assigned</SelectItem>
                 </SelectContent>
               </Select>
@@ -227,10 +227,10 @@ export const BusinessCandidatesPage = () => {
             <Button variant="outline">Reset</Button>
           </div>
         </Card>
-      )}
+      )} 
 
       {hasCandidates ? (
-        <Card className="divide-y divide-slate-200 border border-slate-200 bg-white shadow-sm">
+        <Card className="divide-y divide-muted border border-border bg-card shadow-sm">
           {candidates.map((c, idx) => {
             const displayName = c.name || c.full_name || `Candidate #${c.id}`;
             const statusKey = (c.status || "").replace(/\s+/g, "_").toLowerCase();
@@ -239,7 +239,7 @@ export const BusinessCandidatesPage = () => {
             return (
               <div
                 key={c.id}
-                className="grid gap-3 p-4 sm:grid-cols-6 sm:items-center hover:bg-slate-50 cursor-pointer"
+                className="grid gap-3 p-4 sm:grid-cols-6 sm:items-center hover:bg-muted/30 cursor-pointer"
                 onClick={() => openCandidate(c)}
               >
                 <div className="flex items-center gap-3 sm:col-span-2">
@@ -252,14 +252,14 @@ export const BusinessCandidatesPage = () => {
                       .join("")}
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-sm font-semibold text-slate-900">{displayName}</p>
-                    <p className="text-xs text-slate-600">{c.performance || ""}</p>
+                    <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                    <p className="text-xs text-muted-foreground">{c.performance || ""}</p>
                   </div>
                 </div>
 
                 <div className="space-y-1 sm:col-span-1">
-                  <p className="text-xs text-slate-600">Fit score</p>
-                  <p className="text-xl font-semibold text-slate-900">{fitScore ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground">Fit score</p>
+                  <p className="text-xl font-semibold text-foreground">{fitScore ?? "—"}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
@@ -327,18 +327,18 @@ export const BusinessCandidatesPage = () => {
                 </Badge>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
-                <Card className="space-y-1 border border-slate-200 bg-white p-3 shadow-sm">
-                  <p className="text-xs text-slate-600">Fit score</p>
-                  <p className="text-lg font-semibold text-slate-900">{selectedCandidate.fit_score ?? selectedCandidate.fitScore ?? "—"}</p>
+                <Card className="space-y-1 border border-border bg-card p-3 shadow-sm">
+                  <p className="text-xs text-muted-foreground">Fit score</p>
+                  <p className="text-lg font-semibold text-foreground">{selectedCandidate.fit_score ?? selectedCandidate.fitScore ?? "—"}</p>
                 </Card>
-                <Card className="space-y-1 border border-slate-200 bg-white p-3 shadow-sm">
-                  <p className="text-xs text-slate-600">Recent performance</p>
-                  <p className="text-sm text-slate-800">{selectedCandidate.performance}</p>
+                <Card className="space-y-1 border border-border bg-card p-3 shadow-sm">
+                  <p className="text-xs text-muted-foreground">Recent performance</p>
+                  <p className="text-sm text-muted-foreground">{selectedCandidate.performance}</p>
                 </Card>
               </div>
-              <Card className="space-y-2 border border-slate-200 bg-white p-3 shadow-sm">
-                <p className="text-sm font-semibold text-slate-900">Recent work</p>
-                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+              <Card className="space-y-2 border border-border bg-card p-3 shadow-sm">
+                <p className="text-sm font-semibold text-foreground">Recent work</p>
+                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                   <li>Project refactor: scored 86%</li>
                   <li>API integration task: scored 82%</li>
                   <li>Placement assessment: level verified</li>

@@ -46,6 +46,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])
         Route::put('/tasks/{task}',    [AdminTaskController::class, 'update']);
         Route::delete('/tasks/{task}', [AdminTaskController::class, 'destroy']);
 
-        // Submission re-evaluate (admin only)
+        // Submission management (admin only)
+        Route::get('/submissions/{submission}', [\App\Modules\Learning\Interface\Http\Controllers\AdminSubmissionReviewController::class, 'show']);
+        Route::post('/submissions/{submission}/review', [\App\Modules\Learning\Interface\Http\Controllers\AdminSubmissionReviewController::class, 'review']);
         Route::post('/submissions/{submission}/re-evaluate', [\App\Modules\Learning\Interface\Http\Controllers\AdminSubmissionReviewController::class, 'reEvaluate']);
     });

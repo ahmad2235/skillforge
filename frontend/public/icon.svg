@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Three connected blocks showing skill progression -->
+  
+  <!-- Block 1: Foundation (small, learning basics) -->
+  <rect x="6" y="26" width="12" height="12" rx="3" fill="#0ea5e9" opacity="0.6"/>
+  
+  <!-- Block 2: Growing (medium, applying skills) -->
+  <rect x="18" y="18" width="12" height="20" rx="3" fill="#0ea5e9" opacity="0.8"/>
+  
+  <!-- Block 3: Mastery (large, full competence) -->
+  <rect x="30" y="6" width="12" height="32" rx="3" fill="#0ea5e9"/>
+  
+  <!-- Connection paths showing progression flow -->
+  <path d="M18 32 L18 28" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+  <path d="M30 28 L30 22" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+</svg>

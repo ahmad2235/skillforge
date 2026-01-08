@@ -110,25 +110,25 @@ export function AdminAssessmentQuestionsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold text-slate-900">Assessment Questions</h1>
-        <p className="text-slate-700 text-sm">Manage the placement questions bank by level & domain.</p>
+        <h1 className="text-2xl font-bold text-foreground">Assessment Questions</h1>
+        <p className="text-muted-foreground text-sm">Manage the placement questions bank by level & domain.</p>
       </header>
 
       {/* CREATE FORM */}
       <section>
-        <Card className="p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Create New Question</h2>
+        <Card className="p-4 space-y-3 border border-slate-800 bg-slate-900/80">
+          <h2 className="text-lg font-semibold text-slate-100">Create New Question</h2>
 
           {error && (
-            <div className="rounded-md border border-red-700 bg-red-50 px-4 py-2 text-sm text-red-700">
+            <div className="rounded-md border border-red-700 bg-red-900/20 px-4 py-2 text-sm text-red-300">
               {error}
             </div>
           )}
 
           {successMessage && (
-            <div className="rounded-md border border-emerald-700 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <div className="rounded-md border border-emerald-700 bg-emerald-900/20 px-4 py-2 text-sm text-emerald-300">
               {successMessage}
             </div>
           )}
@@ -136,14 +136,14 @@ export function AdminAssessmentQuestionsPage() {
           <form onSubmit={handleCreateQuestion} className="space-y-3">
             <div className="space-y-1">
               <label
-                className="block text-sm text-slate-200"
+                className="block text-sm text-slate-300"
                 htmlFor="question_text"
               >
                 Question text
               </label>
               <textarea
                 id="question_text"
-                className="w-full min-h-[80px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                className="w-full min-h-[80px] rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-400"
                 value={questionText}
                 onChange={(e) => setQuestionText(e.target.value)}
                 required
@@ -153,9 +153,9 @@ export function AdminAssessmentQuestionsPage() {
 
             <div className="flex flex-wrap gap-4">
               <div className="space-y-1">
-                <label className="block text-sm text-slate-700">Level</label>
+                <label className="block text-sm text-slate-300">Level</label>
                 <select
-                  className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  className="rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100"
                   value={level}
                   onChange={(e) => setLevel(e.target.value as QuestionLevel)}
                 >
@@ -166,9 +166,9 @@ export function AdminAssessmentQuestionsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-sm text-slate-700">Domain</label>
+                <label className="block text-sm text-slate-300">Domain</label>
                 <select
-                  className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  className="rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value as QuestionDomain)}
                 >
@@ -178,9 +178,9 @@ export function AdminAssessmentQuestionsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-sm text-slate-700">Type</label>
+                <label className="block text-sm text-slate-300">Type</label>
                 <select
-                  className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  className="rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100"
                   value={questionType}
                   onChange={(e) =>
                     setQuestionType(e.target.value as QuestionType)
@@ -193,14 +193,14 @@ export function AdminAssessmentQuestionsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-sm text-slate-700">
+                <label className="block text-sm text-slate-300">
                   Difficulty (1–5)
                 </label>
                 <input
                   type="number"
                   min={1}
                   max={5}
-                  className="w-24 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                  className="w-24 rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100"
                   value={difficulty}
                   onChange={(e) =>
                     setDifficulty(
@@ -264,20 +264,20 @@ export function AdminAssessmentQuestionsPage() {
           ) : (
             <div className="space-y-3">
               {questions.map((q) => (
-                <div key={q.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={q.id} className="rounded-lg border border-slate-800 bg-slate-900/80 p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-1">
-                    <div className="text-xs text-slate-600">
+                    <div className="text-xs text-slate-400">
                       ID: {q.id} · {q.level} · {q.domain} · type: {q.type} · difficulty: {q.difficulty}
                     </div>
                     <button
                       type="button"
                       onClick={() => void handleDeleteQuestion(q.id)}
-                      className="text-xs text-red-600 hover:text-red-500"
+                      className="text-xs text-red-400 hover:text-red-300"
                     >
                       Delete
                     </button>
                   </div>
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{q.question_text}</p>
+                  <p className="text-sm text-slate-100 whitespace-pre-wrap">{q.question_text}</p>
                 </div>
               ))}
             </div>

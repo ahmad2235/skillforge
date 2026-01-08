@@ -1,0 +1,257 @@
+/* ============================================
+   SkillForge Animation System
+   Professional, minimal, accessible animations
+   ============================================ */
+
+/* ============================================
+   1. ENTRANCE ANIMATIONS (Page/Component Mount)
+   ============================================ */
+
+/* Fade in - default entrance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade in with subtle upward movement */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in from left (for sidebars, drawers) */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in (for modals, dialogs) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   2. EXIT ANIMATIONS
+   ============================================ */
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ============================================
+   3. LOADING & FEEDBACK ANIMATIONS
+   ============================================ */
+
+/* Subtle pulse for skeletons */
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Smooth spinner rotation */
+@keyframes smoothSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress bar shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Success checkmark draw */
+@keyframes checkDraw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================
+   4. UTILITY CLASSES
+   ============================================ */
+
+/* Page transitions */
+.animate-page-enter {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.animate-page-exit {
+  animation: fadeOutDown 0.2s ease-in forwards;
+}
+
+/* Card/Component entrances (staggered) */
+.animate-card-enter {
+  animation: fadeInUp 0.25s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-card-enter-1 { animation-delay: 0ms; }
+.animate-card-enter-2 { animation-delay: 50ms; }
+.animate-card-enter-3 { animation-delay: 100ms; }
+.animate-card-enter-4 { animation-delay: 150ms; }
+.animate-card-enter-5 { animation-delay: 200ms; }
+
+/* Modal/Dialog animations */
+.animate-modal-enter {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-modal-overlay {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+/* Sidebar slide */
+.animate-sidebar-enter {
+  animation: fadeInLeft 0.25s ease-out forwards;
+}
+
+/* Toast/Alert animations */
+.animate-toast-enter {
+  animation: fadeInUp 0.25s ease-out forwards;
+}
+
+.animate-toast-exit {
+  animation: fadeOutDown 0.2s ease-in forwards;
+}
+
+/* Skeleton loading */
+.animate-skeleton {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, 
+    hsl(var(--muted)) 0%, 
+    hsl(var(--muted) / 0.7) 50%, 
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Spinner */
+.animate-spinner {
+  animation: smoothSpin 0.8s linear infinite;
+}
+
+/* Success check */
+.animate-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkDraw 0.3s ease-out 0.1s forwards;
+}
+
+/* ============================================
+   5. INTERACTION STATES (Enhanced Buttons)
+   ============================================ */
+
+/* Button press effect */
+.btn-press:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Focus ring animation */
+.focus-ring-animate:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  transition: outline-offset 0.15s ease-out;
+}
+
+/* ============================================
+   6. REDUCED MOTION (Accessibility)
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-page-enter,
+  .animate-card-enter,
+  .animate-modal-enter,
+  .animate-toast-enter,
+  .animate-sidebar-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================
+   7. TRANSITION UTILITIES
+   ============================================ */
+
+.transition-base {
+  transition-property: color, background-color, border-color, opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-fast {
+  transition-duration: 100ms;
+}
+
+.transition-normal {
+  transition-duration: 200ms;
+}
+
+.transition-slow {
+  transition-duration: 300ms;
+}

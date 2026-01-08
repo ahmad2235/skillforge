@@ -263,7 +263,7 @@ export default function AdminProjectsPage() {
   const isNoteDirty = adminNoteDraft !== noteBaseline;
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
         <p className="text-sm text-muted-foreground">Oversight, moderation, and administrative actions.</p>

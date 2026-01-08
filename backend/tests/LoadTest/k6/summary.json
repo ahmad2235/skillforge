@@ -1,0 +1,246 @@
+{
+    "root_group": {
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "1. Login": {
+                "groups": {},
+                "checks": {
+                        "login status 200": {
+                            "id": "4e4f06f14d10b41abd4fe4a8eeba732b",
+                            "passes": 119,
+                            "fails": 0,
+                            "name": "login status 200",
+                            "path": "::1. Login::login status 200"
+                        },
+                        "login has token": {
+                            "id": "fadc6860ff39a65c365325746f5216f8",
+                            "passes": 119,
+                            "fails": 0,
+                            "name": "login has token",
+                            "path": "::1. Login::login has token"
+                        }
+                    },
+                "name": "1. Login",
+                "path": "::1. Login",
+                "id": "16f81909982164bd629bc7458d18f35d"
+            },
+            "2. Get Placement Questions": {
+                "path": "::2. Get Placement Questions",
+                "id": "1786b4ad97691bebae5c973d8fdfe76b",
+                "groups": {},
+                "checks": {
+                        "questions status 200": {
+                            "path": "::2. Get Placement Questions::questions status 200",
+                            "id": "d23144c711b8c445de92c97277929e45",
+                            "passes": 22,
+                            "fails": 97,
+                            "name": "questions status 200"
+                        }
+                    },
+                "name": "2. Get Placement Questions"
+            },
+            "3. Submit Placement": {
+                "groups": {},
+                "checks": {
+                        "placement submit 200": {
+                            "passes": 10,
+                            "fails": 12,
+                            "name": "placement submit 200",
+                            "path": "::3. Submit Placement::placement submit 200",
+                            "id": "88f5f2e7324e3f77aea3bd81dbec68cd"
+                        }
+                    },
+                "name": "3. Submit Placement",
+                "path": "::3. Submit Placement",
+                "id": "ae257ebb704e88067a471b6f714a132e"
+            },
+            "4. Get Roadmap": {
+                "name": "4. Get Roadmap",
+                "path": "::4. Get Roadmap",
+                "id": "6f0dac2329536098f86697bb1928a77f",
+                "groups": {},
+                "checks": {
+                        "roadmap status 200": {
+                            "name": "roadmap status 200",
+                            "path": "::4. Get Roadmap::roadmap status 200",
+                            "id": "142f9c58dea545554651a53e717844b2",
+                            "passes": 2,
+                            "fails": 117
+                        }
+                    }
+            },
+            "5. Submit Task": {
+                "name": "5. Submit Task",
+                "path": "::5. Submit Task",
+                "id": "d9a5c6a6f992f22f638bd9d5b0b139b3",
+                "groups": {},
+                "checks": {
+                        "task submit ok": {
+                            "name": "task submit ok",
+                            "path": "::5. Submit Task::task submit ok",
+                            "id": "fb5ef3724320a3b86f31640e527c99c2",
+                            "passes": 0,
+                            "fails": 119
+                        }
+                    }
+            }
+        },
+        "checks": {},
+        "name": ""
+    },
+    "metrics": {
+        "api_errors": {
+            "count": 345,
+            "rate": 2.77215824473381
+        },
+        "http_req_duration": {
+            "avg": 221.04386345381522,
+            "min": 16.067,
+            "med": 137.13475,
+            "max": 1122.6918,
+            "p(90)": 448.81485000000004,
+            "p(95)": 619.1428499999998,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "task_submit_success": {
+            "passes": 0,
+            "fails": 119,
+            "value": 0
+        },
+        "http_req_connecting": {
+            "avg": 1.0378588353413667,
+            "min": 0,
+            "med": 0.5035000000000001,
+            "max": 31.1183,
+            "p(90)": 1.33031,
+            "p(95)": 1.7561699999999998
+        },
+        "group_duration": {
+            "avg": 224.05645622489988,
+            "min": 17.0327,
+            "med": 138.2612,
+            "max": 1163.7234,
+            "p(90)": 457.18458000000004,
+            "p(95)": 623.2079299999999
+        },
+        "vus_max": {
+            "min": 10,
+            "max": 10,
+            "value": 10
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 10
+        },
+        "http_req_failed": {
+            "passes": 345,
+            "fails": 153,
+            "thresholds": {
+                "rate<0.2": true
+            },
+            "value": 0.6927710843373494
+        },
+        "data_received": {
+            "count": 292237,
+            "rate": 2348.194808597897
+        },
+        "http_req_sending": {
+            "avg": 0.06797570281124497,
+            "min": 0,
+            "med": 0,
+            "max": 1.5453,
+            "p(90)": 0.39195,
+            "p(95)": 0.4976
+        },
+        "http_req_receiving": {
+            "p(95)": 19.870260000000002,
+            "avg": 3.4491222891566258,
+            "min": 0,
+            "med": 1.3122500000000001,
+            "max": 23.8693,
+            "p(90)": 18.285290000000003
+        },
+        "http_reqs": {
+            "count": 498,
+            "rate": 4.0015501619635865
+        },
+        "data_sent": {
+            "rate": 1119.751049840232,
+            "count": 139355
+        },
+        "iteration_duration": {
+            "min": 7454.6743,
+            "med": 7938.5475,
+            "max": 8983.876,
+            "p(90)": 8389.250180000001,
+            "p(95)": 8620.39876,
+            "avg": 7985.5577344537805
+        },
+        "http_req_blocked": {
+            "avg": 1.1327959839357435,
+            "min": 0,
+            "med": 0.585,
+            "max": 31.1183,
+            "p(90)": 1.48035,
+            "p(95)": 1.982295
+        },
+        "checks": {
+            "passes": 272,
+            "fails": 345,
+            "value": 0.44084278768233387
+        },
+        "placement_success": {
+            "passes": 10,
+            "fails": 12,
+            "value": 0.45454545454545453
+        },
+        "http_req_duration{expected_response:true}": {
+            "min": 26.698,
+            "med": 375.3685,
+            "max": 1122.6918,
+            "p(90)": 622.1933,
+            "p(95)": 748.6424200000004,
+            "avg": 361.97123725490195
+        },
+        "iterations": {
+            "count": 119,
+            "rate": 0.9561937134009373
+        },
+        "custom_req_duration": {
+            "med": 137.13475,
+            "max": 1122.6918,
+            "p(90)": 448.81485000000004,
+            "p(95)": 619.1428499999998,
+            "avg": 221.04386345381522,
+            "min": 16.067
+        },
+        "login_success": {
+            "passes": 119,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.8": false
+            },
+            "value": 1
+        },
+        "http_req_waiting": {
+            "p(95)": 616.4658699999999,
+            "avg": 217.52676546184745,
+            "min": 13.9548,
+            "med": 136.3783,
+            "max": 1122.6918,
+            "p(90)": 442.19494000000003
+        }
+    }
+}

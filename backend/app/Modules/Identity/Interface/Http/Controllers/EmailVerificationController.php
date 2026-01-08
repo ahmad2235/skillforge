@@ -17,6 +17,7 @@ class EmailVerificationController extends Controller
      * 1. Signed URL middleware (validates cryptographic signature)
      * 2. URL expiration (signature includes timestamp)
      * 3. Hash verification (sha1 of user email)
+     * 4. Rate limiting per IP (throttle:5,10 - 5 requests per 10 minutes)
      *
      * No auth token required - the signed URL IS the authentication.
      */
@@ -26,6 +27,14 @@ class EmailVerificationController extends Controller
         $user = User::find($id);
 
         if (!$user) {
+            // Log security event - user not found
+            Log::channel('security')->warning('Email verification failed - user not found', [
+                'attempted_user_id' => $id,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+
             return response()->json([
                 'message' => 'User not found.',
             ], 404);
@@ -33,6 +42,15 @@ class EmailVerificationController extends Controller
 
         // Verify the hash matches sha1 of user's email
         if (!hash_equals($hash, sha1($user->getEmailForVerification()))) {
+            // Log security event - invalid hash
+            Log::channel('security')->warning('Email verification failed - invalid hash', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+
             return response()->json([
                 'message' => 'Invalid verification link.',
             ], 403);
@@ -50,9 +68,12 @@ class EmailVerificationController extends Controller
             event(new Verified($user));
         }
 
-        Log::info('auth.email_verified', [
+        // Log success
+        Log::channel('security')->info('Email verified successfully', [
             'user_id' => $user->id,
-            'ip'      => $request->ip(),
+            'user_email' => $user->email,
+            'ip' => $request->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
 
         return response()->json([
@@ -62,6 +83,8 @@ class EmailVerificationController extends Controller
 
     /**
      * Resend verification email.
+     * 
+     * Rate limited: 5 requests per 10 minutes per IP.
      */
     public function resend(Request $request)
     {
@@ -75,9 +98,12 @@ class EmailVerificationController extends Controller
         // Send verification notification
         $request->user()->sendEmailVerificationNotification();
 
-        Log::info('auth.verification_email_resent', [
+        // Log security event
+        Log::channel('security')->info('Verification email resent', [
             'user_id' => $request->user()->id,
-            'ip'      => $request->ip(),
+            'user_email' => $request->user()->email,
+            'ip' => $request->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
 
         return response()->json([

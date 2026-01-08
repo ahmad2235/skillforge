@@ -13,6 +13,11 @@ class Submission extends Model
 
     protected $table = 'submissions';
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\SubmissionFactory::new();
+    }
+
     // Canonical evaluation_status values: queued, evaluating, completed, timed_out, manual_review, failed, skipped
     public const EVAL_QUEUED = 'queued';
     public const EVAL_EVALUATING = 'evaluating';
@@ -22,6 +27,13 @@ class Submission extends Model
     public const EVAL_FAILED = 'failed';
     public const EVAL_SKIPPED = 'skipped';
 
+    /**
+     * Default attribute values for new model instances.
+     */
+    protected $attributes = [
+        'evaluation_status' => 'queued',
+    ];
+
     protected $fillable = [
         'user_id',
         'task_id',
@@ -29,6 +41,9 @@ class Submission extends Model
         'attachment_url',
         'status',
         'score',
+        'final_score',
+        'rubric_scores',
+        'evaluated_by',
         'ai_score',
         'ai_feedback',
         'ai_metadata',
@@ -36,16 +51,28 @@ class Submission extends Model
         'metadata',
         'submitted_at',
         'evaluated_at',
-        'evaluation_status'
+        'evaluation_status',
+        'latest_ai_evaluation_id'
     ];
 
     protected $casts = [
         'metadata'      => 'array',
         'ai_metadata'   => 'array',
+        'rubric_scores' => 'array',
         'is_evaluated'  => 'boolean',
         'submitted_at'  => 'datetime',
         'evaluated_at'  => 'datetime',
+        'final_score'   => 'float',
+        'score'         => 'float',
     ];
+
+    /**
+     * Computed accessor: final_score (if set) or fallback to legacy score.
+     */
+    public function getEffectiveScoreAttribute(): ?float
+    {
+        return $this->final_score ?? $this->score;
+    }
 
     public function user()
     {

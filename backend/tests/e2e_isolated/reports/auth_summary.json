@@ -1,0 +1,234 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "Student Login": {
+                "name": "Student Login",
+                "path": "::Student Login",
+                "id": "3f4b2c9ade0631e1c413f046b8749ab3",
+                "groups": {},
+                "checks": {
+                        "login status 200": {
+                            "path": "::Student Login::login status 200",
+                            "id": "f93bba8ed5674c9ba2e537857e0ac09c",
+                            "passes": 21,
+                            "fails": 0,
+                            "name": "login status 200"
+                        },
+                        "login has token": {
+                            "id": "f4b00b8f48aec90c2d3e7a52602ebb7c",
+                            "passes": 21,
+                            "fails": 0,
+                            "name": "login has token",
+                            "path": "::Student Login::login has token"
+                        }
+                    }
+            },
+            "Business Login": {
+                "checks": {
+                    "login status 200": {
+                        "id": "669ec69d8a301b1e2ab38dd5d103a213",
+                        "passes": 20,
+                        "fails": 0,
+                        "name": "login status 200",
+                        "path": "::Business Login::login status 200"
+                    },
+                    "login has token": {
+                        "name": "login has token",
+                        "path": "::Business Login::login has token",
+                        "id": "c5ce5deac9892fdf1bae33023e2174d1",
+                        "passes": 20,
+                        "fails": 0
+                    }
+                },
+                "name": "Business Login",
+                "path": "::Business Login",
+                "id": "27def5d328cce2a78c58344b6b53acca",
+                "groups": {}
+            },
+            "Admin Login": {
+                "groups": {},
+                "checks": {
+                        "login status 200": {
+                            "name": "login status 200",
+                            "path": "::Admin Login::login status 200",
+                            "id": "9254725346c780d3b516605b1a92178a",
+                            "passes": 19,
+                            "fails": 0
+                        },
+                        "login has token": {
+                            "path": "::Admin Login::login has token",
+                            "id": "3308db4aa2b373da19e0e39e85644ab5",
+                            "passes": 19,
+                            "fails": 0,
+                            "name": "login has token"
+                        }
+                    },
+                "name": "Admin Login",
+                "path": "::Admin Login",
+                "id": "4d6de51ffa76d82b6be6b189842b2911"
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "login_duration": {
+            "p(95)": 290.89999999999975,
+            "avg": 90.83333333333333,
+            "min": 27,
+            "med": 63,
+            "max": 481,
+            "p(90)": 143.60000000000002,
+            "thresholds": {
+                "p(95)<1000": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0
+        },
+        "admin_login_success": {
+            "passes": 19,
+            "fails": 0,
+            "value": 1
+        },
+        "group_duration": {
+            "min": 26.4217,
+            "med": 63.40605,
+            "max": 482.2188,
+            "p(90)": 143.05371000000002,
+            "p(95)": 292.3219499999997,
+            "avg": 91.91578833333334
+        },
+        "iterations": {
+            "count": 60,
+            "rate": 1.4627652912272444
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 60,
+            "thresholds": {
+                "rate<0.15": false
+            },
+            "value": 0
+        },
+        "checks": {
+            "passes": 120,
+            "fails": 0,
+            "value": 1
+        },
+        "data_received": {
+            "count": 50616,
+            "rate": 1233.9887996793034
+        },
+        "data_sent": {
+            "count": 14382,
+            "rate": 350.6248403071705
+        },
+        "http_req_sending": {
+            "p(95)": 0.5196549999999998,
+            "avg": 0.24905000000000002,
+            "min": 0,
+            "med": 0,
+            "max": 5.4962,
+            "p(90)": 0.49932
+        },
+        "http_req_waiting": {
+            "p(95)": 169.21819499999944,
+            "avg": 80.47667333333331,
+            "min": 23.7853,
+            "med": 58.420249999999996,
+            "max": 444.5922,
+            "p(90)": 129.71474000000003
+        },
+        "http_reqs": {
+            "count": 60,
+            "rate": 1.4627652912272444
+        },
+        "http_req_connecting": {
+            "avg": 6.543941666666665,
+            "min": 0,
+            "med": 0.5864499999999999,
+            "max": 127.5004,
+            "p(90)": 8.76801,
+            "p(95)": 33.41031499999996
+        },
+        "http_req_receiving": {
+            "p(90)": 9.179470000000002,
+            "p(95)": 11.337099999999975,
+            "avg": 3.106715000000001,
+            "min": 0,
+            "med": 1.5539,
+            "max": 25.9372
+        },
+        "iteration_duration": {
+            "avg": 1112.7929949999998,
+            "min": 1030.566,
+            "med": 1082.9704000000002,
+            "max": 1497.0818,
+            "p(90)": 1182.39554,
+            "p(95)": 1306.2351749999998
+        },
+        "login_success": {
+            "passes": 60,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.90": false
+            },
+            "value": 1
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 2
+        },
+        "http_req_blocked": {
+            "avg": 6.738914999999997,
+            "min": 0,
+            "med": 0.8723000000000001,
+            "max": 127.5004,
+            "p(90)": 8.76801,
+            "p(95)": 33.41031499999996
+        },
+        "http_req_duration": {
+            "max": 449.7166,
+            "p(90)": 133.46138000000002,
+            "p(95)": 169.73553999999942,
+            "avg": 83.83243833333331,
+            "min": 25.1192,
+            "med": 62.42525,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "business_login_success": {
+            "passes": 20,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 83.83243833333331,
+            "min": 25.1192,
+            "med": 62.42525,
+            "max": 449.7166,
+            "p(90)": 133.46138000000002,
+            "p(95)": 169.73553999999942
+        },
+        "student_login_success": {
+            "passes": 21,
+            "fails": 0,
+            "value": 1
+        },
+        "vus_max": {
+            "min": 2,
+            "max": 2,
+            "value": 2
+        }
+    }
+}

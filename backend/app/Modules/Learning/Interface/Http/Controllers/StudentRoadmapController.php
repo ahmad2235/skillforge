@@ -23,15 +23,29 @@ class StudentRoadmapController extends Controller
 
         $blocks = $this->roadmapService->getStudentRoadmap($user);
 
+        // Find active placement for metadata (level/domain)
+        $placement = \App\Modules\Assessment\Infrastructure\Models\PlacementResult::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->first();
+
         if ($blocks->isEmpty()) {
             return response()->json([
                 'message' => 'No roadmap available. Make sure placement is completed and level/domain are set.',
                 'data'    => [],
+                'placement' => $placement ? [
+                    'final_level' => $placement->final_level,
+                    'final_domain' => $placement->final_domain,
+                ] : null,
             ]);
         }
 
         return response()->json([
             'data' => $blocks,
+            'placement' => $placement ? [
+                'final_level' => $placement->final_level,
+                'final_domain' => $placement->final_domain,
+            ] : null,
         ]);
     }
 

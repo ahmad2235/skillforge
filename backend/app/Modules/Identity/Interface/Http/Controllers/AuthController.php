@@ -11,6 +11,7 @@ use App\Modules\Identity\Interface\Http\Requests\RegisterRequest;
 use App\Modules\Identity\Interface\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Contracts\Auth\StatefulGuard;
 
 class AuthController extends Controller
 {
@@ -49,6 +50,8 @@ class AuthController extends Controller
     /**
      * Login user and return new token.
      * Requires email verification.
+     * 
+     * @var StatefulGuard $guard
      */
     public function login(LoginRequest $request)
     {
@@ -60,9 +63,12 @@ class AuthController extends Controller
 
         // 3) Check password
         if (! $user || ! Hash::check($data['password'], $user->password)) {
-            Log::warning('auth.login_failed', [
+            // Log security event - failed login
+            Log::channel('security')->warning('Login failed - invalid credentials', [
                 'email_hash' => hash('sha256', strtolower($data['email'])),
-                'ip'         => $request->ip(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
             ]);
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -71,29 +77,58 @@ class AuthController extends Controller
 
         // 4) Check email verification
         if (is_null($user->email_verified_at)) {
-            Log::warning('auth.login_unverified', [
+            // Log security event - unverified login attempt
+            Log::channel('security')->warning('Login attempt for unverified email', [
                 'user_id' => $user->id,
-                'ip'      => $request->ip(),
+                'email_hash' => hash('sha256', strtolower($user->email)),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
             ]);
+
+            // Attempt to send verification email to reduce friction (catch errors)
+            try {
+                $user->sendEmailVerificationNotification();
+                Log::channel('security')->info('Verification email sent on unverified login attempt', [
+                    'user_id' => $user->id,
+                    'user_email' => $user->email,
+                    'ip' => $request->ip(),
+                    'timestamp' => now()->toIso8601String(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::channel('security')->error('Failed to send verification email on login attempt', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             return response()->json([
-                'message' => 'Please verify your email before logging in.',
+                'message' => 'Please verify your email before logging in. A verification link has been sent to your email.',
             ], 403);
         }
 
-        // 5) Delete old tokens
+        // Establish a session for SPA (stateful cookie auth)
+        // Regenerate session to prevent fixation and login the user via session guard
+        /** @var StatefulGuard $guard */
+        $guard = auth();
+        $guard->login($user);
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        // Clean up any old API tokens (if any) for security
         $user->tokens()->delete();
 
-        // 6) Create new token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        Log::info('auth.login_success', [
+        // Log successful login
+        Log::channel('security')->info('Login successful', [
             'user_id' => $user->id,
-            'ip'      => $request->ip(),
+            'ip' => $request->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
 
+        // Return user only (no bearer token) - SPA uses cookie-based auth
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
+            'user' => $user,
         ]);
     }
 
@@ -106,11 +141,36 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout current token.
+     * Logout current user (invalidate session).
+     * 
+     * @var StatefulGuard $guard
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        /** @var StatefulGuard $guard */
+        $guard = auth();
+
+        // Safely delete current access token if one exists (Sanctum)
+        /** @var \App\Models\User|null $user */
+        $user = $guard->user();
+        if ($user && method_exists($user, 'currentAccessToken')) {
+            /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+            $token = $user->currentAccessToken();
+            if ($token) {
+                $token->delete();
+            }
+        }
+
+        // Log out from session guard
+        if ($guard->check()) {
+            $guard->logout();
+        }
+
+        // Invalidate the session and regenerate CSRF token (if session exists)
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['message' => 'Logged out']);
     }

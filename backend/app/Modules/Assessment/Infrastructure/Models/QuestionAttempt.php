@@ -28,6 +28,7 @@ class QuestionAttempt extends Model
 
     protected $casts = [
         'metadata' => 'array',
+        'is_correct' => 'boolean',
     ];
 
     // الطالب صاحب الإجابة

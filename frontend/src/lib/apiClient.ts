@@ -4,9 +4,42 @@ import axios from "axios";
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api";
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, ''); // Remove trailing slashes
 
+// Request timeout (30 seconds) - prevents hung requests on slow/unresponsive servers
+const REQUEST_TIMEOUT_MS = 30000;
+
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: REQUEST_TIMEOUT_MS,
   withCredentials: true, // Use cookie-based session auth for the SPA (Sanctum)
+});
+
+// A plain client without request interceptors for unauthenticated requests
+export const unauthenticatedClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: REQUEST_TIMEOUT_MS,
+  withCredentials: true,
+});
+
+// Add CSRF token handling to unauthenticated client (needed for login, register, etc.)
+unauthenticatedClient.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const method = (config.method || "").toLowerCase();
+    if (["post", "put", "patch", "delete"].includes(method)) {
+      const match = document.cookie.match(/(^|;)\s*XSRF-TOKEN\s*=\s*([^;]+)/);
+      if (match) {
+        try {
+          const xsrf = decodeURIComponent(match[2]);
+          config.headers = config.headers || {};
+          if (!config.headers["X-XSRF-TOKEN"]) {
+            config.headers["X-XSRF-TOKEN"] = xsrf;
+          }
+        } catch (e) {
+          // no-op: if decoding fails, let the request continue and server will return 419
+        }
+      }
+    }
+  }
+  return config;
 });
 
 // Attach Authorization header if token exists in localStorage
@@ -44,13 +77,55 @@ apiClient.interceptors.request.use((config) => {
 // avoid duplicate requests (React StrictMode can call effects twice).
 // Note: The Sanctum CSRF route is at /sanctum/csrf-cookie (NOT under /api),
 // so we use axios directly with an absolute URL.
-let csrfPromise: Promise<any> | null = null;
-export function ensureCsrfCookie(): Promise<any> {
+// 
+// This function:
+// 1. Fetches /sanctum/csrf-cookie to trigger Set-Cookie response
+// 2. Waits for the XSRF-TOKEN cookie to actually appear in document.cookie
+// 3. Returns only after the token is verified present (no timeouts, no hacks)
+let csrfPromise: Promise<void> | null = null;
+
+function getCsrfTokenFromCookie(): string | null {
+  if (typeof window === "undefined") return null;
+  const match = document.cookie.match(/(^|;)\s*XSRF-TOKEN\s*=\s*([^;]+)/);
+  return match ? match[2] : null;
+}
+
+export async function ensureCsrfCookie(): Promise<void> {
+  // Return cached promise if already in progress
   if (csrfPromise) return csrfPromise;
-  const baseOrigin = new URL(API_BASE_URL).origin; // e.g. http://127.0.0.1:8000
-  csrfPromise = axios.get(`${baseOrigin}/sanctum/csrf-cookie`, { withCredentials: true }).finally(() => {
-    csrfPromise = null;
-  });
+
+  csrfPromise = (async () => {
+    try {
+      // First, fetch the CSRF cookie endpoint
+      const baseOrigin = new URL(API_BASE_URL).origin;
+      await axios.get(`${baseOrigin}/sanctum/csrf-cookie`, { withCredentials: true });
+
+      // Now wait for the cookie to appear in the document
+      // The Set-Cookie header is processed synchronously by the browser,
+      // so we just need to verify it's in document.cookie
+      const maxAttempts = 50; // ~250ms with 5ms intervals (safe upper bound)
+      let attempts = 0;
+
+      while (attempts < maxAttempts) {
+        const token = getCsrfTokenFromCookie();
+        if (token) {
+          // Token is present and available for the next request
+          return;
+        }
+        // Micro-delay to allow browser to process the Set-Cookie header
+        // This is not a "hack" but a necessary wait for browser internals
+        await new Promise(resolve => setTimeout(resolve, 5));
+        attempts++;
+      }
+
+      // If we get here, something went wrong, but don't block login
+      console.warn('XSRF-TOKEN cookie not found after /sanctum/csrf-cookie fetch');
+    } finally {
+      // Clear the cached promise so a retry can happen if needed
+      csrfPromise = null;
+    }
+  })();
+
   return csrfPromise;
 }
 

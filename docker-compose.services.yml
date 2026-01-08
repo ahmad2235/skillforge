@@ -1,0 +1,71 @@
+# SkillForge Microservices Docker Compose
+#
+# This file orchestrates all SkillForge microservices:
+# - project_leveler: PDF analysis using OpenAI (port 8002)
+# - recommender: Cosine similarity recommendations (port 8000) - OPTIONAL, PHP version preferred
+#
+# Usage:
+#   docker compose -f docker-compose.services.yml up -d
+#
+# Note: The Laravel backend itself is NOT included here.
+# Run Laravel separately with: composer dev
+
+services:
+  # ============================================
+  # Project Leveler Service
+  # ============================================
+  # Analyzes PDF project descriptions using OpenAI
+  # Returns: domain, required_level, complexity, tech stack
+  project_leveler:
+    build:
+      context: ./project_leveler
+      dockerfile: Dockerfile
+    container_name: skillforge-project-leveler
+    ports:
+      - "8002:8002"
+    environment:
+      # OpenAI API key - REQUIRED
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - MAX_CHARS=${MAX_CHARS:-180000}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - skillforge-net
+
+  # ============================================
+  # Recommender Service (OPTIONAL)
+  # ============================================
+  # Python FastAPI version of the recommender
+  # NOTE: The PHP version is integrated directly into Laravel
+  #       and is the PREFERRED approach. Only use this if you
+  #       need Python-specific ML features in the future.
+  #
+  # Uncomment below to enable:
+  #
+  # recommender:
+  #   build:
+  #     context: ./recommender/skillforge-recommender-fastapi
+  #     dockerfile: Dockerfile
+  #   container_name: skillforge-recommender
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - DATA_PATH=/app/data/ai_analysis.json
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   restart: unless-stopped
+  #   networks:
+  #     - skillforge-net
+
+networks:
+  skillforge-net:
+    driver: bridge

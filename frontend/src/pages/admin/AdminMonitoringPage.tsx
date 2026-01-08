@@ -162,9 +162,9 @@ export default function AdminMonitoringPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <Card className="space-y-3 border border-slate-200 bg-white p-6 shadow-sm text-center">
-          <h3 className="text-lg font-semibold text-slate-900">Nothing to monitor</h3>
-          <p className="text-sm text-slate-700">There are currently no alerts or items that require your attention.</p>
+        <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-6 shadow-sm text-center">
+          <h3 className="text-lg font-semibold text-slate-100">Nothing to monitor</h3>
+          <p className="text-sm text-slate-300">There are currently no alerts or items that require your attention.</p>
           <div className="mt-4 flex justify-center">
             <Button onClick={fetchMonitoring}>Refresh</Button>
           </div>
@@ -174,7 +174,7 @@ export default function AdminMonitoringPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Monitoring</h1>
         <p className="text-sm text-muted-foreground">

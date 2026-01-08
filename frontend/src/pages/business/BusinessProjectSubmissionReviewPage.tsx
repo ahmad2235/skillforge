@@ -56,6 +56,12 @@ export function BusinessProjectSubmissionReviewPage() {
   const [reviewFeedback, setReviewFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Complete project dialog
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [completeFeedback, setCompleteFeedback] = useState("");
+  const [completeRating, setCompleteRating] = useState<number>(5);
+  const [isCompleting, setIsCompleting] = useState(false);
+
   const loadData = async () => {
     if (!assignmentId) return;
     setIsLoading(true);
@@ -111,6 +117,29 @@ export function BusinessProjectSubmissionReviewPage() {
     }
   };
 
+  const handleCompleteProject = async () => {
+    if (!assignmentId) return;
+    setIsCompleting(true);
+    try {
+      await apiClient.post(
+        `/business/projects/assignments/${assignmentId}/complete`,
+        {
+          feedback: completeFeedback || null,
+          rating: completeRating,
+        }
+      );
+      toastSuccess("Assignment marked as completed");
+      setCompleteDialogOpen(false);
+      // Navigate back to assignments
+      window.location.href = `/business/projects/${projectId}/assignments`;
+    } catch (err: any) {
+      const message = err?.response?.data?.message ?? "Failed to complete assignment";
+      toastError(message);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
@@ -133,7 +162,7 @@ export function BusinessProjectSubmissionReviewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6 animate-page-enter">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Review Submissions</h1>
@@ -141,9 +170,11 @@ export function BusinessProjectSubmissionReviewPage() {
             Review student work for each milestone
           </p>
         </div>
-        <Link to={`/business/projects/${projectId}/assignments`}>
-          <Button variant="outline" size="sm">Back to assignments</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to={`/business/projects/${projectId}/assignments`}>
+            <Button variant="outline" size="sm">Back to assignments</Button>
+          </Link>
+        </div>
       </header>
 
       <div className="space-y-4">
@@ -198,7 +229,7 @@ export function BusinessProjectSubmissionReviewPage() {
 
                       {submission.review_feedback && (
                         <div className={`mt-3 p-3 rounded text-sm ${
-                          submission.status === 'rejected' ? 'bg-destructive/10 text-destructive-foreground' : 'bg-emerald-50 text-emerald-800'
+                          submission.status === 'rejected' ? 'bg-destructive/10 text-destructive-foreground' : 'bg-emerald-500/10 text-emerald-100'
                         }`}>
                           <span className="font-semibold">Your Feedback:</span> {submission.review_feedback}
                         </div>
@@ -229,6 +260,34 @@ export function BusinessProjectSubmissionReviewPage() {
         })}
       </div>
 
+      {/* Complete Project Card */}
+      <Card className="border-emerald-500/30 bg-emerald-900/40 p-6 shadow-xl shadow-slate-950/30 transition-shadow duration-200">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 bg-emerald-500/20 rounded-full">
+                <span className="text-emerald-200 text-sm">✓</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Complete Assignment</h3>
+                <p className="text-sm text-muted-foreground">All milestones reviewed • Ready to finalize</p>
+              </div>
+            </div>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Rate the student's performance and provide final feedback to complete this assignment.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => setCompleteDialogOpen(true)}
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-slate-950/40 transition-all duration-200 px-6 py-2"
+            size="default"
+          >
+            Complete Project
+          </Button>
+        </div>
+      </Card>
+
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -241,7 +300,7 @@ export function BusinessProjectSubmissionReviewPage() {
                 <Button
                   type="button"
                   variant={reviewStatus === "approved" ? "default" : "outline"}
-                  className={reviewStatus === "approved" ? "bg-emerald-600 hover:bg-emerald-500" : ""}
+                  className={reviewStatus === "approved" ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950" : ""}
                   onClick={() => setReviewStatus("approved")}
                 >
                   Approve
@@ -273,6 +332,58 @@ export function BusinessProjectSubmissionReviewPage() {
             </Button>
             <Button onClick={handleReviewSubmit} disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : "Submit Review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Assignment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Mark this assignment as completed and provide feedback for the student.
+            </p>
+            <div className="space-y-2">
+              <Label>Rating (1-5)</Label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setCompleteRating(star)}
+                    className={`text-2xl transition-colors ${
+                      star <= completeRating ? "text-yellow-500" : "text-muted-foreground"
+                    }`}
+                  >
+                    {star <= completeRating ? "★" : "☆"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="complete-feedback">Feedback (optional)</Label>
+              <Textarea
+                id="complete-feedback"
+                value={completeFeedback}
+                onChange={(e) => setCompleteFeedback(e.target.value)}
+                placeholder="Share your thoughts about the student's work..."
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCompleteDialogOpen(false)}
+              disabled={isCompleting}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleCompleteProject} disabled={isCompleting}>
+              {isCompleting ? "Completing..." : "Complete Assignment"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -18,8 +18,8 @@ import type { ProjectAssignment } from "../../types/projects";
 
 const STATUS_COLORS: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
   invited: { variant: "outline" },
-  accepted: { variant: "default", className: "bg-blue-600" },
-  completed: { variant: "default", className: "bg-emerald-600" },
+  accepted: { variant: "secondary", className: "bg-primary/15 text-primary border-primary/40" },
+  completed: { variant: "default", className: "bg-emerald-500/20 text-emerald-100" },
   declined: { variant: "secondary" },
   removed: { variant: "destructive" },
 };
@@ -161,7 +161,7 @@ export function BusinessProjectAssignmentsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6 animate-page-enter">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Project Assignments</h1>
@@ -208,9 +208,6 @@ export function BusinessProjectAssignmentsPage() {
                   {assignment.status === 'accepted' && (
                     <div className="mt-2 p-2 bg-muted/50 rounded text-sm inline-block">
                        <span className="font-medium">Milestones:</span> {approvedCount} approved / {submissions.length} submitted
-                       <Link to={`/business/projects/${projectId}/assignments/${assignment.id}/review`} className="ml-2 text-primary hover:underline text-xs">
-                         Review Submissions
-                       </Link>
                     </div>
                   )}
 
@@ -218,13 +215,13 @@ export function BusinessProjectAssignmentsPage() {
                   {assignment.status === 'completed' && (
                     <div className="mt-2 space-y-2">
                         {assignment.business_feedback && (
-                            <div className="text-sm bg-emerald-50 p-2 rounded border border-emerald-100">
-                                <span className="font-semibold text-emerald-800">Your Feedback:</span> {assignment.business_feedback} ({assignment.business_rating}/5)
+                        <div className="text-sm bg-emerald-500/10 p-2 rounded border border-emerald-500/30 text-emerald-100">
+                          <span className="font-semibold text-emerald-100">Your Feedback:</span> {assignment.business_feedback} ({assignment.business_rating}/5)
                             </div>
                         )}
                         {assignment.student_feedback && (
-                            <div className="text-sm bg-blue-50 p-2 rounded border border-blue-100">
-                                <span className="font-semibold text-blue-800">Student Feedback:</span> {assignment.student_feedback} ({assignment.student_rating}/5)
+                        <div className="text-sm bg-primary/10 p-2 rounded border border-primary/30 text-primary">
+                          <span className="font-semibold">Student Feedback:</span> {assignment.student_feedback} ({assignment.student_rating}/5)
                             </div>
                         )}
                     </div>
@@ -233,13 +230,20 @@ export function BusinessProjectAssignmentsPage() {
 
                 <div className="flex flex-col gap-2">
                   {assignment.status === "accepted" && (
-                    <Button
-                      size="sm"
-                      onClick={() => openCompleteDialog(assignment)}
-                      className="bg-emerald-600 hover:bg-emerald-500"
-                    >
-                      Complete Project
-                    </Button>
+                    <>
+                      <Link to={`/business/projects/${projectId}/assignments/${assignment.id}/review`}>
+                        <Button size="sm" variant="outline">
+                          Review Submissions
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        onClick={() => openCompleteDialog(assignment)}
+                        variant="default"
+                      >
+                        Complete Project
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

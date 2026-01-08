@@ -80,12 +80,16 @@ export function ApiStateCard({
   const displayDescription = description || config.description;
 
   return (
-    <Card className="border p-6 shadow-sm">
+    <Card 
+      className="border p-6 shadow-sm animate-card-enter" 
+      role="alert"
+      aria-live="polite"
+    >
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2 flex-1">
-            <h3 className="text-lg font-semibold text-slate-900">{displayTitle}</h3>
-            <p className="text-sm text-slate-600">{displayDescription}</p>
+            <h3 className="text-lg font-semibold text-foreground">{displayTitle}</h3>
+            <p className="text-sm text-muted-foreground">{displayDescription}</p>
           </div>
           <Badge variant={config.badgeVariant} className="shrink-0">
             {config.badgeLabel}

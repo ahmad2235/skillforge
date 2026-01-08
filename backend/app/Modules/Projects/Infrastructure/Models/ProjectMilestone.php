@@ -18,6 +18,7 @@ class ProjectMilestone extends Model
         'order_index',
         'due_date',
         'is_required',
+        'domain',
     ];
 
     protected $casts = [

@@ -1,0 +1,1 @@
+If run_local.sh isn't executable after unzip, run: chmod +x run_local.sh

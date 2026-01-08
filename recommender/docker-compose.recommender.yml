@@ -1,0 +1,7 @@
+services:
+  recommender:
+    build: ./skillforge-recommender-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_PATH=/app/data/ai_analysis.json

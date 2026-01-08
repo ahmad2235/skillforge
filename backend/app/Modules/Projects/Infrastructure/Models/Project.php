@@ -18,8 +18,10 @@ class Project extends Model
         'owner_id',
         'title',
         'description',
+        'requirements_pdf_path',
         'domain',
         'required_level',
+        'complexity',  // Added for recommender system
         'min_score_required',
         'status',
         'min_team_size',
@@ -31,6 +33,14 @@ class Project extends Model
 
     protected $casts = [
         'metadata' => 'array',
+    ];
+
+    /**
+     * Default values for new projects
+     */
+    protected $attributes = [
+        'complexity' => 'low',
+        'status' => 'open',
     ];
 
     protected static function newFactory()
@@ -68,5 +78,32 @@ class Project extends Model
     public function milestones()
     {
         return $this->hasMany(ProjectMilestone::class, 'project_id');
+    }
+
+    /**
+     * Get the adjusted required level considering complexity.
+     * 
+     * This is used by the recommender system to ensure students
+     * are matched to appropriately challenging projects.
+     *
+     * @return string 'beginner', 'intermediate', or 'advanced'
+     */
+    public function getAdjustedRequiredLevelAttribute(): string
+    {
+        $levelOrder = ['beginner' => 0, 'intermediate' => 1, 'advanced' => 2];
+        $complexityMinLevel = [
+            'low' => 'beginner',
+            'medium' => 'intermediate',
+            'high' => 'advanced',
+        ];
+
+        $requiredLevel = $this->required_level ?? 'beginner';
+        $complexity = $this->complexity ?? 'low';
+        $complexityMin = $complexityMinLevel[$complexity] ?? 'beginner';
+
+        $reqOrder = $levelOrder[$requiredLevel] ?? 0;
+        $compMinOrder = $levelOrder[$complexityMin] ?? 0;
+
+        return $reqOrder >= $compMinOrder ? $requiredLevel : $complexityMin;
     }
 }

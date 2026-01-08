@@ -12,7 +12,7 @@ import { ApiStateCard } from "../../components/shared/ApiStateCard";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { useAppToast } from "../../components/feedback/useAppToast";
 import { PlacementWizard } from "../../components/student/PlacementWizard";
-
+import { useAuth } from "../../hooks/useAuth";
 type BlockData = {
   id?: number | null;
   title: string;
@@ -20,6 +20,10 @@ type BlockData = {
   taskCount?: number;
   isLocked?: boolean; // MUST be boolean
   unlockRequirement?: string;
+  completedTasks?: number;
+  totalTasks?: number;
+  blockScore?: number | null;
+  isComplete?: boolean;
 };
 
 type BlockCardProps = BlockData & {
@@ -35,24 +39,42 @@ const BlockCard = ({
   unlockRequirement,
   onStart,
   isInvalidId,
+  completedTasks,
+  totalTasks,
+  blockScore,
+  isComplete,
 }: BlockCardProps) => {
   // IMPORTANT: only treat as locked when explicitly boolean true
   const locked = isLocked === true;
   const isDisabled = locked || isInvalidId;
 
+  const hasProgress = typeof completedTasks === 'number' && typeof totalTasks === 'number';
+  const progressPercent = hasProgress && totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
   return (
     <Card
       className={
-        "flex flex-col gap-3 border p-4 shadow-sm transition " +
-        (locked ? "border-slate-200 bg-slate-50/50 opacity-70" : "border-slate-200 bg-white")
+        "flex flex-col gap-3 border p-4 shadow-sm transition animate-card-enter " +
+        (isComplete 
+          ? "border-emerald-500/40 bg-emerald-500/5 hover:border-emerald-500/60 hover:shadow-xl"
+          : locked 
+            ? "border-slate-800 bg-slate-900/40 opacity-70" 
+            : "border-slate-800 bg-slate-900/80 hover:border-slate-700 hover:shadow-xl")
       }
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-1">
-          <h3 className={"text-lg font-semibold " + (locked ? "text-slate-500" : "text-slate-900")}>
-            {title}
-          </h3>
-          <p className={"text-sm " + (locked ? "text-slate-500" : "text-slate-600")}>
+          <div className="flex items-center gap-2">
+            <h3 className={"text-lg font-semibold " + (locked ? "text-slate-500" : "text-slate-50")}>
+              {title}
+            </h3>
+            {isComplete && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-200">
+                ✓ Complete
+              </span>
+            )}
+          </div>
+          <p className={"text-sm " + (locked ? "text-slate-500" : "text-slate-300")}>
             {description}
           </p>
         </div>
@@ -64,19 +86,43 @@ const BlockCard = ({
         ) : null}
       </div>
 
+      {hasProgress && totalTasks > 0 && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-400">
+              Progress: {completedTasks}/{totalTasks} tasks
+            </span>
+            {typeof blockScore === 'number' && (
+              <span className={isComplete ? "font-medium text-emerald-300" : "font-medium text-slate-300"}>
+                Score: {Math.round(blockScore)}/100
+              </span>
+            )}
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+            <div 
+              className={
+                "h-full transition-all " + 
+                (isComplete ? "bg-emerald-500" : "bg-sky-500")
+              }
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         <Button size="sm" className="w-fit" disabled={isDisabled} onClick={onStart}>
           {isInvalidId ? "Id unavailable" : "Start Block"}
         </Button>
 
         {locked ? (
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-slate-400">
             Available soon{unlockRequirement ? ` • ${unlockRequirement}` : ""}
           </span>
         ) : null}
 
         {!locked && isInvalidId ? (
-          <span className="text-xs text-amber-700">Block id missing; try refreshing.</span>
+          <span className="text-xs text-amber-300">Block id missing; try refreshing.</span>
         ) : null}
       </div>
     </Card>
@@ -96,11 +142,14 @@ export function StudentRoadmapPage() {
   const { setPlacementMode } = useNavigation();
   const navigate = useNavigate();
   const { toastError } = useAppToast();
+  const { user } = useAuth();
 
   const [blocksFromApi, setBlocksFromApi] = useState<BlockData[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
   const [roadmap, setRoadmap] = useState<any | null>(null);
+  const [placementLevel, setPlacementLevel] = useState<string | null>(null);
+  const [placementDomain, setPlacementDomain] = useState<string | null>(null);
 
   const coerceLocked = (val: unknown): boolean => {
     if (typeof val === "boolean") return val;
@@ -127,8 +176,14 @@ export function StudentRoadmapPage() {
     setError(null);
     try {
       const res = await apiClient.get("/student/roadmap");
-      const data = res.data?.data ?? res.data;
+      const payload = res.data ?? {};
+      const data = payload.data ?? payload;
       const blocksArray = Array.isArray(data) ? data : [];
+
+      // Placement metadata provided by API (prefer this over auth user)
+      const placement = payload.placement ?? null;
+      setPlacementLevel(placement?.final_level ?? null);
+      setPlacementDomain(placement?.final_domain ?? null);
 
       const mapped: BlockData[] = blocksArray.map((b: any) => {
         // Choose ONE explicit lock source if present, do not OR them.
@@ -142,7 +197,9 @@ export function StudentRoadmapPage() {
           b?.task_count,
           b?.taskCount,
           b?.tasks_count,
-          b?.tasksCount
+          b?.tasksCount,
+          b?.total_tasks,
+          b?.totalTasks
         );
 
         return {
@@ -153,6 +210,10 @@ export function StudentRoadmapPage() {
           isLocked: lockedBool === true, // enforce boolean
           unlockRequirement: (pickFirstDefined(b?.unlock_requirement, b?.unlockRequirement) ??
             undefined) as string | undefined,
+          completedTasks: coerceTaskCount(pickFirstDefined(b?.completed_tasks, b?.completedTasks)),
+          totalTasks: coerceTaskCount(pickFirstDefined(b?.total_tasks, b?.totalTasks)),
+          blockScore: typeof b?.block_score === 'number' ? b.block_score : (typeof b?.blockScore === 'number' ? b.blockScore : null),
+          isComplete: b?.is_complete === true || b?.isComplete === true,
         };
       });
 
@@ -208,7 +269,7 @@ export function StudentRoadmapPage() {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
         <div className="space-y-4">
-          <div className="h-6 w-48 animate-pulse rounded-md bg-slate-200" />
+          <div className="h-6 w-48 animate-pulse rounded-md bg-slate-800" />
           <SkeletonList rows={6} />
         </div>
       </div>
@@ -229,9 +290,9 @@ export function StudentRoadmapPage() {
   if (!blocksFromApi || (Array.isArray(blocksFromApi) && blocksFromApi.length === 0)) {
     return (
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
-        <Card className="space-y-3 border border-slate-200 bg-white p-6 shadow-sm text-center">
-          <h3 className="text-lg font-semibold text-slate-900">Start Your Learning Journey</h3>
-          <p className="text-sm text-slate-700">
+        <Card className="space-y-3 border border-slate-800 bg-slate-900/80 p-6 shadow-xl text-center">
+          <h3 className="text-lg font-semibold text-slate-50">Start Your Learning Journey</h3>
+          <p className="text-sm text-slate-300">
             It looks like you haven't set up your roadmap yet. Take a quick placement test to personalize your learning path.
           </p>
           <div className="mt-4 flex justify-center">
@@ -244,23 +305,23 @@ export function StudentRoadmapPage() {
 
   // Success / existing rendering
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-4 sm:p-6">
-      <header className="space-y-2 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-semibold text-slate-900">Your personalized roadmap</h1>
-        <p className="text-base text-slate-700">This path updates as you complete tasks.</p>
+    <div className="mx-auto max-w-5xl space-y-8 p-4 sm:p-6 animate-page-enter">
+      <header className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/80 p-6 shadow-xl shadow-slate-950/30 animate-card-enter">
+        <h1 className="text-3xl font-semibold text-slate-50">Your personalized roadmap</h1>
+        <p className="text-base text-slate-300">This path updates as you complete tasks.</p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-800 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/30">
         <Badge variant="outline" className="text-sm font-medium">
           {completedTasks}/{totalTasks} tasks completed
         </Badge>
-        <div className="text-sm text-slate-700">
-          Initial level: <span className="font-medium text-slate-900">Intermediate</span> • Frontend
+        <div className="text-sm text-slate-300">
+          Initial level: <span className="font-medium text-slate-50">{(placementLevel ? (placementLevel.charAt(0).toUpperCase() + placementLevel.slice(1)) : (user?.level ? (user.level.charAt(0).toUpperCase() + user.level.slice(1)) : 'Beginner'))}</span> • {(placementDomain ? (placementDomain.charAt(0).toUpperCase() + placementDomain.slice(1)) : (user?.domain ? (user.domain.charAt(0).toUpperCase() + user.domain.slice(1)) : 'Frontend'))}
         </div>
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">Learning Blocks</h2>
+        <h2 className="text-lg font-semibold text-slate-50">Learning Blocks</h2>
 
         <div className="space-y-3">
           {blocksFromApi.map((block) => {

@@ -1,0 +1,272 @@
+{
+    "metrics": {
+        "admin_flow_complete": {
+            "passes": 0,
+            "fails": 18,
+            "value": 0
+        },
+        "login_success": {
+            "fails": 0,
+            "passes": 18,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "data_received": {
+            "count": 647820,
+            "rate": 15709.431076267934
+        },
+        "request_duration": {
+            "med": 30.695,
+            "max": 132.674,
+            "p(90)": 52.719770000000004,
+            "p(95)": 60.351479999999995,
+            "avg": 32.924475000000015,
+            "min": 13.0525
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "iterations": {
+            "count": 18,
+            "rate": 0.43649433387796427
+        },
+        "submissions_list_success": {
+            "passes": 0,
+            "fails": 18,
+            "value": 0
+        },
+        "http_req_receiving": {
+            "p(95)": 2.1822199999999996,
+            "avg": 1.2298666666666667,
+            "min": 0,
+            "med": 1.1859,
+            "max": 4.9964,
+            "p(90)": 1.7863099999999998
+        },
+        "http_req_sending": {
+            "avg": 0.08320648148148146,
+            "min": 0,
+            "med": 0,
+            "max": 1.2584,
+            "p(90)": 0.49642000000000003,
+            "p(95)": 0.507215
+        },
+        "group_duration": {
+            "avg": 34.45131203703704,
+            "min": 13.8035,
+            "med": 31.661450000000002,
+            "max": 135.0956,
+            "p(90)": 53.83293,
+            "p(95)": 62.35306499999997
+        },
+        "data_sent": {
+            "count": 25110,
+            "rate": 608.9095957597601
+        },
+        "http_req_failed": {
+            "passes": 54,
+            "fails": 54,
+            "thresholds": {
+                "rate<0.15": true
+            },
+            "value": 0.5
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 2
+        },
+        "http_req_blocked": {
+            "min": 0,
+            "med": 0.77275,
+            "max": 42.592,
+            "p(90)": 1.4147399999999997,
+            "p(95)": 2.0776,
+            "avg": 1.2083879629629635
+        },
+        "http_reqs": {
+            "count": 108,
+            "rate": 2.6189660032677855
+        },
+        "http_req_duration": {
+            "avg": 32.924475000000015,
+            "min": 13.0525,
+            "med": 30.695,
+            "max": 132.674,
+            "p(90)": 52.719770000000004,
+            "p(95)": 60.351479999999995,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_waiting": {
+            "p(90)": 51.23107,
+            "p(95)": 58.862610000000004,
+            "avg": 31.61140185185184,
+            "min": 12.0486,
+            "med": 29.435200000000002,
+            "max": 131.6506
+        },
+        "http_req_duration{expected_response:true}": {
+            "med": 42.0463,
+            "max": 132.674,
+            "p(90)": 58.50435000000001,
+            "p(95)": 65.01872999999998,
+            "avg": 43.139761111111135,
+            "min": 20.7646
+        },
+        "http_req_connecting": {
+            "max": 42.592,
+            "p(90)": 1.07736,
+            "p(95)": 1.5102099999999998,
+            "avg": 1.0491296296296295,
+            "min": 0,
+            "med": 0.51665
+        },
+        "user_detail_success": {
+            "passes": 18,
+            "fails": 0,
+            "value": 1
+        },
+        "checks": {
+            "passes": 36,
+            "fails": 54,
+            "value": 0.4
+        },
+        "stats_success": {
+            "passes": 0,
+            "fails": 18,
+            "value": 0
+        },
+        "users_list_success": {
+            "passes": 18,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.90": false
+            },
+            "value": 1
+        },
+        "dashboard_success": {
+            "fails": 18,
+            "passes": 0,
+            "thresholds": {
+                "rate>0.90": true
+            },
+            "value": 0
+        },
+        "iteration_duration": {
+            "max": 3859.9301,
+            "p(90)": 3805.2580900000003,
+            "p(95)": 3857.89605,
+            "avg": 3755.2591722222223,
+            "min": 3691.1471,
+            "med": 3752.02355
+        },
+        "api_errors": {
+            "count": 54,
+            "rate": 1.3094830016338928
+        },
+        "vus_max": {
+            "value": 2,
+            "min": 2,
+            "max": 2
+        }
+    },
+    "root_group": {
+        "groups": {
+            "1. Admin Login": {
+                "name": "1. Admin Login",
+                "path": "::1. Admin Login",
+                "id": "7ab719bb8e073ceaefcfdac732f835bf",
+                "groups": {},
+                "checks": {}
+            },
+            "2. List Users": {
+                "name": "2. List Users",
+                "path": "::2. List Users",
+                "id": "2ef8f8be86fdd91eae19a16f05780478",
+                "groups": {},
+                "checks": {
+                        "users list 200": {
+                            "fails": 0,
+                            "name": "users list 200",
+                            "path": "::2. List Users::users list 200",
+                            "id": "aada2302d1b24c8d8c78705e60ac4966",
+                            "passes": 18
+                        }
+                    }
+            },
+            "3. View User Detail": {
+                "path": "::3. View User Detail",
+                "id": "59f72e279437ac8917aed78b3da99698",
+                "groups": {},
+                "checks": {
+                        "user detail 200": {
+                            "id": "bb3bf78bc68ddc11edf2a8a545cd6c1d",
+                            "passes": 18,
+                            "fails": 0,
+                            "name": "user detail 200",
+                            "path": "::3. View User Detail::user detail 200"
+                        }
+                    },
+                "name": "3. View User Detail"
+            },
+            "4. Monitor Submissions": {
+                "name": "4. Monitor Submissions",
+                "path": "::4. Monitor Submissions",
+                "id": "4bd26c632a336115c027f4893dd808f2",
+                "groups": {},
+                "checks": {
+                        "submissions list 200": {
+                            "path": "::4. Monitor Submissions::submissions list 200",
+                            "id": "765e796814aed37e5e7ef23b0c2cbf10",
+                            "passes": 0,
+                            "fails": 18,
+                            "name": "submissions list 200"
+                        }
+                    }
+            },
+            "5. Dashboard": {
+                "name": "5. Dashboard",
+                "path": "::5. Dashboard",
+                "id": "94d614b21e1a7290ef312360b32d91f1",
+                "groups": {},
+                "checks": {
+                        "dashboard 200": {
+                            "name": "dashboard 200",
+                            "path": "::5. Dashboard::dashboard 200",
+                            "id": "36401d4288fffa88a0d60fd5ff03abfb",
+                            "passes": 0,
+                            "fails": 18
+                        }
+                    }
+            },
+            "6. View Statistics": {
+                "name": "6. View Statistics",
+                "path": "::6. View Statistics",
+                "id": "0ef242192989d9dc0da1e190452470a8",
+                "groups": {},
+                "checks": {
+                        "stats 200": {
+                            "name": "stats 200",
+                            "path": "::6. View Statistics::stats 200",
+                            "id": "d7be84c545227f666a44b444801f4e0d",
+                            "passes": 0,
+                            "fails": 18
+                        }
+                    }
+            }
+        },
+        "checks": {},
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+}

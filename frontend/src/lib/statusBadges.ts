@@ -16,21 +16,21 @@ export const getProjectStatusBadge = (status?: string | null): BadgeConfig => {
   const key = normalize(status);
   switch (key) {
     case "draft":
-      return makeBadge("Draft", "outline", "bg-slate-100 text-slate-800 border-slate-200");
+      return makeBadge("Draft", "outline", "bg-slate-900/60 text-slate-200 border-slate-700");
     case "open":
-      return makeBadge("Open", "secondary", "bg-emerald-100 text-emerald-800 border-emerald-200");
+      return makeBadge("Open", "secondary", "bg-emerald-500/15 text-emerald-100 border-emerald-500/30");
     case "in_progress":
-      return makeBadge("In progress", "outline", "bg-amber-100 text-amber-800 border-amber-200");
+      return makeBadge("In progress", "outline", "bg-amber-500/15 text-amber-100 border-amber-500/30");
     case "completed":
-      return makeBadge("Completed", "secondary", "bg-slate-100 text-slate-800 border-slate-200");
+      return makeBadge("Completed", "secondary", "bg-slate-800/80 text-slate-100 border-slate-700");
     case "cancelled":
-      return makeBadge("Cancelled", "destructive", "bg-slate-100 text-slate-700 border-slate-200");
+      return makeBadge("Cancelled", "destructive", "bg-rose-500/15 text-rose-100 border-rose-500/30");
     case "submitted":
-      return makeBadge("Submitted", "secondary", "bg-blue-100 text-blue-800 border-blue-200");
+      return makeBadge("Submitted", "secondary", "bg-primary/15 text-primary border-primary/40");
     case "approved":
-      return makeBadge("Approved", "secondary", "bg-emerald-100 text-emerald-800 border-emerald-200");
+      return makeBadge("Approved", "secondary", "bg-emerald-500/15 text-emerald-100 border-emerald-500/30");
     default:
-      return makeBadge("Unknown", "outline", "bg-slate-100 text-slate-700 border-slate-200");
+      return makeBadge("Unknown", "outline", "bg-slate-900/60 text-slate-200 border-slate-700");
   }
 };
 
@@ -38,22 +38,22 @@ export const getMilestoneStatusBadge = (status?: string | null): BadgeConfig => 
   const key = normalize(status);
   switch (key) {
     case "not_started":
-      return makeBadge("Not started", "outline", "bg-slate-100 text-slate-700 border-slate-200");
+      return makeBadge("Not started", "outline", "bg-slate-900/60 text-slate-200 border-slate-700");
     case "in_progress":
-      return makeBadge("In progress", "outline", "bg-amber-100 text-amber-800 border-amber-200");
+      return makeBadge("In progress", "outline", "bg-amber-500/15 text-amber-100 border-amber-500/30");
     case "submitted":
-      return makeBadge("Submitted", "secondary", "bg-blue-100 text-blue-800 border-blue-200");
+      return makeBadge("Submitted", "secondary", "bg-primary/15 text-primary border-primary/40");
     case "review":
     case "in_review":
-      return makeBadge("In review", "outline", "bg-indigo-100 text-indigo-800 border-indigo-200");
+      return makeBadge("In review", "outline", "bg-indigo-500/15 text-indigo-100 border-indigo-500/30");
     case "approved":
-      return makeBadge("Approved", "secondary", "bg-emerald-100 text-emerald-800 border-emerald-200");
+      return makeBadge("Approved", "secondary", "bg-emerald-500/15 text-emerald-100 border-emerald-500/30");
     case "completed":
-      return makeBadge("Completed", "secondary", "bg-slate-100 text-slate-800 border-slate-200");
+      return makeBadge("Completed", "secondary", "bg-slate-800/80 text-slate-100 border-slate-700");
     case "cancelled":
-      return makeBadge("Cancelled", "destructive", "bg-slate-100 text-slate-700 border-slate-200");
+      return makeBadge("Cancelled", "destructive", "bg-rose-500/15 text-rose-100 border-rose-500/30");
     default:
-      return makeBadge("Unknown", "outline", "bg-slate-100 text-slate-700 border-slate-200");
+      return makeBadge("Unknown", "outline", "bg-slate-900/60 text-slate-200 border-slate-700");
   }
 };
 

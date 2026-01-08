@@ -23,7 +23,16 @@ export function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      await apiClient.post("/auth/forgot-password", { email });
+      const response = await apiClient.post("/auth/forgot-password", { email });
+      const accountExists = response?.data?.account_exists;
+
+      // In local/dev show a hint to the developer when account does not exist
+      if (process.env.NODE_ENV !== 'production' && accountExists === false) {
+        setError("(dev) No account found with that email. Create the user or use a seeded test user.");
+        setIsSubmitting(false);
+        return;
+      }
+
       setSubmitted(true);
       setEmail("");
     } catch (err: any) {
@@ -41,7 +50,7 @@ export function ForgotPasswordPage() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4">
-        <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
+        <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg animate-card-enter">
           <CardContent className="pt-6 text-center space-y-4">
             <div className="text-5xl mb-4">✓</div>
             <h2 className="text-xl font-bold text-slate-100">Check your email</h2>
@@ -71,7 +80,7 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4">
-      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
+      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg animate-card-enter">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl">Reset password</CardTitle>
           <CardDescription>

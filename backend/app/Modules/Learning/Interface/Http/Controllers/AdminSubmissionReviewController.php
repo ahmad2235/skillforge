@@ -9,6 +9,16 @@ use Illuminate\Http\JsonResponse;
 
 class AdminSubmissionReviewController extends Controller
 {
+    /**
+     * Show a single submission with its task, user, and latest AI evaluation.
+     */
+    public function show(Submission $submission): JsonResponse
+    {
+        $submission->load(['task', 'user', 'latestAiEvaluation']);
+
+        return response()->json(['data' => $submission]);
+    }
+
     public function review(AdminReviewSubmissionRequest $request, Submission $submission): JsonResponse
     {
         // Only update snapshot fields. Do NOT modify ai_evaluations history.
@@ -27,7 +37,7 @@ class AdminSubmissionReviewController extends Controller
         }
 
         if ($request->has('feedback')) {
-            $data['feedback'] = $request->input('feedback');
+            $data['ai_feedback'] = $request->input('feedback');
         }
 
         if ($request->has('rubric_scores')) {

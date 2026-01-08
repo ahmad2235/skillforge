@@ -21,6 +21,7 @@ import { useAppToast } from "../../components/feedback/useAppToast";
 import { apiClient } from "../../lib/apiClient";
 import { parseApiError } from "../../lib/apiErrors";
 import { ApiStateCard } from "../../components/shared/ApiStateCard";
+import { getProjectStatusBadge } from "../../lib/statusBadges";
 
 type Project = {
   id: number;
@@ -31,13 +32,6 @@ type Project = {
   required_level?: string;
   created_at?: string;
   createdAt?: string;
-};
-
-const statusVariants: Record<string, string> = {
-  open: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  in_progress: "bg-amber-100 text-amber-800 border-amber-200",
-  completed: "bg-slate-100 text-slate-800 border-slate-200",
-  cancelled: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
 const statusLabel = (status?: string) => {
@@ -64,8 +58,10 @@ export function BusinessProjectsPage() {
     description: "",
     domain: "",
     required_level: "",
+    complexity: "low",
     estimated_duration_weeks: "",
   });
+  const [requirementsPdf, setRequirementsPdf] = useState<File | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
   // Add local states for mutation UX:
@@ -79,8 +75,10 @@ export function BusinessProjectsPage() {
       description: "",
       domain: "",
       required_level: "",
+      complexity: "low",
       estimated_duration_weeks: "",
     });
+    setRequirementsPdf(null);
     setFormErrors({});
   };
 
@@ -117,7 +115,7 @@ export function BusinessProjectsPage() {
     const errors: Record<string, string> = {};
     if (!form.title.trim()) errors.title = "Title is required";
     if (!form.description.trim()) errors.description = "Description is required";
-    if (!form.domain) errors.domain = "Domain is required";
+    if (!form.domain && !requirementsPdf) errors.domain = "Domain is required unless you upload a PDF";
     if (!form.required_level) errors.required_level = "Level is required";
     if (form.estimated_duration_weeks) {
       const num = Number(form.estimated_duration_weeks);
@@ -134,12 +132,21 @@ export function BusinessProjectsPage() {
     setIsSubmitting(true);
     setFormErrors({});
     try {
-      await apiClient.post("/business/projects", {
-        title: form.title,
-        description: form.description,
-        domain: form.domain,
-        required_level: form.required_level,
-        estimated_duration_weeks: form.estimated_duration_weeks ? Number(form.estimated_duration_weeks) : undefined,
+      const formData = new FormData();
+      formData.append("title", form.title.trim());
+      formData.append("description", form.description);
+      if (form.domain) formData.append("domain", form.domain);
+      if (form.required_level) formData.append("required_level", form.required_level);
+      if (form.complexity) formData.append("complexity", form.complexity);
+      if (form.estimated_duration_weeks) {
+        formData.append("estimated_duration_weeks", String(Number(form.estimated_duration_weeks)));
+      }
+      if (requirementsPdf) {
+        formData.append("requirements_pdf", requirementsPdf);
+      }
+
+      await apiClient.post("/business/projects", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       toastSuccess("Project created");
       setIsCreateOpen(false);
@@ -213,8 +220,8 @@ export function BusinessProjectsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-900">Projects</h1>
-        <p className="text-base text-slate-700">
+        <h1 className="text-3xl font-semibold text-foreground">Projects</h1>
+        <p className="text-base text-muted-foreground">
           Manage projects, review candidates, and track milestones.
         </p>
       </header>
@@ -250,17 +257,22 @@ export function BusinessProjectsPage() {
             {projects.map((project) => (
               <div key={project.id} className="grid gap-3 p-4 sm:grid-cols-6 sm:items-center">
                 <div className="sm:col-span-2 space-y-1">
-                  <p className="text-sm font-semibold text-slate-900">{project.title}</p>
-                  <p className="text-xs text-slate-600">Created {renderCreatedAt(project)}</p>
+                  <p className="text-sm font-semibold text-foreground">{project.title}</p>
+                  <p className="text-xs text-muted-foreground">Created {renderCreatedAt(project)}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
-                  <Badge
-                    variant="outline"
-                    className={statusVariants[(project.status || "").replace(/\s+/g, "_").toLowerCase()] || ""}
-                  >
-                    {statusLabel(project.status)}
-                  </Badge>
+                  {(() => {
+                    const statusBadge = getProjectStatusBadge(project.status);
+                    return (
+                      <Badge
+                        variant={statusBadge.variant}
+                        className={`capitalize ${statusBadge.className ?? ""}`}
+                      >
+                        {statusLabel(project.status)}
+                      </Badge>
+                    );
+                  })()}
                   <Badge variant="outline" className="capitalize">
                     {project.domain}
                   </Badge>
@@ -360,8 +372,7 @@ export function BusinessProjectsPage() {
                     <SelectContent>
                       <SelectItem value="frontend">Frontend</SelectItem>
                       <SelectItem value="backend">Backend</SelectItem>
-                      <SelectItem value="fullstack">Fullstack</SelectItem>
-                      <SelectItem value="ai">AI</SelectItem>
+                      <SelectItem value="fullstack">Full Stack</SelectItem>
                     </SelectContent>
                   </Select>
                   {formErrors.domain && <p className="text-xs text-red-600">{formErrors.domain}</p>}
@@ -383,6 +394,35 @@ export function BusinessProjectsPage() {
                   </Select>
                   {formErrors.required_level && <p className="text-xs text-red-600">{formErrors.required_level}</p>}
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label>Complexity</Label>
+                <Select
+                  value={form.complexity}
+                  onValueChange={(value) => setForm((f) => ({ ...f, complexity: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select complexity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formErrors.complexity && <p className="text-xs text-red-600">{formErrors.complexity}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="requirements_pdf">Requirements PDF (optional)</Label>
+                <Input
+                  id="requirements_pdf"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => setRequirementsPdf(e.target.files?.[0] || null)}
+                />
+                <p className="text-xs text-slate-400">Upload a project brief to auto-suggest domain, level, and complexity.</p>
               </div>
 
               <div className="space-y-1">

@@ -15,50 +15,62 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create test users with different roles
-        User::factory()->create([
-            'name' => 'Admin User',
+        // Create or update test users with different roles (idempotent)
+        User::updateOrCreate([
             'email' => 'admin@example.com',
+        ], [
+            'name' => 'Admin User',
             'role' => 'admin',
+            'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
-            'name' => 'Business User',
+        User::updateOrCreate([
             'email' => 'business@example.com',
+        ], [
+            'name' => 'Business User',
             'role' => 'business',
+            'password' => bcrypt('password'),
         ]);
 
-        // Create student users with different levels and domains
-        User::factory()->create([
-            'name' => 'Ahmed Ali',
+        // Create or update student users with different levels and domains
+        User::updateOrCreate([
             'email' => 'ahmed@example.com',
+        ], [
+            'name' => 'Ahmed Ali',
             'role' => 'student',
             'level' => 'beginner',
             'domain' => 'frontend',
+            'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
-            'name' => 'Sara Mohamed',
+        User::updateOrCreate([
             'email' => 'sara@example.com',
+        ], [
+            'name' => 'Sara Mohamed',
             'role' => 'student',
             'level' => 'intermediate',
             'domain' => 'backend',
+            'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
-            'name' => 'Omar Hassan',
+        User::updateOrCreate([
             'email' => 'omar@example.com',
+        ], [
+            'name' => 'Omar Hassan',
             'role' => 'student',
             'level' => 'advanced',
             'domain' => 'frontend',
+            'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
-            'name' => 'Fatima Khalid',
+        User::updateOrCreate([
             'email' => 'fatima@example.com',
+        ], [
+            'name' => 'Fatima Khalid',
             'role' => 'student',
             'level' => 'beginner',
             'domain' => 'backend',
+            'password' => bcrypt('password'),
         ]);
 
         // Ensure a deterministic admin exists (can be overridden via .env)

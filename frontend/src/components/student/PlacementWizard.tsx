@@ -42,7 +42,7 @@ export function PlacementWizard({ onComplete }: PlacementWizardProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useAppToast();
+  const { toastSuccess, toastError } = useAppToast();
 
   const fetchQuestions = async (selectedDomain: "frontend" | "backend") => {
     setIsLoading(true);
@@ -52,11 +52,7 @@ export function PlacementWizard({ onComplete }: PlacementWizardProps) {
       setStep("questions");
     } catch (error) {
       console.error("Failed to fetch questions", error);
-      toast({
-        title: "Error",
-        description: "Failed to load placement questions. Please try again.",
-        variant: "destructive",
-      });
+      toastError("Failed to load placement questions. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -97,21 +93,14 @@ export function PlacementWizard({ onComplete }: PlacementWizardProps) {
         domain,
       });
       setStep("success");
-      toast({
-        title: "Success",
-        description: "Placement test completed! Your roadmap is ready.",
-      });
+      toastSuccess("Placement test completed! Your roadmap is ready.");
       setTimeout(() => {
         setIsOpen(false);
         onComplete();
       }, 2000);
     } catch (error) {
       console.error("Failed to submit answers", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit your answers. Please try again.",
-        variant: "destructive",
-      });
+      toastError("Failed to submit your answers. Please try again.");
       setStep("questions"); // Go back to questions on failure
     }
   };
@@ -145,12 +134,12 @@ export function PlacementWizard({ onComplete }: PlacementWizardProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Card
                 className={cn(
-                  "p-6 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center",
-                  domain === "frontend" ? "border-primary bg-primary/5" : ""
+                  "p-6 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center bg-card border-border text-foreground",
+                  domain === "frontend" ? "border-primary bg-primary/5 ring-1 ring-primary/70" : ""
                 )}
                 onClick={() => handleDomainSelect("frontend")}
               >
-                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                <div className="p-3 rounded-full bg-primary/15 text-primary">
                   <Code size={32} />
                 </div>
                 <div>
@@ -164,12 +153,12 @@ export function PlacementWizard({ onComplete }: PlacementWizardProps) {
 
               <Card
                 className={cn(
-                  "p-6 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center",
-                  domain === "backend" ? "border-primary bg-primary/5" : ""
+                  "p-6 cursor-pointer hover:border-primary transition-all flex flex-col items-center gap-4 text-center bg-card border-border text-foreground",
+                  domain === "backend" ? "border-primary bg-primary/5 ring-1 ring-primary/70" : ""
                 )}
                 onClick={() => handleDomainSelect("backend")}
               >
-                <div className="p-3 rounded-full bg-green-100 text-green-600">
+                <div className="p-3 rounded-full bg-emerald-500/15 text-emerald-200">
                   <Server size={32} />
                 </div>
                 <div>

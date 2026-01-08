@@ -1,0 +1,236 @@
+{
+    "metrics": {
+        "task_submit_success": {
+            "passes": 0,
+            "fails": 18,
+            "thresholds": {
+                "rate>0.60": true
+            },
+            "value": 0
+        },
+        "http_req_waiting": {
+            "avg": 64.36361666666667,
+            "min": 20.1383,
+            "med": 52.3301,
+            "max": 531.3268,
+            "p(90)": 79.46697,
+            "p(95)": 101.45872000000007
+        },
+        "vus_max": {
+            "value": 2,
+            "min": 2,
+            "max": 2
+        },
+        "group_duration": {
+            "med": 55.33240000000001,
+            "max": 532.3317,
+            "p(90)": 87.30181999999999,
+            "p(95)": 104.55432000000006,
+            "avg": 67.31455555555556,
+            "min": 22.3405
+        },
+        "login_success": {
+            "fails": 0,
+            "passes": 18,
+            "thresholds": {
+                "rate>0.90": false
+            },
+            "value": 1
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_duration": {
+            "min": 21.4977,
+            "med": 54.5013,
+            "max": 531.8263,
+            "p(90)": 81.02467,
+            "p(95)": 103.21198000000007,
+            "avg": 65.86457222222225,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_connecting": {
+            "med": 0.5534,
+            "max": 14.3402,
+            "p(90)": 1.11336,
+            "p(95)": 1.5845600000000002,
+            "avg": 0.8920722222222222,
+            "min": 0
+        },
+        "vus": {
+            "max": 2,
+            "value": 1,
+            "min": 1
+        },
+        "placement_fetch_success": {
+            "passes": 18,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.70": false
+            },
+            "value": 1
+        },
+        "http_req_receiving": {
+            "min": 0,
+            "med": 1.3590499999999999,
+            "max": 7.3606,
+            "p(90)": 2.3629599999999997,
+            "p(95)": 2.7862150000000008,
+            "avg": 1.4353125000000002
+        },
+        "data_received": {
+            "count": 64202,
+            "rate": 1515.3012096022542
+        },
+        "checks": {
+            "passes": 54,
+            "fails": 0,
+            "value": 1
+        },
+        "iteration_duration": {
+            "avg": 3821.541522222222,
+            "min": 3692.1707,
+            "med": 3776.2959,
+            "max": 4593.6445,
+            "p(90)": 3858.0059,
+            "p(95)": 3986.554524999999
+        },
+        "request_duration": {
+            "avg": 65.86457222222225,
+            "min": 21.4977,
+            "med": 54.5013,
+            "max": 531.8263,
+            "p(90)": 81.02467,
+            "p(95)": 103.21198000000007
+        },
+        "student_flow_complete": {
+            "passes": 0,
+            "fails": 18,
+            "value": 0
+        },
+        "data_sent": {
+            "count": 21672,
+            "rate": 511.50443622472903
+        },
+        "http_req_blocked": {
+            "avg": 1.0143000000000002,
+            "min": 0,
+            "med": 0.77885,
+            "max": 14.3402,
+            "p(90)": 1.4079199999999998,
+            "p(95)": 1.5845600000000002
+        },
+        "iterations": {
+            "rate": 0.42483757161522345,
+            "count": 18
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(95)": 103.21198000000007,
+            "avg": 65.86457222222225,
+            "min": 21.4977,
+            "med": 54.5013,
+            "max": 531.8263,
+            "p(90)": 81.02467
+        },
+        "roadmap_fetch_success": {
+            "passes": 18,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.70": false
+            },
+            "value": 1
+        },
+        "placement_submit_success": {
+            "fails": 0,
+            "passes": 18,
+            "value": 1
+        },
+        "http_req_failed": {
+            "fails": 72,
+            "passes": 0,
+            "thresholds": {
+                "rate<0.20": false
+            },
+            "value": 0
+        },
+        "http_reqs": {
+            "count": 72,
+            "rate": 1.6993502864608938
+        },
+        "http_req_sending": {
+            "med": 0,
+            "max": 0.5773,
+            "p(90)": 0.4197899999999999,
+            "p(95)": 0.5100850000000001,
+            "avg": 0.06564305555555557,
+            "min": 0
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "1. Student Login": {
+                "name": "1. Student Login",
+                "path": "::1. Student Login",
+                "id": "a10695c82f0c039d8fa737d7f29fcfbf",
+                "groups": {},
+                "checks": {}
+            },
+            "2. Fetch Placement Questions": {
+                "id": "fac0441a1fc56efc507ae92e63511654",
+                "groups": {},
+                "checks": {
+                        "placement questions 200": {
+                            "name": "placement questions 200",
+                            "path": "::2. Fetch Placement Questions::placement questions 200",
+                            "id": "f161b79b0ed21221ae2b2ad840ff73ea",
+                            "passes": 18,
+                            "fails": 0
+                        }
+                    },
+                "name": "2. Fetch Placement Questions",
+                "path": "::2. Fetch Placement Questions"
+            },
+            "3. Submit Placement": {
+                "name": "3. Submit Placement",
+                "path": "::3. Submit Placement",
+                "id": "ae257ebb704e88067a471b6f714a132e",
+                "groups": {},
+                "checks": {
+                        "placement submit ok": {
+                            "name": "placement submit ok",
+                            "path": "::3. Submit Placement::placement submit ok",
+                            "id": "3fffe864c8ce2f99b667103e66814a40",
+                            "passes": 18,
+                            "fails": 0
+                        }
+                    }
+            },
+            "4. Fetch Roadmap": {
+                "checks": {
+                    "roadmap 200": {
+                        "passes": 18,
+                        "fails": 0,
+                        "name": "roadmap 200",
+                        "path": "::4. Fetch Roadmap::roadmap 200",
+                        "id": "ee19f2e6478a6706cca660b392d1ca07"
+                    }
+                },
+                "name": "4. Fetch Roadmap",
+                "path": "::4. Fetch Roadmap",
+                "id": "74fb079d6960d00b6b7dfe2030d01684",
+                "groups": {}
+            }
+        },
+        "checks": {}
+    }
+}

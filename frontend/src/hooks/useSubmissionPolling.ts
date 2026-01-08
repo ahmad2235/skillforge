@@ -157,8 +157,17 @@ export function useSubmissionPolling(submissionId?: number | string | null, opts
 
     // immediate first poll
     runPollOnce();
-    timerRef.current = window.setInterval(runPollOnce, intervalMs);
-  }, [submissionId, runPollOnce, intervalMs]);
+    timerRef.current = window.setInterval(async () => {
+      attemptsRef.current += 1;
+      setAttempts(attemptsRef.current);
+      
+      await runPollOnce();
+
+      if (attemptsRef.current >= maxAttempts) {
+        stopPolling('timeout');
+      }
+    }, intervalMs);
+  }, [submissionId, runPollOnce, intervalMs, maxAttempts, stopPolling]);
 
   // start/stop when submissionId changes
   useEffect(() => {
@@ -203,7 +212,8 @@ export function useSubmissionPolling(submissionId?: number | string | null, opts
 
   const progressPct = Math.floor((Math.min(attemptsRef.current, maxAttempts) / maxAttempts) * 100);
 
-  const isEvaluating = semanticStatus === 'evaluating' || semanticStatus === 'queued';
+  // Treat 'pending' and 'processing' as evaluating states to ensure UI shows progress
+  const isEvaluating = semanticStatus === 'evaluating' || semanticStatus === 'queued' || semanticStatus === 'pending' || semanticStatus === 'processing';
   const isCompleted = semanticStatus === 'completed';
   const isManualReview = semanticStatus === 'manual_review';
   const isTimedOut = semanticStatus === 'timed_out';

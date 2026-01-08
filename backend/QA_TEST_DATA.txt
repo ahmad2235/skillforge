@@ -1,0 +1,24 @@
+================== QA TEST USERS CREATED ==================
+
+USER A (STUDENT)
+User ID: 57
+Email: qa-test-student-1767104720@skillforge.dev
+Password: password123
+Role: student
+Token: 300|9JsHrQSe3BUJVdLeeWSjsupCKgsCJGsmai2L5qcX279946a2
+
+USER B (BUSINESS)
+User ID: 58
+Email: qa-test-business-1767104721@skillforge.dev
+Password: password123
+Role: business
+Token: 301|PIz5qrIOza5500CW4lWWlTOJVHWhLJXHyaS3xSJ0527f9eae
+
+USER C (ADMIN)
+User ID: 59
+Email: qa-test-admin-1767104721@skillforge.dev
+Password: password123
+Role: admin
+Token: 302|w9b538dLtC0ljKpreHDNQCTWB0CUF4OyFYXnw2XIe84fa631
+
+===========================================================

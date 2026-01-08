@@ -17,7 +17,7 @@ export interface AuthContextValue {
   role: UserRole;
   isAuthenticated: boolean;
   initialized: boolean;
-  login: (user: AuthUser, token: string) => void;
+  login: (user: AuthUser, token?: string | null) => void;
   logout: () => void;
 }
 

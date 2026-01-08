@@ -40,6 +40,25 @@ return [
         'timeout' => (int) env('EVALUATOR_TIMEOUT', 30),
         'connect_timeout' => (int) env('EVALUATOR_CONNECT_TIMEOUT', 5),
         'health_timeout' => (int) env('EVALUATOR_HEALTH_TIMEOUT', 3),
+        'max_retries' => (int) env('EVALUATOR_MAX_RETRIES', 1),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project Leveler Service (PDF Analysis via OpenAI)
+    |--------------------------------------------------------------------------
+    |
+    | This service analyzes PDF project descriptions and extracts:
+    | - domain (backend, frontend, fullstack)
+    | - required_level (beginner, intermediate, advanced)
+    | - complexity (low, medium, high)
+    | - technology stack suggestions
+    |
+    */
+    'project_leveler' => [
+        'url' => env('PROJECT_LEVELER_URL', 'http://127.0.0.1:8002'),
+        'timeout' => (int) env('PROJECT_LEVELER_TIMEOUT', 60),
+        'connect_timeout' => (int) env('PROJECT_LEVELER_CONNECT_TIMEOUT', 5),
     ],
 
 ];

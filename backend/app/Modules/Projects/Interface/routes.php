@@ -8,6 +8,7 @@ use App\Modules\Projects\Interface\Http\Controllers\OwnerProjectMilestoneControl
 use App\Modules\Projects\Interface\Http\Controllers\StudentMilestoneController;
 use App\Modules\Projects\Interface\Http\Controllers\AdminMilestoneSubmissionController;
 use App\Modules\Projects\Interface\Http\Controllers\AdminProjectController;
+use App\Modules\AI\Interface\Http\Controllers\ProjectLevelerController;
 
 
 Route::middleware(['auth:sanctum', 'role:business'])
@@ -15,6 +16,13 @@ Route::middleware(['auth:sanctum', 'role:business'])
     ->group(function () {
         Route::get('/projects',                 [OwnerProjectController::class, 'index']);
         Route::post('/projects',                [OwnerProjectController::class, 'store']);
+        
+        // AI-powered routes - must be defined BEFORE {project} catch-all
+        Route::post('/projects/analyze-pdf', [ProjectLevelerController::class, 'analyzePdf'])
+            ->name('business.projects.analyze-pdf');
+        Route::get('/projects/leveler-health', [ProjectLevelerController::class, 'health'])
+            ->name('business.projects.leveler-health');
+        
         Route::get('/projects/{project}',       [OwnerProjectController::class, 'show']);
         Route::put('/projects/{project}',       [OwnerProjectController::class, 'update']);
         Route::post('/projects/{project}/status', [OwnerProjectController::class, 'changeStatus']);
@@ -23,6 +31,10 @@ Route::middleware(['auth:sanctum', 'role:business'])
         Route::get('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'index'])
             ->middleware('throttle:assignments');
         Route::post('/projects/{project}/assignments', [OwnerProjectAssignmentController::class, 'invite'])
+            ->middleware('throttle:assignments');
+        Route::delete('/projects/assignments/{assignment}/cancel', [OwnerProjectAssignmentController::class, 'cancelInvitation'])
+            ->middleware('throttle:assignments');
+        Route::delete('/projects/assignments/{assignment}', [OwnerProjectAssignmentController::class, 'destroy'])
             ->middleware('throttle:assignments');
         Route::get('/projects/assignments/{assignment}/submissions', [OwnerProjectAssignmentController::class, 'submissions']);
         Route::post('/projects/submissions/{submission}/review', [OwnerProjectAssignmentController::class, 'reviewSubmission']);

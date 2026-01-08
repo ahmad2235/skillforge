@@ -17,3 +17,9 @@ require base_path('app/Modules/Gamification/Interface/routes.php');
 
 // Assessment module routes
 require base_path('app/Modules/Assessment/Interface/routes.php');
+
+// Chat module routes (real-time messaging)
+require base_path('app/Modules/Chat/Interface/routes.php');
+
+// AI module routes (project leveler, recommendations)
+require base_path('app/Modules/AI/Interface/routes.php');

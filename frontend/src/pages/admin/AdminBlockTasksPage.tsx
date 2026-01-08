@@ -211,8 +211,8 @@ export function AdminBlockTasksPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
-      <Card className="p-4 space-y-4">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
+      <Card className="p-4 space-y-4 animate-card-enter">
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

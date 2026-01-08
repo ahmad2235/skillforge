@@ -1,0 +1,5821 @@
+{
+    "metadata": {
+        "generated_at": "2026-01-07T21:40:14+00:00",
+        "generator": "AiFlowSeeder",
+        "version": "1.0.0",
+        "purpose": "AI Recommendation System Training & Analysis"
+    },
+    "entities": {
+        "students": [
+            {
+                "id": 7,
+                "name": "Dina Fawzi",
+                "email": "student_L5vxIMYU@skillforge.test",
+                "domain": "frontend",
+                "level": "intermediate",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 8,
+                "name": "Sara Saleh",
+                "email": "student_oYY9p8JE@skillforge.test",
+                "domain": "backend",
+                "level": "intermediate",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 9,
+                "name": "Nora Salem",
+                "email": "student_IokbxS7x@skillforge.test",
+                "domain": "backend",
+                "level": "intermediate",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 10,
+                "name": "Sara Hassan",
+                "email": "student_9Vd2vySb@skillforge.test",
+                "domain": "frontend",
+                "level": "intermediate",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 11,
+                "name": "Karim Ali",
+                "email": "student_1TXiQcyc@skillforge.test",
+                "domain": "frontend",
+                "level": "advanced",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 12,
+                "name": "Sami Yousef",
+                "email": "student_tq7VBdk8@skillforge.test",
+                "domain": "frontend",
+                "level": "advanced",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 13,
+                "name": "Hana Hassan",
+                "email": "student_2FwKnG8o@skillforge.test",
+                "domain": "frontend",
+                "level": "advanced",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 14,
+                "name": "Tariq Salem",
+                "email": "student_IU6hN2Al@skillforge.test",
+                "domain": "frontend",
+                "level": "intermediate",
+                "activity_profile": "active",
+                "profile_settings": {
+                    "accept_rate": 0.9,
+                    "submission_rate": 0.95,
+                    "avg_score_range": [
+                        75,
+                        100
+                    ],
+                    "weight": 0.4
+                }
+            },
+            {
+                "id": 15,
+                "name": "Dina Nasser",
+                "email": "student_3lPqOP6i@skillforge.test",
+                "domain": "backend",
+                "level": "advanced",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 16,
+                "name": "Ahmad Ahmed",
+                "email": "student_vZX6QR7Z@skillforge.test",
+                "domain": "backend",
+                "level": "beginner",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 17,
+                "name": "Layla Mansour",
+                "email": "student_vB0nWCGp@skillforge.test",
+                "domain": "frontend",
+                "level": "beginner",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 18,
+                "name": "Layla Ibrahim",
+                "email": "student_L5okrlGE@skillforge.test",
+                "domain": "frontend",
+                "level": "advanced",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 19,
+                "name": "Omar Saleh",
+                "email": "student_TwiMTfWD@skillforge.test",
+                "domain": "backend",
+                "level": "intermediate",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 20,
+                "name": "Tariq Mansour",
+                "email": "student_leWejZll@skillforge.test",
+                "domain": "frontend",
+                "level": "beginner",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 21,
+                "name": "Layla Khalil",
+                "email": "student_beZB8H74@skillforge.test",
+                "domain": "frontend",
+                "level": "beginner",
+                "activity_profile": "semi-active",
+                "profile_settings": {
+                    "accept_rate": 0.6,
+                    "submission_rate": 0.7,
+                    "avg_score_range": [
+                        55,
+                        85
+                    ],
+                    "weight": 0.35
+                }
+            },
+            {
+                "id": 22,
+                "name": "Jana Mansour",
+                "email": "student_9dvaeLPd@skillforge.test",
+                "domain": "frontend",
+                "level": "advanced",
+                "activity_profile": "low-activity",
+                "profile_settings": {
+                    "accept_rate": 0.3,
+                    "submission_rate": 0.4,
+                    "avg_score_range": [
+                        30,
+                        65
+                    ],
+                    "weight": 0.25
+                }
+            },
+            {
+                "id": 23,
+                "name": "Nora Mansour",
+                "email": "student_G1DlyJao@skillforge.test",
+                "domain": "backend",
+                "level": "intermediate",
+                "activity_profile": "low-activity",
+                "profile_settings": {
+                    "accept_rate": 0.3,
+                    "submission_rate": 0.4,
+                    "avg_score_range": [
+                        30,
+                        65
+                    ],
+                    "weight": 0.25
+                }
+            },
+            {
+                "id": 24,
+                "name": "Hassan Hassan",
+                "email": "student_gZwFbDQi@skillforge.test",
+                "domain": "frontend",
+                "level": "intermediate",
+                "activity_profile": "low-activity",
+                "profile_settings": {
+                    "accept_rate": 0.3,
+                    "submission_rate": 0.4,
+                    "avg_score_range": [
+                        30,
+                        65
+                    ],
+                    "weight": 0.25
+                }
+            },
+            {
+                "id": 25,
+                "name": "Ali Khalil",
+                "email": "student_oL7aeArc@skillforge.test",
+                "domain": "frontend",
+                "level": "beginner",
+                "activity_profile": "low-activity",
+                "profile_settings": {
+                    "accept_rate": 0.3,
+                    "submission_rate": 0.4,
+                    "avg_score_range": [
+                        30,
+                        65
+                    ],
+                    "weight": 0.25
+                }
+            },
+            {
+                "id": 26,
+                "name": "Layla Khalil",
+                "email": "student_2iJAcLvX@skillforge.test",
+                "domain": "backend",
+                "level": "beginner",
+                "activity_profile": "low-activity",
+                "profile_settings": {
+                    "accept_rate": 0.3,
+                    "submission_rate": 0.4,
+                    "avg_score_range": [
+                        30,
+                        65
+                    ],
+                    "weight": 0.25
+                }
+            }
+        ],
+        "businesses": [
+            {
+                "id": 27,
+                "name": "Digital Co",
+                "email": "business_6oaDgPuY@company.test",
+                "projects": [
+                    {
+                        "id": 1,
+                        "title": "Social Media Dashboard v3",
+                        "domain": "frontend",
+                        "required_level": "intermediate",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 2,
+                        "title": "REST API for E-Commerce v4",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 3,
+                        "title": "Mobile-First Landing Page v2",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 28,
+                "name": "Tech Co",
+                "email": "business_u68uLU5C@company.test",
+                "projects": [
+                    {
+                        "id": 4,
+                        "title": "User Management API v4",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 5,
+                        "title": "Weather App UI v5",
+                        "domain": "frontend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 6,
+                        "title": "Notification Service v3",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 29,
+                "name": "Data Systems",
+                "email": "business_1R6CjdVv@company.test",
+                "projects": [
+                    {
+                        "id": 7,
+                        "title": "Real-time Chat Interface v5",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 30,
+                "name": "Digital Corp",
+                "email": "business_ownAIkM3@company.test",
+                "projects": [
+                    {
+                        "id": 8,
+                        "title": "Inventory Management System v5",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 9,
+                        "title": "File Storage System v2",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 31,
+                "name": "Smart Systems",
+                "email": "business_OUEnjWda@company.test",
+                "projects": [
+                    {
+                        "id": 10,
+                        "title": "E-Commerce Dashboard UI v2",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 11,
+                        "title": "Portfolio Website Redesign v5",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 32,
+                "name": "Innovative Solutions",
+                "email": "business_dzAAjlDc@company.test",
+                "projects": [
+                    {
+                        "id": 12,
+                        "title": "Data Analytics Pipeline v3",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 13,
+                        "title": "Blog Platform Frontend v4",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 14,
+                        "title": "Payment Gateway Integration v3",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 33,
+                "name": "Data Corp",
+                "email": "business_FvtUpqgV@company.test",
+                "projects": [
+                    {
+                        "id": 15,
+                        "title": "Search Engine Backend v2",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 16,
+                        "title": "Task Management Dashboard v3",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 34,
+                "name": "Smart Works",
+                "email": "business_Zgj4vPba@company.test",
+                "projects": [
+                    {
+                        "id": 17,
+                        "title": "Reporting Dashboard API v4",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 35,
+                "name": "Data Corp",
+                "email": "business_PORKJZGK@company.test",
+                "projects": [
+                    {
+                        "id": 18,
+                        "title": "Authentication Microservice v5",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 19,
+                        "title": "Admin Panel Interface v5",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 36,
+                "name": "Tech Labs",
+                "email": "business_fnm3rnnM@company.test",
+                "projects": [
+                    {
+                        "id": 20,
+                        "title": "Data Analytics Pipeline v5",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 21,
+                        "title": "React Component Library v4",
+                        "domain": "frontend",
+                        "required_level": "intermediate",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 22,
+                        "title": "React Component Library v4",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 37,
+                "name": "Innovative Corp",
+                "email": "business_auQhMCU8@company.test",
+                "projects": [
+                    {
+                        "id": 23,
+                        "title": "Payment Gateway Integration v4",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 24,
+                        "title": "REST API for E-Commerce v2",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 38,
+                "name": "Innovative Co",
+                "email": "business_bJ9KhyfJ@company.test",
+                "projects": [
+                    {
+                        "id": 25,
+                        "title": "REST API for E-Commerce v3",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 26,
+                        "title": "E-Commerce Dashboard UI v2",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 27,
+                        "title": "Search Engine Backend v4",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 39,
+                "name": "Tech Studio",
+                "email": "business_WDd58V3U@company.test",
+                "projects": [
+                    {
+                        "id": 28,
+                        "title": "Social Media Dashboard v3",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 40,
+                "name": "App Systems",
+                "email": "business_tyR6iy9u@company.test",
+                "projects": [
+                    {
+                        "id": 29,
+                        "title": "Notification Service v3",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 30,
+                        "title": "Notification Service v2",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 41,
+                "name": "Digital Solutions",
+                "email": "business_g0aDE8YY@company.test",
+                "projects": [
+                    {
+                        "id": 31,
+                        "title": "React Component Library v3",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 42,
+                "name": "Web Labs",
+                "email": "business_MPqI2spV@company.test",
+                "projects": [
+                    {
+                        "id": 32,
+                        "title": "Notification Service v5",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 33,
+                        "title": "Data Analytics Pipeline v5",
+                        "domain": "backend",
+                        "required_level": "beginner",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 34,
+                        "title": "Notification Service v5",
+                        "domain": "backend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 43,
+                "name": "Web Labs",
+                "email": "business_qMPtGIkb@company.test",
+                "projects": [
+                    {
+                        "id": 35,
+                        "title": "Blog Platform Frontend v2",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 36,
+                        "title": "React Component Library v3",
+                        "domain": "frontend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    },
+                    {
+                        "id": 37,
+                        "title": "E-Commerce Dashboard UI v5",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 44,
+                "name": "Data Co",
+                "email": "business_ZYZXp0T5@company.test",
+                "projects": [
+                    {
+                        "id": 38,
+                        "title": "E-Commerce Dashboard UI v3",
+                        "domain": "frontend",
+                        "required_level": "beginner",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    },
+                    {
+                        "id": 39,
+                        "title": "Notification Service v5",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "medium",
+                        "milestones_count": 4,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 45,
+                "name": "Web Works",
+                "email": "business_ionEfuug@company.test",
+                "projects": [
+                    {
+                        "id": 40,
+                        "title": "Admin Panel Interface v2",
+                        "domain": "frontend",
+                        "required_level": "advanced",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    }
+                ]
+            },
+            {
+                "id": 46,
+                "name": "Cloud Works",
+                "email": "business_XWAig9TQ@company.test",
+                "projects": [
+                    {
+                        "id": 41,
+                        "title": "REST API for E-Commerce v5",
+                        "domain": "backend",
+                        "required_level": "advanced",
+                        "complexity": "high",
+                        "milestones_count": 5,
+                        "status": "open"
+                    },
+                    {
+                        "id": 42,
+                        "title": "Real-time Chat Interface v5",
+                        "domain": "frontend",
+                        "required_level": "intermediate",
+                        "complexity": "low",
+                        "milestones_count": 3,
+                        "status": "open"
+                    }
+                ]
+            }
+        ],
+        "projects": [
+            {
+                "id": 1,
+                "title": "Social Media Dashboard v3",
+                "domain": "frontend",
+                "required_level": "intermediate",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 27,
+                "milestone_ids": [
+                    1,
+                    2,
+                    3,
+                    4
+                ]
+            },
+            {
+                "id": 2,
+                "title": "REST API for E-Commerce v4",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 27,
+                "milestone_ids": [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                ]
+            },
+            {
+                "id": 3,
+                "title": "Mobile-First Landing Page v2",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 27,
+                "milestone_ids": [
+                    10,
+                    11,
+                    12
+                ]
+            },
+            {
+                "id": 4,
+                "title": "User Management API v4",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 28,
+                "milestone_ids": [
+                    13,
+                    14,
+                    15,
+                    16,
+                    17
+                ]
+            },
+            {
+                "id": 5,
+                "title": "Weather App UI v5",
+                "domain": "frontend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 28,
+                "milestone_ids": [
+                    18,
+                    19,
+                    20
+                ]
+            },
+            {
+                "id": 6,
+                "title": "Notification Service v3",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 28,
+                "milestone_ids": [
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                ]
+            },
+            {
+                "id": 7,
+                "title": "Real-time Chat Interface v5",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 29,
+                "milestone_ids": [
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                ]
+            },
+            {
+                "id": 8,
+                "title": "Inventory Management System v5",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 30,
+                "milestone_ids": [
+                    31,
+                    32,
+                    33,
+                    34
+                ]
+            },
+            {
+                "id": 9,
+                "title": "File Storage System v2",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 30,
+                "milestone_ids": [
+                    35,
+                    36,
+                    37
+                ]
+            },
+            {
+                "id": 10,
+                "title": "E-Commerce Dashboard UI v2",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 31,
+                "milestone_ids": [
+                    38,
+                    39,
+                    40
+                ]
+            },
+            {
+                "id": 11,
+                "title": "Portfolio Website Redesign v5",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 31,
+                "milestone_ids": [
+                    41,
+                    42,
+                    43,
+                    44
+                ]
+            },
+            {
+                "id": 12,
+                "title": "Data Analytics Pipeline v3",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 32,
+                "milestone_ids": [
+                    45,
+                    46,
+                    47
+                ]
+            },
+            {
+                "id": 13,
+                "title": "Blog Platform Frontend v4",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 32,
+                "milestone_ids": [
+                    48,
+                    49,
+                    50,
+                    51
+                ]
+            },
+            {
+                "id": 14,
+                "title": "Payment Gateway Integration v3",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 32,
+                "milestone_ids": [
+                    52,
+                    53,
+                    54,
+                    55,
+                    56
+                ]
+            },
+            {
+                "id": 15,
+                "title": "Search Engine Backend v2",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "completed",
+                "owner_id": 33,
+                "milestone_ids": [
+                    57,
+                    58,
+                    59
+                ]
+            },
+            {
+                "id": 16,
+                "title": "Task Management Dashboard v3",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 33,
+                "milestone_ids": [
+                    60,
+                    61,
+                    62,
+                    63
+                ]
+            },
+            {
+                "id": 17,
+                "title": "Reporting Dashboard API v4",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 34,
+                "milestone_ids": [
+                    64,
+                    65,
+                    66,
+                    67,
+                    68
+                ]
+            },
+            {
+                "id": 18,
+                "title": "Authentication Microservice v5",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 35,
+                "milestone_ids": [
+                    69,
+                    70,
+                    71,
+                    72,
+                    73
+                ]
+            },
+            {
+                "id": 19,
+                "title": "Admin Panel Interface v5",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 35,
+                "milestone_ids": [
+                    74,
+                    75,
+                    76
+                ]
+            },
+            {
+                "id": 20,
+                "title": "Data Analytics Pipeline v5",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 36,
+                "milestone_ids": [
+                    77,
+                    78,
+                    79,
+                    80
+                ]
+            },
+            {
+                "id": 21,
+                "title": "React Component Library v4",
+                "domain": "frontend",
+                "required_level": "intermediate",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 36,
+                "milestone_ids": [
+                    81,
+                    82,
+                    83,
+                    84,
+                    85
+                ]
+            },
+            {
+                "id": 22,
+                "title": "React Component Library v4",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 36,
+                "milestone_ids": [
+                    86,
+                    87,
+                    88,
+                    89,
+                    90
+                ]
+            },
+            {
+                "id": 23,
+                "title": "Payment Gateway Integration v4",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 37,
+                "milestone_ids": [
+                    91,
+                    92,
+                    93
+                ]
+            },
+            {
+                "id": 24,
+                "title": "REST API for E-Commerce v2",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 37,
+                "milestone_ids": [
+                    94,
+                    95,
+                    96,
+                    97
+                ]
+            },
+            {
+                "id": 25,
+                "title": "REST API for E-Commerce v3",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 38,
+                "milestone_ids": [
+                    98,
+                    99,
+                    100,
+                    101,
+                    102
+                ]
+            },
+            {
+                "id": 26,
+                "title": "E-Commerce Dashboard UI v2",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 38,
+                "milestone_ids": [
+                    103,
+                    104,
+                    105
+                ]
+            },
+            {
+                "id": 27,
+                "title": "Search Engine Backend v4",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 38,
+                "milestone_ids": [
+                    106,
+                    107,
+                    108,
+                    109
+                ]
+            },
+            {
+                "id": 28,
+                "title": "Social Media Dashboard v3",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 39,
+                "milestone_ids": [
+                    110,
+                    111,
+                    112,
+                    113
+                ]
+            },
+            {
+                "id": 29,
+                "title": "Notification Service v3",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 40,
+                "milestone_ids": [
+                    114,
+                    115,
+                    116,
+                    117
+                ]
+            },
+            {
+                "id": 30,
+                "title": "Notification Service v2",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 40,
+                "milestone_ids": [
+                    118,
+                    119,
+                    120
+                ]
+            },
+            {
+                "id": 31,
+                "title": "React Component Library v3",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 41,
+                "milestone_ids": [
+                    121,
+                    122,
+                    123
+                ]
+            },
+            {
+                "id": 32,
+                "title": "Notification Service v5",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 42,
+                "milestone_ids": [
+                    124,
+                    125,
+                    126,
+                    127
+                ]
+            },
+            {
+                "id": 33,
+                "title": "Data Analytics Pipeline v5",
+                "domain": "backend",
+                "required_level": "beginner",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 42,
+                "milestone_ids": [
+                    128,
+                    129,
+                    130
+                ]
+            },
+            {
+                "id": 34,
+                "title": "Notification Service v5",
+                "domain": "backend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 42,
+                "milestone_ids": [
+                    131,
+                    132,
+                    133
+                ]
+            },
+            {
+                "id": 35,
+                "title": "Blog Platform Frontend v2",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 43,
+                "milestone_ids": [
+                    134,
+                    135,
+                    136,
+                    137
+                ]
+            },
+            {
+                "id": 36,
+                "title": "React Component Library v3",
+                "domain": "frontend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 43,
+                "milestone_ids": [
+                    138,
+                    139,
+                    140
+                ]
+            },
+            {
+                "id": 37,
+                "title": "E-Commerce Dashboard UI v5",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 43,
+                "milestone_ids": [
+                    141,
+                    142,
+                    143,
+                    144
+                ]
+            },
+            {
+                "id": 38,
+                "title": "E-Commerce Dashboard UI v3",
+                "domain": "frontend",
+                "required_level": "beginner",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 44,
+                "milestone_ids": [
+                    145,
+                    146,
+                    147,
+                    148
+                ]
+            },
+            {
+                "id": 39,
+                "title": "Notification Service v5",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "medium",
+                "milestones_count": 4,
+                "status": "open",
+                "owner_id": 44,
+                "milestone_ids": [
+                    149,
+                    150,
+                    151,
+                    152
+                ]
+            },
+            {
+                "id": 40,
+                "title": "Admin Panel Interface v2",
+                "domain": "frontend",
+                "required_level": "advanced",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 45,
+                "milestone_ids": [
+                    153,
+                    154,
+                    155,
+                    156,
+                    157
+                ]
+            },
+            {
+                "id": 41,
+                "title": "REST API for E-Commerce v5",
+                "domain": "backend",
+                "required_level": "advanced",
+                "complexity": "high",
+                "milestones_count": 5,
+                "status": "open",
+                "owner_id": 46,
+                "milestone_ids": [
+                    158,
+                    159,
+                    160,
+                    161,
+                    162
+                ]
+            },
+            {
+                "id": 42,
+                "title": "Real-time Chat Interface v5",
+                "domain": "frontend",
+                "required_level": "intermediate",
+                "complexity": "low",
+                "milestones_count": 3,
+                "status": "open",
+                "owner_id": 46,
+                "milestone_ids": [
+                    163,
+                    164,
+                    165
+                ]
+            }
+        ],
+        "assignments": [
+            {
+                "id": 1,
+                "project_id": 1,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 2,
+                "project_id": 1,
+                "user_id": 12,
+                "status": "accepted",
+                "match_score": 71,
+                "activity_profile": "active"
+            },
+            {
+                "id": 3,
+                "project_id": 1,
+                "user_id": 24,
+                "status": "pending",
+                "match_score": 96,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 4,
+                "project_id": 1,
+                "user_id": 25,
+                "status": "accepted",
+                "match_score": 85,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 5,
+                "project_id": 2,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 6,
+                "project_id": 2,
+                "user_id": 23,
+                "status": "accepted",
+                "match_score": 96,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 7,
+                "project_id": 2,
+                "user_id": 15,
+                "status": "accepted",
+                "match_score": 74,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 8,
+                "project_id": 2,
+                "user_id": 8,
+                "status": "completed",
+                "match_score": 97,
+                "activity_profile": "active"
+            },
+            {
+                "id": 9,
+                "project_id": 3,
+                "user_id": 10,
+                "status": "completed",
+                "match_score": 74,
+                "activity_profile": "active"
+            },
+            {
+                "id": 10,
+                "project_id": 3,
+                "user_id": 18,
+                "status": "accepted",
+                "match_score": 73,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 11,
+                "project_id": 4,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 67,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 12,
+                "project_id": 4,
+                "user_id": 19,
+                "status": "completed",
+                "match_score": 88,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 13,
+                "project_id": 4,
+                "user_id": 8,
+                "status": "completed",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 14,
+                "project_id": 4,
+                "user_id": 9,
+                "status": "accepted",
+                "match_score": 90,
+                "activity_profile": "active"
+            },
+            {
+                "id": 15,
+                "project_id": 4,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 16,
+                "project_id": 5,
+                "user_id": 14,
+                "status": "accepted",
+                "match_score": 94,
+                "activity_profile": "active"
+            },
+            {
+                "id": 17,
+                "project_id": 5,
+                "user_id": 10,
+                "status": "accepted",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 18,
+                "project_id": 5,
+                "user_id": 24,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 19,
+                "project_id": 5,
+                "user_id": 22,
+                "status": "declined",
+                "match_score": 67,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 20,
+                "project_id": 6,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 67,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 21,
+                "project_id": 6,
+                "user_id": 8,
+                "status": "completed",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 22,
+                "project_id": 7,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 23,
+                "project_id": 7,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 85,
+                "activity_profile": "active"
+            },
+            {
+                "id": 24,
+                "project_id": 8,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 25,
+                "project_id": 8,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 80,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 26,
+                "project_id": 9,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 78,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 27,
+                "project_id": 9,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 68,
+                "activity_profile": "active"
+            },
+            {
+                "id": 28,
+                "project_id": 9,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 89,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 29,
+                "project_id": 9,
+                "user_id": 8,
+                "status": "completed",
+                "match_score": 76,
+                "activity_profile": "active"
+            },
+            {
+                "id": 30,
+                "project_id": 10,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 85,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 31,
+                "project_id": 10,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "active"
+            },
+            {
+                "id": 32,
+                "project_id": 10,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 73,
+                "activity_profile": "active"
+            },
+            {
+                "id": 33,
+                "project_id": 10,
+                "user_id": 11,
+                "status": "accepted",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 34,
+                "project_id": 10,
+                "user_id": 22,
+                "status": "declined",
+                "match_score": 90,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 35,
+                "project_id": 11,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 76,
+                "activity_profile": "active"
+            },
+            {
+                "id": 36,
+                "project_id": 11,
+                "user_id": 11,
+                "status": "pending",
+                "match_score": 87,
+                "activity_profile": "active"
+            },
+            {
+                "id": 37,
+                "project_id": 12,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "active"
+            },
+            {
+                "id": 38,
+                "project_id": 12,
+                "user_id": 19,
+                "status": "accepted",
+                "match_score": 71,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 39,
+                "project_id": 12,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 97,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 40,
+                "project_id": 13,
+                "user_id": 24,
+                "status": "pending",
+                "match_score": 72,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 41,
+                "project_id": 13,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 99,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 42,
+                "project_id": 13,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 83,
+                "activity_profile": "active"
+            },
+            {
+                "id": 43,
+                "project_id": 13,
+                "user_id": 17,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 44,
+                "project_id": 14,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "active"
+            },
+            {
+                "id": 45,
+                "project_id": 14,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 46,
+                "project_id": 14,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 72,
+                "activity_profile": "active"
+            },
+            {
+                "id": 47,
+                "project_id": 14,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 48,
+                "project_id": 15,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 49,
+                "project_id": 15,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 50,
+                "project_id": 15,
+                "user_id": 16,
+                "status": "completed",
+                "match_score": 68,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 51,
+                "project_id": 16,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 80,
+                "activity_profile": "active"
+            },
+            {
+                "id": 52,
+                "project_id": 16,
+                "user_id": 20,
+                "status": "pending",
+                "match_score": 72,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 53,
+                "project_id": 16,
+                "user_id": 12,
+                "status": "pending",
+                "match_score": 86,
+                "activity_profile": "active"
+            },
+            {
+                "id": 54,
+                "project_id": 16,
+                "user_id": 13,
+                "status": "accepted",
+                "match_score": 90,
+                "activity_profile": "active"
+            },
+            {
+                "id": 55,
+                "project_id": 16,
+                "user_id": 25,
+                "status": "pending",
+                "match_score": 70,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 56,
+                "project_id": 17,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 57,
+                "project_id": 17,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 86,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 58,
+                "project_id": 17,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 81,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 59,
+                "project_id": 17,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 60,
+                "project_id": 18,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 95,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 61,
+                "project_id": 18,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 94,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 62,
+                "project_id": 18,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 78,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 63,
+                "project_id": 19,
+                "user_id": 25,
+                "status": "pending",
+                "match_score": 87,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 64,
+                "project_id": 19,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "active"
+            },
+            {
+                "id": 65,
+                "project_id": 19,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 78,
+                "activity_profile": "active"
+            },
+            {
+                "id": 66,
+                "project_id": 19,
+                "user_id": 20,
+                "status": "pending",
+                "match_score": 93,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 67,
+                "project_id": 20,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 90,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 68,
+                "project_id": 20,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 83,
+                "activity_profile": "active"
+            },
+            {
+                "id": 69,
+                "project_id": 21,
+                "user_id": 12,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "active"
+            },
+            {
+                "id": 70,
+                "project_id": 21,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 68,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 71,
+                "project_id": 21,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "active"
+            },
+            {
+                "id": 72,
+                "project_id": 21,
+                "user_id": 20,
+                "status": "pending",
+                "match_score": 82,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 73,
+                "project_id": 21,
+                "user_id": 17,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 74,
+                "project_id": 22,
+                "user_id": 17,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 75,
+                "project_id": 22,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "active"
+            },
+            {
+                "id": 76,
+                "project_id": 22,
+                "user_id": 25,
+                "status": "pending",
+                "match_score": 73,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 77,
+                "project_id": 23,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 73,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 78,
+                "project_id": 23,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "active"
+            },
+            {
+                "id": 79,
+                "project_id": 23,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 80,
+                "project_id": 24,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 81,
+                "project_id": 24,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 92,
+                "activity_profile": "active"
+            },
+            {
+                "id": 82,
+                "project_id": 25,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 92,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 83,
+                "project_id": 25,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 85,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 84,
+                "project_id": 25,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 70,
+                "activity_profile": "active"
+            },
+            {
+                "id": 85,
+                "project_id": 25,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 80,
+                "activity_profile": "active"
+            },
+            {
+                "id": 86,
+                "project_id": 25,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 87,
+                "project_id": 26,
+                "user_id": 20,
+                "status": "pending",
+                "match_score": 97,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 88,
+                "project_id": 26,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 89,
+                "project_id": 27,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 81,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 90,
+                "project_id": 27,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 76,
+                "activity_profile": "active"
+            },
+            {
+                "id": 91,
+                "project_id": 27,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 81,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 92,
+                "project_id": 27,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 69,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 93,
+                "project_id": 28,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 94,
+                "project_id": 28,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "active"
+            },
+            {
+                "id": 95,
+                "project_id": 28,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 78,
+                "activity_profile": "active"
+            },
+            {
+                "id": 96,
+                "project_id": 29,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 89,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 97,
+                "project_id": 29,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 98,
+                "project_id": 29,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 91,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 99,
+                "project_id": 29,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 67,
+                "activity_profile": "active"
+            },
+            {
+                "id": 100,
+                "project_id": 29,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 70,
+                "activity_profile": "active"
+            },
+            {
+                "id": 101,
+                "project_id": 30,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 81,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 102,
+                "project_id": 30,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 98,
+                "activity_profile": "active"
+            },
+            {
+                "id": 103,
+                "project_id": 31,
+                "user_id": 25,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 104,
+                "project_id": 31,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 66,
+                "activity_profile": "active"
+            },
+            {
+                "id": 105,
+                "project_id": 32,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 73,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 106,
+                "project_id": 32,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 82,
+                "activity_profile": "active"
+            },
+            {
+                "id": 107,
+                "project_id": 32,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 81,
+                "activity_profile": "active"
+            },
+            {
+                "id": 108,
+                "project_id": 32,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 94,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 109,
+                "project_id": 33,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 72,
+                "activity_profile": "active"
+            },
+            {
+                "id": 110,
+                "project_id": 33,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 82,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 111,
+                "project_id": 33,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 112,
+                "project_id": 34,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 99,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 113,
+                "project_id": 34,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 76,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 114,
+                "project_id": 34,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 99,
+                "activity_profile": "active"
+            },
+            {
+                "id": 115,
+                "project_id": 34,
+                "user_id": 26,
+                "status": "pending",
+                "match_score": 77,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 116,
+                "project_id": 34,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 97,
+                "activity_profile": "active"
+            },
+            {
+                "id": 117,
+                "project_id": 35,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 86,
+                "activity_profile": "active"
+            },
+            {
+                "id": 118,
+                "project_id": 35,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 79,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 119,
+                "project_id": 35,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 93,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 120,
+                "project_id": 36,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 68,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 121,
+                "project_id": 36,
+                "user_id": 11,
+                "status": "pending",
+                "match_score": 80,
+                "activity_profile": "active"
+            },
+            {
+                "id": 122,
+                "project_id": 36,
+                "user_id": 20,
+                "status": "pending",
+                "match_score": 69,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 123,
+                "project_id": 36,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 124,
+                "project_id": 36,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 85,
+                "activity_profile": "active"
+            },
+            {
+                "id": 125,
+                "project_id": 37,
+                "user_id": 14,
+                "status": "pending",
+                "match_score": 73,
+                "activity_profile": "active"
+            },
+            {
+                "id": 126,
+                "project_id": 37,
+                "user_id": 25,
+                "status": "pending",
+                "match_score": 69,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 127,
+                "project_id": 37,
+                "user_id": 12,
+                "status": "pending",
+                "match_score": 88,
+                "activity_profile": "active"
+            },
+            {
+                "id": 128,
+                "project_id": 37,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 91,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 129,
+                "project_id": 37,
+                "user_id": 22,
+                "status": "pending",
+                "match_score": 86,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 130,
+                "project_id": 38,
+                "user_id": 21,
+                "status": "pending",
+                "match_score": 90,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 131,
+                "project_id": 38,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 79,
+                "activity_profile": "active"
+            },
+            {
+                "id": 132,
+                "project_id": 38,
+                "user_id": 12,
+                "status": "pending",
+                "match_score": 79,
+                "activity_profile": "active"
+            },
+            {
+                "id": 133,
+                "project_id": 38,
+                "user_id": 10,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "active"
+            },
+            {
+                "id": 134,
+                "project_id": 39,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 79,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 135,
+                "project_id": 39,
+                "user_id": 15,
+                "status": "pending",
+                "match_score": 87,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 136,
+                "project_id": 40,
+                "user_id": 22,
+                "status": "pending",
+                "match_score": 85,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 137,
+                "project_id": 40,
+                "user_id": 13,
+                "status": "pending",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 138,
+                "project_id": 40,
+                "user_id": 12,
+                "status": "pending",
+                "match_score": 87,
+                "activity_profile": "active"
+            },
+            {
+                "id": 139,
+                "project_id": 41,
+                "user_id": 9,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "active"
+            },
+            {
+                "id": 140,
+                "project_id": 41,
+                "user_id": 8,
+                "status": "pending",
+                "match_score": 71,
+                "activity_profile": "active"
+            },
+            {
+                "id": 141,
+                "project_id": 41,
+                "user_id": 19,
+                "status": "pending",
+                "match_score": 84,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 142,
+                "project_id": 41,
+                "user_id": 23,
+                "status": "pending",
+                "match_score": 78,
+                "activity_profile": "low-activity"
+            },
+            {
+                "id": 143,
+                "project_id": 41,
+                "user_id": 16,
+                "status": "pending",
+                "match_score": 80,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 144,
+                "project_id": 42,
+                "user_id": 7,
+                "status": "accepted",
+                "match_score": 100,
+                "activity_profile": "active"
+            },
+            {
+                "id": 145,
+                "project_id": 42,
+                "user_id": 17,
+                "status": "pending",
+                "match_score": 72,
+                "activity_profile": "semi-active"
+            },
+            {
+                "id": 146,
+                "project_id": 42,
+                "user_id": 18,
+                "status": "pending",
+                "match_score": 75,
+                "activity_profile": "semi-active"
+            }
+        ],
+        "milestones": [
+            {
+                "id": 1,
+                "project_id": 1,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 2,
+                "project_id": 1,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 3,
+                "project_id": 1,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 4,
+                "project_id": 1,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 5,
+                "project_id": 2,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 6,
+                "project_id": 2,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 7,
+                "project_id": 2,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 8,
+                "project_id": 2,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 9,
+                "project_id": 2,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 10,
+                "project_id": 3,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 11,
+                "project_id": 3,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 12,
+                "project_id": 3,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 13,
+                "project_id": 4,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 14,
+                "project_id": 4,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 15,
+                "project_id": 4,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 16,
+                "project_id": 4,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 17,
+                "project_id": 4,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 18,
+                "project_id": 5,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 19,
+                "project_id": 5,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 20,
+                "project_id": 5,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 21,
+                "project_id": 6,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 22,
+                "project_id": 6,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 23,
+                "project_id": 6,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 24,
+                "project_id": 6,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 25,
+                "project_id": 6,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 26,
+                "project_id": 7,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 27,
+                "project_id": 7,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 28,
+                "project_id": 7,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 29,
+                "project_id": 7,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 30,
+                "project_id": 7,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 31,
+                "project_id": 8,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 32,
+                "project_id": 8,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 33,
+                "project_id": 8,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 34,
+                "project_id": 8,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 35,
+                "project_id": 9,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 36,
+                "project_id": 9,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 37,
+                "project_id": 9,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 38,
+                "project_id": 10,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 39,
+                "project_id": 10,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 40,
+                "project_id": 10,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 41,
+                "project_id": 11,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 42,
+                "project_id": 11,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 43,
+                "project_id": 11,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 44,
+                "project_id": 11,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 45,
+                "project_id": 12,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 46,
+                "project_id": 12,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 47,
+                "project_id": 12,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 48,
+                "project_id": 13,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 49,
+                "project_id": 13,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 50,
+                "project_id": 13,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 51,
+                "project_id": 13,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 52,
+                "project_id": 14,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 53,
+                "project_id": 14,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 54,
+                "project_id": 14,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 55,
+                "project_id": 14,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 56,
+                "project_id": 14,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 57,
+                "project_id": 15,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 58,
+                "project_id": 15,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 59,
+                "project_id": 15,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 60,
+                "project_id": 16,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 61,
+                "project_id": 16,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 62,
+                "project_id": 16,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 63,
+                "project_id": 16,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 64,
+                "project_id": 17,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 65,
+                "project_id": 17,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 66,
+                "project_id": 17,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 67,
+                "project_id": 17,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 68,
+                "project_id": 17,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 69,
+                "project_id": 18,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 70,
+                "project_id": 18,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 71,
+                "project_id": 18,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 72,
+                "project_id": 18,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 73,
+                "project_id": 18,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 74,
+                "project_id": 19,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 75,
+                "project_id": 19,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 76,
+                "project_id": 19,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 77,
+                "project_id": 20,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 78,
+                "project_id": 20,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 79,
+                "project_id": 20,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 80,
+                "project_id": 20,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 81,
+                "project_id": 21,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 82,
+                "project_id": 21,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 83,
+                "project_id": 21,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 84,
+                "project_id": 21,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 85,
+                "project_id": 21,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 86,
+                "project_id": 22,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 87,
+                "project_id": 22,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 88,
+                "project_id": 22,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 89,
+                "project_id": 22,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 90,
+                "project_id": 22,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 91,
+                "project_id": 23,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 92,
+                "project_id": 23,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 93,
+                "project_id": 23,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 94,
+                "project_id": 24,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 95,
+                "project_id": 24,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 96,
+                "project_id": 24,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 97,
+                "project_id": 24,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 98,
+                "project_id": 25,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 99,
+                "project_id": 25,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 100,
+                "project_id": 25,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 101,
+                "project_id": 25,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 102,
+                "project_id": 25,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 103,
+                "project_id": 26,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 104,
+                "project_id": 26,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 105,
+                "project_id": 26,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 106,
+                "project_id": 27,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 107,
+                "project_id": 27,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 108,
+                "project_id": 27,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 109,
+                "project_id": 27,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 110,
+                "project_id": 28,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 111,
+                "project_id": 28,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 112,
+                "project_id": 28,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 113,
+                "project_id": 28,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 114,
+                "project_id": 29,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 115,
+                "project_id": 29,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 116,
+                "project_id": 29,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 117,
+                "project_id": 29,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 118,
+                "project_id": 30,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 119,
+                "project_id": 30,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 120,
+                "project_id": 30,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 121,
+                "project_id": 31,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 122,
+                "project_id": 31,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 123,
+                "project_id": 31,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 124,
+                "project_id": 32,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 125,
+                "project_id": 32,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 126,
+                "project_id": 32,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 127,
+                "project_id": 32,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 128,
+                "project_id": 33,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 129,
+                "project_id": 33,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 130,
+                "project_id": 33,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 131,
+                "project_id": 34,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 132,
+                "project_id": 34,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 133,
+                "project_id": 34,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 134,
+                "project_id": 35,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 135,
+                "project_id": 35,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 136,
+                "project_id": 35,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 137,
+                "project_id": 35,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 138,
+                "project_id": 36,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 139,
+                "project_id": 36,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 140,
+                "project_id": 36,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            },
+            {
+                "id": 141,
+                "project_id": 37,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 142,
+                "project_id": 37,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 143,
+                "project_id": 37,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 144,
+                "project_id": 37,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 145,
+                "project_id": 38,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 146,
+                "project_id": 38,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 147,
+                "project_id": 38,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 148,
+                "project_id": 38,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 149,
+                "project_id": 39,
+                "title": "Research",
+                "order_index": 1
+            },
+            {
+                "id": 150,
+                "project_id": 39,
+                "title": "Design",
+                "order_index": 2
+            },
+            {
+                "id": 151,
+                "project_id": 39,
+                "title": "Development",
+                "order_index": 3
+            },
+            {
+                "id": 152,
+                "project_id": 39,
+                "title": "Testing",
+                "order_index": 4
+            },
+            {
+                "id": 153,
+                "project_id": 40,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 154,
+                "project_id": 40,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 155,
+                "project_id": 40,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 156,
+                "project_id": 40,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 157,
+                "project_id": 40,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 158,
+                "project_id": 41,
+                "title": "Discovery",
+                "order_index": 1
+            },
+            {
+                "id": 159,
+                "project_id": 41,
+                "title": "Architecture",
+                "order_index": 2
+            },
+            {
+                "id": 160,
+                "project_id": 41,
+                "title": "Core Development",
+                "order_index": 3
+            },
+            {
+                "id": 161,
+                "project_id": 41,
+                "title": "Integration",
+                "order_index": 4
+            },
+            {
+                "id": 162,
+                "project_id": 41,
+                "title": "Polish",
+                "order_index": 5
+            },
+            {
+                "id": 163,
+                "project_id": 42,
+                "title": "Planning & Requirements",
+                "order_index": 1
+            },
+            {
+                "id": 164,
+                "project_id": 42,
+                "title": "Implementation",
+                "order_index": 2
+            },
+            {
+                "id": 165,
+                "project_id": 42,
+                "title": "Testing & Delivery",
+                "order_index": 3
+            }
+        ],
+        "submissions": [
+            {
+                "id": 1,
+                "assignment_id": 2,
+                "milestone_id": 1,
+                "user_id": 12,
+                "status": "approved"
+            },
+            {
+                "id": 2,
+                "assignment_id": 2,
+                "milestone_id": 2,
+                "user_id": 12,
+                "status": "submitted"
+            },
+            {
+                "id": 3,
+                "assignment_id": 2,
+                "milestone_id": 3,
+                "user_id": 12,
+                "status": "submitted"
+            },
+            {
+                "id": 4,
+                "assignment_id": 2,
+                "milestone_id": 4,
+                "user_id": 12,
+                "status": "approved"
+            },
+            {
+                "id": 5,
+                "assignment_id": 4,
+                "milestone_id": 1,
+                "user_id": 25,
+                "status": "approved"
+            },
+            {
+                "id": 6,
+                "assignment_id": 7,
+                "milestone_id": 5,
+                "user_id": 15,
+                "status": "reviewed"
+            },
+            {
+                "id": 7,
+                "assignment_id": 7,
+                "milestone_id": 6,
+                "user_id": 15,
+                "status": "approved"
+            },
+            {
+                "id": 8,
+                "assignment_id": 7,
+                "milestone_id": 8,
+                "user_id": 15,
+                "status": "submitted"
+            },
+            {
+                "id": 9,
+                "assignment_id": 8,
+                "milestone_id": 5,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 10,
+                "assignment_id": 8,
+                "milestone_id": 6,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 11,
+                "assignment_id": 8,
+                "milestone_id": 7,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 12,
+                "assignment_id": 8,
+                "milestone_id": 8,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 13,
+                "assignment_id": 8,
+                "milestone_id": 9,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 14,
+                "assignment_id": 9,
+                "milestone_id": 12,
+                "user_id": 10,
+                "status": "approved"
+            },
+            {
+                "id": 15,
+                "assignment_id": 10,
+                "milestone_id": 10,
+                "user_id": 18,
+                "status": "approved"
+            },
+            {
+                "id": 16,
+                "assignment_id": 10,
+                "milestone_id": 11,
+                "user_id": 18,
+                "status": "rejected"
+            },
+            {
+                "id": 17,
+                "assignment_id": 10,
+                "milestone_id": 12,
+                "user_id": 18,
+                "status": "reviewed"
+            },
+            {
+                "id": 18,
+                "assignment_id": 12,
+                "milestone_id": 14,
+                "user_id": 19,
+                "status": "approved"
+            },
+            {
+                "id": 19,
+                "assignment_id": 12,
+                "milestone_id": 15,
+                "user_id": 19,
+                "status": "approved"
+            },
+            {
+                "id": 20,
+                "assignment_id": 13,
+                "milestone_id": 13,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 21,
+                "assignment_id": 13,
+                "milestone_id": 14,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 22,
+                "assignment_id": 13,
+                "milestone_id": 16,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 23,
+                "assignment_id": 13,
+                "milestone_id": 17,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 24,
+                "assignment_id": 14,
+                "milestone_id": 13,
+                "user_id": 9,
+                "status": "submitted"
+            },
+            {
+                "id": 25,
+                "assignment_id": 14,
+                "milestone_id": 14,
+                "user_id": 9,
+                "status": "submitted"
+            },
+            {
+                "id": 26,
+                "assignment_id": 14,
+                "milestone_id": 15,
+                "user_id": 9,
+                "status": "reviewed"
+            },
+            {
+                "id": 27,
+                "assignment_id": 14,
+                "milestone_id": 16,
+                "user_id": 9,
+                "status": "submitted"
+            },
+            {
+                "id": 28,
+                "assignment_id": 14,
+                "milestone_id": 17,
+                "user_id": 9,
+                "status": "approved"
+            },
+            {
+                "id": 29,
+                "assignment_id": 16,
+                "milestone_id": 18,
+                "user_id": 14,
+                "status": "approved"
+            },
+            {
+                "id": 30,
+                "assignment_id": 16,
+                "milestone_id": 20,
+                "user_id": 14,
+                "status": "approved"
+            },
+            {
+                "id": 31,
+                "assignment_id": 17,
+                "milestone_id": 18,
+                "user_id": 10,
+                "status": "submitted"
+            },
+            {
+                "id": 32,
+                "assignment_id": 17,
+                "milestone_id": 19,
+                "user_id": 10,
+                "status": "reviewed"
+            },
+            {
+                "id": 33,
+                "assignment_id": 17,
+                "milestone_id": 20,
+                "user_id": 10,
+                "status": "submitted"
+            },
+            {
+                "id": 34,
+                "assignment_id": 21,
+                "milestone_id": 21,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 35,
+                "assignment_id": 21,
+                "milestone_id": 22,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 36,
+                "assignment_id": 21,
+                "milestone_id": 23,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 37,
+                "assignment_id": 21,
+                "milestone_id": 25,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 38,
+                "assignment_id": 29,
+                "milestone_id": 35,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 39,
+                "assignment_id": 29,
+                "milestone_id": 36,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 40,
+                "assignment_id": 29,
+                "milestone_id": 37,
+                "user_id": 8,
+                "status": "approved"
+            },
+            {
+                "id": 41,
+                "assignment_id": 33,
+                "milestone_id": 38,
+                "user_id": 11,
+                "status": "reviewed"
+            },
+            {
+                "id": 42,
+                "assignment_id": 33,
+                "milestone_id": 39,
+                "user_id": 11,
+                "status": "approved"
+            },
+            {
+                "id": 43,
+                "assignment_id": 33,
+                "milestone_id": 40,
+                "user_id": 11,
+                "status": "submitted"
+            },
+            {
+                "id": 44,
+                "assignment_id": 38,
+                "milestone_id": 45,
+                "user_id": 19,
+                "status": "submitted"
+            },
+            {
+                "id": 45,
+                "assignment_id": 38,
+                "milestone_id": 46,
+                "user_id": 19,
+                "status": "approved"
+            },
+            {
+                "id": 46,
+                "assignment_id": 38,
+                "milestone_id": 47,
+                "user_id": 19,
+                "status": "approved"
+            },
+            {
+                "id": 47,
+                "assignment_id": 50,
+                "milestone_id": 57,
+                "user_id": 16,
+                "status": "approved"
+            },
+            {
+                "id": 48,
+                "assignment_id": 54,
+                "milestone_id": 60,
+                "user_id": 13,
+                "status": "approved"
+            },
+            {
+                "id": 49,
+                "assignment_id": 54,
+                "milestone_id": 61,
+                "user_id": 13,
+                "status": "approved"
+            },
+            {
+                "id": 50,
+                "assignment_id": 54,
+                "milestone_id": 62,
+                "user_id": 13,
+                "status": "submitted"
+            },
+            {
+                "id": 51,
+                "assignment_id": 54,
+                "milestone_id": 63,
+                "user_id": 13,
+                "status": "submitted"
+            },
+            {
+                "id": 52,
+                "assignment_id": 144,
+                "milestone_id": 163,
+                "user_id": 7,
+                "status": "submitted"
+            },
+            {
+                "id": 53,
+                "assignment_id": 144,
+                "milestone_id": 164,
+                "user_id": 7,
+                "status": "approved"
+            },
+            {
+                "id": 54,
+                "assignment_id": 144,
+                "milestone_id": 165,
+                "user_id": 7,
+                "status": "approved"
+            }
+        ],
+        "evaluations": [
+            {
+                "submission_id": 1,
+                "user_id": 12,
+                "milestone_id": 1,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 94,
+                    "documentation": 100,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-04T21:40:14+00:00"
+            },
+            {
+                "submission_id": 2,
+                "user_id": 12,
+                "milestone_id": 2,
+                "score": 92,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 90,
+                    "completeness": 100,
+                    "documentation": 100,
+                    "best_practices": 95
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 3,
+                "user_id": 12,
+                "milestone_id": 3,
+                "score": 97,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 92,
+                    "completeness": 100,
+                    "documentation": 100,
+                    "best_practices": 86
+                },
+                "evaluated_at": "2026-01-07T21:40:14+00:00"
+            },
+            {
+                "submission_id": 4,
+                "user_id": 12,
+                "milestone_id": 4,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 85,
+                    "completeness": 100,
+                    "documentation": 100,
+                    "best_practices": 97
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 5,
+                "user_id": 25,
+                "milestone_id": 1,
+                "score": 61,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 46,
+                    "completeness": 65,
+                    "documentation": 44,
+                    "best_practices": 67
+                },
+                "evaluated_at": "2025-12-28T21:40:14+00:00"
+            },
+            {
+                "submission_id": 6,
+                "user_id": 15,
+                "milestone_id": 5,
+                "score": 89,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 94,
+                    "documentation": 71,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 7,
+                "user_id": 15,
+                "milestone_id": 6,
+                "score": 90,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 97,
+                    "documentation": 82,
+                    "best_practices": 93
+                },
+                "evaluated_at": "2026-01-02T21:40:14+00:00"
+            },
+            {
+                "submission_id": 8,
+                "user_id": 15,
+                "milestone_id": 8,
+                "score": 54,
+                "feedback": "Below expectations. Significant improvements needed in implementation approach.",
+                "criteria_scores": {
+                    "code_quality": 42,
+                    "completeness": 44,
+                    "documentation": 56,
+                    "best_practices": 53
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 9,
+                "user_id": 8,
+                "milestone_id": 5,
+                "score": 79,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 87,
+                    "completeness": 79,
+                    "documentation": 68,
+                    "best_practices": 82
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 10,
+                "user_id": 8,
+                "milestone_id": 6,
+                "score": 80,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 92,
+                    "completeness": 79,
+                    "documentation": 97,
+                    "best_practices": 69
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 11,
+                "user_id": 8,
+                "milestone_id": 7,
+                "score": 73,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 84,
+                    "completeness": 68,
+                    "documentation": 57,
+                    "best_practices": 76
+                },
+                "evaluated_at": "2026-01-05T21:40:14+00:00"
+            },
+            {
+                "submission_id": 12,
+                "user_id": 8,
+                "milestone_id": 8,
+                "score": 82,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 81,
+                    "completeness": 89,
+                    "documentation": 80,
+                    "best_practices": 81
+                },
+                "evaluated_at": "2026-01-05T21:40:14+00:00"
+            },
+            {
+                "submission_id": 13,
+                "user_id": 8,
+                "milestone_id": 9,
+                "score": 87,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 82,
+                    "completeness": 95,
+                    "documentation": 87,
+                    "best_practices": 83
+                },
+                "evaluated_at": "2026-01-05T21:40:14+00:00"
+            },
+            {
+                "submission_id": 14,
+                "user_id": 10,
+                "milestone_id": 12,
+                "score": 76,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 74,
+                    "completeness": 84,
+                    "documentation": 60,
+                    "best_practices": 70
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 15,
+                "user_id": 18,
+                "milestone_id": 10,
+                "score": 61,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 72,
+                    "completeness": 60,
+                    "documentation": 51,
+                    "best_practices": 70
+                },
+                "evaluated_at": "2026-01-04T21:40:14+00:00"
+            },
+            {
+                "submission_id": 16,
+                "user_id": 18,
+                "milestone_id": 11,
+                "score": 70,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 74,
+                    "completeness": 72,
+                    "documentation": 88,
+                    "best_practices": 79
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 17,
+                "user_id": 18,
+                "milestone_id": 12,
+                "score": 68,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 60,
+                    "completeness": 63,
+                    "documentation": 81,
+                    "best_practices": 64
+                },
+                "evaluated_at": "2026-01-07T21:40:14+00:00"
+            },
+            {
+                "submission_id": 18,
+                "user_id": 19,
+                "milestone_id": 14,
+                "score": 62,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 63,
+                    "completeness": 58,
+                    "documentation": 67,
+                    "best_practices": 71
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 19,
+                "user_id": 19,
+                "milestone_id": 15,
+                "score": 82,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 77,
+                    "completeness": 81,
+                    "documentation": 98,
+                    "best_practices": 85
+                },
+                "evaluated_at": "2026-01-02T21:40:14+00:00"
+            },
+            {
+                "submission_id": 20,
+                "user_id": 8,
+                "milestone_id": 13,
+                "score": 73,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 66,
+                    "completeness": 81,
+                    "documentation": 75,
+                    "best_practices": 73
+                },
+                "evaluated_at": "2025-12-28T21:40:14+00:00"
+            },
+            {
+                "submission_id": 21,
+                "user_id": 8,
+                "milestone_id": 14,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 99,
+                    "documentation": 100,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 22,
+                "user_id": 8,
+                "milestone_id": 16,
+                "score": 93,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 98,
+                    "completeness": 90,
+                    "documentation": 100,
+                    "best_practices": 84
+                },
+                "evaluated_at": "2025-12-30T21:40:14+00:00"
+            },
+            {
+                "submission_id": 23,
+                "user_id": 8,
+                "milestone_id": 17,
+                "score": 74,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 62,
+                    "completeness": 71,
+                    "documentation": 71,
+                    "best_practices": 82
+                },
+                "evaluated_at": "2026-01-02T21:40:14+00:00"
+            },
+            {
+                "submission_id": 24,
+                "user_id": 9,
+                "milestone_id": 13,
+                "score": 93,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 98,
+                    "documentation": 90,
+                    "best_practices": 84
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 25,
+                "user_id": 9,
+                "milestone_id": 14,
+                "score": 90,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 95,
+                    "completeness": 80,
+                    "documentation": 100,
+                    "best_practices": 83
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 26,
+                "user_id": 9,
+                "milestone_id": 15,
+                "score": 89,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 87,
+                    "completeness": 87,
+                    "documentation": 90,
+                    "best_practices": 96
+                },
+                "evaluated_at": "2025-12-30T21:40:14+00:00"
+            },
+            {
+                "submission_id": 27,
+                "user_id": 9,
+                "milestone_id": 16,
+                "score": 89,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 74,
+                    "completeness": 97,
+                    "documentation": 70,
+                    "best_practices": 88
+                },
+                "evaluated_at": "2025-12-28T21:40:14+00:00"
+            },
+            {
+                "submission_id": 28,
+                "user_id": 9,
+                "milestone_id": 17,
+                "score": 70,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 80,
+                    "completeness": 64,
+                    "documentation": 67,
+                    "best_practices": 59
+                },
+                "evaluated_at": "2026-01-07T21:40:14+00:00"
+            },
+            {
+                "submission_id": 29,
+                "user_id": 14,
+                "milestone_id": 18,
+                "score": 95,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 92,
+                    "documentation": 86,
+                    "best_practices": 94
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 30,
+                "user_id": 14,
+                "milestone_id": 20,
+                "score": 67,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 82,
+                    "completeness": 75,
+                    "documentation": 86,
+                    "best_practices": 69
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 31,
+                "user_id": 10,
+                "milestone_id": 18,
+                "score": 94,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 92,
+                    "documentation": 78,
+                    "best_practices": 82
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 32,
+                "user_id": 10,
+                "milestone_id": 19,
+                "score": 89,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 75,
+                    "completeness": 86,
+                    "documentation": 80,
+                    "best_practices": 89
+                },
+                "evaluated_at": "2026-01-03T21:40:14+00:00"
+            },
+            {
+                "submission_id": 33,
+                "user_id": 10,
+                "milestone_id": 20,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 95,
+                    "completeness": 100,
+                    "documentation": 91,
+                    "best_practices": 92
+                },
+                "evaluated_at": "2026-01-07T21:40:14+00:00"
+            },
+            {
+                "submission_id": 34,
+                "user_id": 8,
+                "milestone_id": 21,
+                "score": 97,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 100,
+                    "documentation": 100,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 35,
+                "user_id": 8,
+                "milestone_id": 22,
+                "score": 91,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 93,
+                    "completeness": 97,
+                    "documentation": 96,
+                    "best_practices": 84
+                },
+                "evaluated_at": "2026-01-02T21:40:14+00:00"
+            },
+            {
+                "submission_id": 36,
+                "user_id": 8,
+                "milestone_id": 23,
+                "score": 94,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 98,
+                    "documentation": 100,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-03T21:40:14+00:00"
+            },
+            {
+                "submission_id": 37,
+                "user_id": 8,
+                "milestone_id": 25,
+                "score": 95,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 90,
+                    "completeness": 100,
+                    "documentation": 82,
+                    "best_practices": 83
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 38,
+                "user_id": 8,
+                "milestone_id": 35,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 99,
+                    "documentation": 87,
+                    "best_practices": 96
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 39,
+                "user_id": 8,
+                "milestone_id": 36,
+                "score": 81,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 86,
+                    "completeness": 85,
+                    "documentation": 77,
+                    "best_practices": 92
+                },
+                "evaluated_at": "2026-01-06T21:40:14+00:00"
+            },
+            {
+                "submission_id": 40,
+                "user_id": 8,
+                "milestone_id": 37,
+                "score": 75,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 73,
+                    "completeness": 78,
+                    "documentation": 82,
+                    "best_practices": 76
+                },
+                "evaluated_at": "2025-12-30T21:40:14+00:00"
+            },
+            {
+                "submission_id": 41,
+                "user_id": 11,
+                "milestone_id": 38,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 93,
+                    "documentation": 95,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-04T21:40:14+00:00"
+            },
+            {
+                "submission_id": 42,
+                "user_id": 11,
+                "milestone_id": 39,
+                "score": 98,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 86,
+                    "completeness": 92,
+                    "documentation": 89,
+                    "best_practices": 100
+                },
+                "evaluated_at": "2026-01-04T21:40:14+00:00"
+            },
+            {
+                "submission_id": 43,
+                "user_id": 11,
+                "milestone_id": 40,
+                "score": 87,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 84,
+                    "completeness": 79,
+                    "documentation": 77,
+                    "best_practices": 77
+                },
+                "evaluated_at": "2026-01-03T21:40:14+00:00"
+            },
+            {
+                "submission_id": 44,
+                "user_id": 19,
+                "milestone_id": 45,
+                "score": 59,
+                "feedback": "Below expectations. Significant improvements needed in implementation approach.",
+                "criteria_scores": {
+                    "code_quality": 45,
+                    "completeness": 65,
+                    "documentation": 48,
+                    "best_practices": 64
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 45,
+                "user_id": 19,
+                "milestone_id": 46,
+                "score": 73,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 77,
+                    "completeness": 74,
+                    "documentation": 92,
+                    "best_practices": 74
+                },
+                "evaluated_at": "2025-12-30T21:40:14+00:00"
+            },
+            {
+                "submission_id": 46,
+                "user_id": 19,
+                "milestone_id": 47,
+                "score": 82,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 84,
+                    "completeness": 84,
+                    "documentation": 76,
+                    "best_practices": 83
+                },
+                "evaluated_at": "2025-12-28T21:40:14+00:00"
+            },
+            {
+                "submission_id": 47,
+                "user_id": 16,
+                "milestone_id": 57,
+                "score": 56,
+                "feedback": "Below expectations. Significant improvements needed in implementation approach.",
+                "criteria_scores": {
+                    "code_quality": 50,
+                    "completeness": 61,
+                    "documentation": 51,
+                    "best_practices": 50
+                },
+                "evaluated_at": "2025-12-29T21:40:14+00:00"
+            },
+            {
+                "submission_id": 48,
+                "user_id": 13,
+                "milestone_id": 60,
+                "score": 99,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 100,
+                    "completeness": 93,
+                    "documentation": 95,
+                    "best_practices": 99
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 49,
+                "user_id": 13,
+                "milestone_id": 61,
+                "score": 81,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 68,
+                    "completeness": 77,
+                    "documentation": 64,
+                    "best_practices": 71
+                },
+                "evaluated_at": "2025-12-30T21:40:14+00:00"
+            },
+            {
+                "submission_id": 50,
+                "user_id": 13,
+                "milestone_id": 62,
+                "score": 67,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 61,
+                    "completeness": 64,
+                    "documentation": 71,
+                    "best_practices": 56
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 51,
+                "user_id": 13,
+                "milestone_id": 63,
+                "score": 94,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 83,
+                    "completeness": 87,
+                    "documentation": 87,
+                    "best_practices": 97
+                },
+                "evaluated_at": "2026-01-07T21:40:14+00:00"
+            },
+            {
+                "submission_id": 52,
+                "user_id": 7,
+                "milestone_id": 163,
+                "score": 81,
+                "feedback": "Good work with minor areas for improvement. Code quality is solid.",
+                "criteria_scores": {
+                    "code_quality": 73,
+                    "completeness": 88,
+                    "documentation": 73,
+                    "best_practices": 74
+                },
+                "evaluated_at": "2026-01-01T21:40:14+00:00"
+            },
+            {
+                "submission_id": 53,
+                "user_id": 7,
+                "milestone_id": 164,
+                "score": 100,
+                "feedback": "Outstanding submission! Demonstrates excellent understanding and implementation skills.",
+                "criteria_scores": {
+                    "code_quality": 95,
+                    "completeness": 100,
+                    "documentation": 82,
+                    "best_practices": 94
+                },
+                "evaluated_at": "2025-12-31T21:40:14+00:00"
+            },
+            {
+                "submission_id": 54,
+                "user_id": 7,
+                "milestone_id": 165,
+                "score": 71,
+                "feedback": "Acceptable submission with room for improvement in code organization and documentation.",
+                "criteria_scores": {
+                    "code_quality": 77,
+                    "completeness": 69,
+                    "documentation": 53,
+                    "best_practices": 80
+                },
+                "evaluated_at": "2026-01-04T21:40:14+00:00"
+            }
+        ]
+    },
+    "analysis": {
+        "generated_at": "2026-01-07T21:40:14+00:00",
+        "summary": {
+            "total_students": 20,
+            "total_businesses": 20,
+            "total_projects": 42,
+            "total_assignments": 146,
+            "total_submissions": 54,
+            "total_evaluations": 54
+        },
+        "student_metrics": {
+            "individual": [
+                {
+                    "id": 7,
+                    "name": "Dina Fawzi",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "total_assignments": 1,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 3,
+                    "average_score": 84,
+                    "engagement_score": 55.2
+                },
+                {
+                    "id": 8,
+                    "name": "Sara Saleh",
+                    "activity_profile": "active",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "total_assignments": 15,
+                    "accepted_assignments": 4,
+                    "completed_assignments": 4,
+                    "total_evaluations": 16,
+                    "average_score": 85.88,
+                    "engagement_score": 73.76
+                },
+                {
+                    "id": 9,
+                    "name": "Nora Salem",
+                    "activity_profile": "active",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "total_assignments": 11,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 5,
+                    "average_score": 86.2,
+                    "engagement_score": 28.59
+                },
+                {
+                    "id": 10,
+                    "name": "Sara Hassan",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "total_assignments": 9,
+                    "accepted_assignments": 2,
+                    "completed_assignments": 1,
+                    "total_evaluations": 4,
+                    "average_score": 89.75,
+                    "engagement_score": 53.59
+                },
+                {
+                    "id": 11,
+                    "name": "Karim Ali",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "total_assignments": 3,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 3,
+                    "average_score": 95,
+                    "engagement_score": 38.5
+                },
+                {
+                    "id": 12,
+                    "name": "Sami Yousef",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "total_assignments": 6,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 4,
+                    "average_score": 97.25,
+                    "engagement_score": 34.18
+                },
+                {
+                    "id": 13,
+                    "name": "Hana Hassan",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "total_assignments": 7,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 4,
+                    "average_score": 85.25,
+                    "engagement_score": 29.86
+                },
+                {
+                    "id": 14,
+                    "name": "Tariq Salem",
+                    "activity_profile": "active",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "total_assignments": 7,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 2,
+                    "average_score": 81,
+                    "engagement_score": 28.59
+                },
+                {
+                    "id": 15,
+                    "name": "Dina Nasser",
+                    "activity_profile": "semi-active",
+                    "domain": "backend",
+                    "level": "advanced",
+                    "total_assignments": 11,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 3,
+                    "average_score": 77.67,
+                    "engagement_score": 26.03
+                },
+                {
+                    "id": 16,
+                    "name": "Ahmad Ahmed",
+                    "activity_profile": "semi-active",
+                    "domain": "backend",
+                    "level": "beginner",
+                    "total_assignments": 8,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 1,
+                    "total_evaluations": 1,
+                    "average_score": 56,
+                    "engagement_score": 60.55
+                },
+                {
+                    "id": 17,
+                    "name": "Layla Mansour",
+                    "activity_profile": "semi-active",
+                    "domain": "frontend",
+                    "level": "beginner",
+                    "total_assignments": 4,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                },
+                {
+                    "id": 18,
+                    "name": "Layla Ibrahim",
+                    "activity_profile": "semi-active",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "total_assignments": 7,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 3,
+                    "average_score": 66.33,
+                    "engagement_score": 24.19
+                },
+                {
+                    "id": 19,
+                    "name": "Omar Saleh",
+                    "activity_profile": "semi-active",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "total_assignments": 9,
+                    "accepted_assignments": 2,
+                    "completed_assignments": 1,
+                    "total_evaluations": 5,
+                    "average_score": 71.6,
+                    "engagement_score": 48.15
+                },
+                {
+                    "id": 20,
+                    "name": "Tariq Mansour",
+                    "activity_profile": "semi-active",
+                    "domain": "frontend",
+                    "level": "beginner",
+                    "total_assignments": 5,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                },
+                {
+                    "id": 21,
+                    "name": "Layla Khalil",
+                    "activity_profile": "semi-active",
+                    "domain": "frontend",
+                    "level": "beginner",
+                    "total_assignments": 8,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                },
+                {
+                    "id": 22,
+                    "name": "Jana Mansour",
+                    "activity_profile": "low-activity",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "total_assignments": 4,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                },
+                {
+                    "id": 23,
+                    "name": "Nora Mansour",
+                    "activity_profile": "low-activity",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "total_assignments": 11,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 2.73
+                },
+                {
+                    "id": 24,
+                    "name": "Hassan Hassan",
+                    "activity_profile": "low-activity",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "total_assignments": 3,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                },
+                {
+                    "id": 25,
+                    "name": "Ali Khalil",
+                    "activity_profile": "low-activity",
+                    "domain": "frontend",
+                    "level": "beginner",
+                    "total_assignments": 6,
+                    "accepted_assignments": 1,
+                    "completed_assignments": 0,
+                    "total_evaluations": 1,
+                    "average_score": 61,
+                    "engagement_score": 23.3
+                },
+                {
+                    "id": 26,
+                    "name": "Layla Khalil",
+                    "activity_profile": "low-activity",
+                    "domain": "backend",
+                    "level": "beginner",
+                    "total_assignments": 11,
+                    "accepted_assignments": 0,
+                    "completed_assignments": 0,
+                    "total_evaluations": 0,
+                    "average_score": 0,
+                    "engagement_score": 0
+                }
+            ],
+            "by_activity_profile": {
+                "active": {
+                    "count": 8,
+                    "avg_engagement": 42.78,
+                    "avg_score": 88.04,
+                    "total_completed": 5
+                },
+                "semi-active": {
+                    "count": 7,
+                    "avg_engagement": 22.7,
+                    "avg_score": 38.8,
+                    "total_completed": 2
+                },
+                "low-activity": {
+                    "count": 5,
+                    "avg_engagement": 5.21,
+                    "avg_score": 12.2,
+                    "total_completed": 0
+                }
+            },
+            "active_students": 2,
+            "inactive_students": 13
+        },
+        "project_metrics": {
+            "individual": [
+                {
+                    "id": 1,
+                    "title": "Social Media Dashboard v3",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 5,
+                    "approved_submissions": 3
+                },
+                {
+                    "id": 2,
+                    "title": "REST API for E-Commerce v4",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 4,
+                    "completed_assignments": 1,
+                    "completion_rate": 25,
+                    "total_submissions": 8,
+                    "approved_submissions": 6
+                },
+                {
+                    "id": 3,
+                    "title": "Mobile-First Landing Page v2",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 2,
+                    "completed_assignments": 1,
+                    "completion_rate": 50,
+                    "total_submissions": 4,
+                    "approved_submissions": 2
+                },
+                {
+                    "id": 4,
+                    "title": "User Management API v4",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 5,
+                    "completed_assignments": 2,
+                    "completion_rate": 40,
+                    "total_submissions": 11,
+                    "approved_submissions": 7
+                },
+                {
+                    "id": 5,
+                    "title": "Weather App UI v5",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 5,
+                    "approved_submissions": 2
+                },
+                {
+                    "id": 6,
+                    "title": "Notification Service v3",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 2,
+                    "completed_assignments": 1,
+                    "completion_rate": 50,
+                    "total_submissions": 4,
+                    "approved_submissions": 4
+                },
+                {
+                    "id": 7,
+                    "title": "Real-time Chat Interface v5",
+                    "domain": "frontend",
+                    "complexity": "high",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 8,
+                    "title": "Inventory Management System v5",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 9,
+                    "title": "File Storage System v2",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 4,
+                    "completed_assignments": 1,
+                    "completion_rate": 25,
+                    "total_submissions": 3,
+                    "approved_submissions": 3
+                },
+                {
+                    "id": 10,
+                    "title": "E-Commerce Dashboard UI v2",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 3,
+                    "approved_submissions": 1
+                },
+                {
+                    "id": 11,
+                    "title": "Portfolio Website Redesign v5",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 12,
+                    "title": "Data Analytics Pipeline v3",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 3,
+                    "approved_submissions": 2
+                },
+                {
+                    "id": 13,
+                    "title": "Blog Platform Frontend v4",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 14,
+                    "title": "Payment Gateway Integration v3",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 15,
+                    "title": "Search Engine Backend v2",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 3,
+                    "completed_assignments": 1,
+                    "completion_rate": 33.33,
+                    "total_submissions": 1,
+                    "approved_submissions": 1
+                },
+                {
+                    "id": 16,
+                    "title": "Task Management Dashboard v3",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 4,
+                    "approved_submissions": 2
+                },
+                {
+                    "id": 17,
+                    "title": "Reporting Dashboard API v4",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 18,
+                    "title": "Authentication Microservice v5",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 19,
+                    "title": "Admin Panel Interface v5",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 20,
+                    "title": "Data Analytics Pipeline v5",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 21,
+                    "title": "React Component Library v4",
+                    "domain": "frontend",
+                    "complexity": "high",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 22,
+                    "title": "React Component Library v4",
+                    "domain": "frontend",
+                    "complexity": "high",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 23,
+                    "title": "Payment Gateway Integration v4",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 24,
+                    "title": "REST API for E-Commerce v2",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 25,
+                    "title": "REST API for E-Commerce v3",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 26,
+                    "title": "E-Commerce Dashboard UI v2",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 27,
+                    "title": "Search Engine Backend v4",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 28,
+                    "title": "Social Media Dashboard v3",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 29,
+                    "title": "Notification Service v3",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 30,
+                    "title": "Notification Service v2",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 31,
+                    "title": "React Component Library v3",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 32,
+                    "title": "Notification Service v5",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 33,
+                    "title": "Data Analytics Pipeline v5",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 34,
+                    "title": "Notification Service v5",
+                    "domain": "backend",
+                    "complexity": "low",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 35,
+                    "title": "Blog Platform Frontend v2",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 36,
+                    "title": "React Component Library v3",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 37,
+                    "title": "E-Commerce Dashboard UI v5",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 38,
+                    "title": "E-Commerce Dashboard UI v3",
+                    "domain": "frontend",
+                    "complexity": "medium",
+                    "total_assignments": 4,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 39,
+                    "title": "Notification Service v5",
+                    "domain": "backend",
+                    "complexity": "medium",
+                    "total_assignments": 2,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 40,
+                    "title": "Admin Panel Interface v2",
+                    "domain": "frontend",
+                    "complexity": "high",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 41,
+                    "title": "REST API for E-Commerce v5",
+                    "domain": "backend",
+                    "complexity": "high",
+                    "total_assignments": 5,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 0,
+                    "approved_submissions": 0
+                },
+                {
+                    "id": 42,
+                    "title": "Real-time Chat Interface v5",
+                    "domain": "frontend",
+                    "complexity": "low",
+                    "total_assignments": 3,
+                    "completed_assignments": 0,
+                    "completion_rate": 0,
+                    "total_submissions": 3,
+                    "approved_submissions": 2
+                }
+            ],
+            "overall_completion_rate": 5.32,
+            "by_complexity": {
+                "medium": {
+                    "count": 15,
+                    "avg_completion_rate": 0
+                },
+                "high": {
+                    "count": 12,
+                    "avg_completion_rate": 9.58
+                },
+                "low": {
+                    "count": 15,
+                    "avg_completion_rate": 7.22
+                }
+            },
+            "by_domain": {
+                "frontend": {
+                    "count": 20,
+                    "avg_completion_rate": 2.5
+                },
+                "backend": {
+                    "count": 22,
+                    "avg_completion_rate": 7.88
+                }
+            }
+        },
+        "score_metrics": {
+            "overall": {
+                "min": 54,
+                "max": 100,
+                "average": 83.33,
+                "median": 87,
+                "std_deviation": 13.24
+            },
+            "by_score_range": {
+                "excellent (90-100)": 22,
+                "good (75-89)": 16,
+                "average (60-74)": 13,
+                "below_average (40-59)": 3,
+                "poor (0-39)": 0
+            },
+            "criteria_averages": {
+                "code_quality": 82.22,
+                "completeness": 83.65,
+                "documentation": 80.52,
+                "best_practices": 82.33
+            }
+        },
+        "recommendation_patterns": {
+            "domain_level_success_patterns": {
+                "frontend_beginner": {
+                    "student_count": 4,
+                    "avg_score": 61,
+                    "completion_rate": 0,
+                    "accept_rate": 4.35
+                },
+                "frontend_intermediate": {
+                    "student_count": 4,
+                    "avg_score": 85.89,
+                    "completion_rate": 5,
+                    "accept_rate": 20
+                },
+                "frontend_advanced": {
+                    "student_count": 5,
+                    "avg_score": 86.71,
+                    "completion_rate": 0,
+                    "accept_rate": 14.81
+                },
+                "backend_beginner": {
+                    "student_count": 2,
+                    "avg_score": 56,
+                    "completion_rate": 5.26,
+                    "accept_rate": 5.26
+                },
+                "backend_intermediate": {
+                    "student_count": 4,
+                    "avg_score": 83.19,
+                    "completion_rate": 10.87,
+                    "accept_rate": 17.39
+                },
+                "backend_advanced": {
+                    "student_count": 1,
+                    "avg_score": 77.67,
+                    "completion_rate": 0,
+                    "accept_rate": 9.09
+                }
+            },
+            "top_performers": [
+                {
+                    "user_id": 12,
+                    "name": "Sami Yousef",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "avg_score": 97.25,
+                    "evaluation_count": 4
+                },
+                {
+                    "user_id": 11,
+                    "name": "Karim Ali",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "avg_score": 95,
+                    "evaluation_count": 3
+                },
+                {
+                    "user_id": 10,
+                    "name": "Sara Hassan",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "avg_score": 89.75,
+                    "evaluation_count": 4
+                },
+                {
+                    "user_id": 9,
+                    "name": "Nora Salem",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "avg_score": 86.2,
+                    "evaluation_count": 5
+                },
+                {
+                    "user_id": 8,
+                    "name": "Sara Saleh",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "avg_score": 85.88,
+                    "evaluation_count": 16
+                },
+                {
+                    "user_id": 13,
+                    "name": "Hana Hassan",
+                    "domain": "frontend",
+                    "level": "advanced",
+                    "avg_score": 85.25,
+                    "evaluation_count": 4
+                },
+                {
+                    "user_id": 7,
+                    "name": "Dina Fawzi",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "avg_score": 84,
+                    "evaluation_count": 3
+                },
+                {
+                    "user_id": 14,
+                    "name": "Tariq Salem",
+                    "domain": "frontend",
+                    "level": "intermediate",
+                    "avg_score": 81,
+                    "evaluation_count": 2
+                },
+                {
+                    "user_id": 15,
+                    "name": "Dina Nasser",
+                    "domain": "backend",
+                    "level": "advanced",
+                    "avg_score": 77.67,
+                    "evaluation_count": 3
+                },
+                {
+                    "user_id": 19,
+                    "name": "Omar Saleh",
+                    "domain": "backend",
+                    "level": "intermediate",
+                    "avg_score": 71.6,
+                    "evaluation_count": 5
+                }
+            ],
+            "recommendations_ready": true,
+            "data_quality_score": 100
+        }
+    },
+    "schema_info": {
+        "students": [
+            "id",
+            "name",
+            "email",
+            "domain",
+            "level",
+            "activity_profile"
+        ],
+        "businesses": [
+            "id",
+            "name",
+            "email",
+            "projects"
+        ],
+        "projects": [
+            "id",
+            "title",
+            "domain",
+            "required_level",
+            "complexity",
+            "status"
+        ],
+        "assignments": [
+            "id",
+            "project_id",
+            "user_id",
+            "status",
+            "match_score"
+        ],
+        "submissions": [
+            "id",
+            "assignment_id",
+            "milestone_id",
+            "user_id",
+            "status"
+        ],
+        "evaluations": [
+            "submission_id",
+            "user_id",
+            "score",
+            "criteria_scores"
+        ]
+    }
+}

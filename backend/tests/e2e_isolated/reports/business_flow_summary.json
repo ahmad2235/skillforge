@@ -1,0 +1,222 @@
+{
+    "metrics": {
+        "http_req_blocked": {
+            "p(90)": 1.13858,
+            "p(95)": 1.3939099999999998,
+            "avg": 0.6908095238095239,
+            "min": 0,
+            "med": 0.6321,
+            "max": 2.1552
+        },
+        "iterations": {
+            "count": 21,
+            "rate": 0.5102081573479625
+        },
+        "http_req_connecting": {
+            "p(95)": 1.13909,
+            "avg": 0.5873555555555554,
+            "min": 0,
+            "med": 0.5388,
+            "max": 1.5809,
+            "p(90)": 0.99788
+        },
+        "checks": {
+            "passes": 21,
+            "fails": 21,
+            "value": 0.5
+        },
+        "project_detail_success": {
+            "passes": 0,
+            "fails": 21,
+            "value": 0
+        },
+        "vus": {
+            "max": 2,
+            "value": 1,
+            "min": 1
+        },
+        "login_success": {
+            "passes": 21,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.90": false
+            },
+            "value": 1
+        },
+        "api_errors": {
+            "count": 21,
+            "rate": 0.5102081573479625
+        },
+        "data_sent": {
+            "count": 14994,
+            "rate": 364.28862434644526
+        },
+        "iteration_duration": {
+            "avg": 3162.4685142857143,
+            "min": 3118.046,
+            "med": 3159.2185,
+            "max": 3267.6849,
+            "p(90)": 3184.0957,
+            "p(95)": 3188.1303
+        },
+        "assignments_fetch_success": {
+            "fails": 21,
+            "passes": 0,
+            "thresholds": {
+                "rate>0.80": true
+            },
+            "value": 0
+        },
+        "business_flow_complete": {
+            "passes": 0,
+            "fails": 21,
+            "value": 0
+        },
+        "request_duration": {
+            "avg": 40.22043174603174,
+            "min": 13.7084,
+            "med": 33.2129,
+            "max": 124.2408,
+            "p(90)": 69.34440000000002,
+            "p(95)": 78.18081
+        },
+        "http_req_duration": {
+            "max": 124.2408,
+            "p(90)": 69.34440000000002,
+            "p(95)": 78.18081,
+            "avg": 40.22043174603174,
+            "min": 13.7084,
+            "med": 33.2129,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0
+        },
+        "group_duration": {
+            "p(95)": 79.29702,
+            "avg": 41.47403492063491,
+            "min": 14.6794,
+            "med": 34.5245,
+            "max": 125.7377,
+            "p(90)": 70.5056
+        },
+        "http_reqs": {
+            "count": 63,
+            "rate": 1.5306244720438875
+        },
+        "http_req_duration{expected_response:true}": {
+            "min": 23.3853,
+            "med": 47.43905,
+            "max": 89.0495,
+            "p(90)": 69.99634,
+            "p(95)": 78.32095499999998,
+            "avg": 48.67136428571429
+        },
+        "http_req_sending": {
+            "med": 0,
+            "max": 0.5348,
+            "p(90)": 0.49146,
+            "p(95)": 0.50422,
+            "avg": 0.09072539682539682,
+            "min": 0
+        },
+        "data_received": {
+            "count": 249879,
+            "rate": 6070.966864283406
+        },
+        "review_submit_success": {
+            "passes": 0,
+            "fails": 21,
+            "value": 0
+        },
+        "vus_max": {
+            "value": 2,
+            "min": 2,
+            "max": 2
+        },
+        "http_req_failed": {
+            "passes": 21,
+            "fails": 42,
+            "thresholds": {
+                "rate<0.20": true
+            },
+            "value": 0.3333333333333333
+        },
+        "http_req_receiving": {
+            "p(95)": 2.13738,
+            "avg": 1.200779365079365,
+            "min": 0,
+            "med": 1.175,
+            "max": 2.7074,
+            "p(90)": 1.8685000000000003
+        },
+        "http_req_waiting": {
+            "avg": 38.92892698412698,
+            "min": 12.4726,
+            "med": 31.8309,
+            "max": 123.4755,
+            "p(90)": 67.87472000000001,
+            "p(95)": 76.08642
+        },
+        "projects_fetch_success": {
+            "passes": 21,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.80": false
+            },
+            "value": 1
+        }
+    },
+    "root_group": {
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "1. Business Login": {
+                "path": "::1. Business Login",
+                "id": "c2b4af7d008cc0920094b91c69fb6d7d",
+                "groups": {},
+                "checks": {},
+                "name": "1. Business Login"
+            },
+            "2. View Projects": {
+                "name": "2. View Projects",
+                "path": "::2. View Projects",
+                "id": "74546e868df8ea32d885da1e9aa37346",
+                "groups": {},
+                "checks": {
+                        "projects list 200": {
+                            "id": "e5ee01277c18f3e66633d88fe1a57d01",
+                            "passes": 21,
+                            "fails": 0,
+                            "name": "projects list 200",
+                            "path": "::2. View Projects::projects list 200"
+                        }
+                    }
+            },
+            "4. View Assignments": {
+                "groups": {},
+                "checks": {
+                        "assignments list 200": {
+                            "path": "::4. View Assignments::assignments list 200",
+                            "id": "94a30976fe3f4ed3366123d0341189e8",
+                            "passes": 0,
+                            "fails": 21,
+                            "name": "assignments list 200"
+                        }
+                    },
+                "name": "4. View Assignments",
+                "path": "::4. View Assignments",
+                "id": "8cf8db3f5b7465f4c5e15eba60dca9bf"
+            }
+        },
+        "checks": {},
+        "name": ""
+    }
+}

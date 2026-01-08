@@ -11,11 +11,13 @@ use App\Modules\Learning\Infrastructure\Models\RoadmapBlock;
 use App\Modules\Learning\Infrastructure\Models\UserRoadmapBlock;
 use App\Notifications\PlacementResultNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PlacementService
 {
     public function __construct(
-        private readonly AiLogger $aiLogger
+        private readonly AiLogger $aiLogger,
+        private readonly QuestionEvaluationService $questionEvaluationService
     ) {}
 
     /**
@@ -39,6 +41,14 @@ class PlacementService
             ->get();
 
         return $questions->map(function (Question $q) {
+            // For MCQ, include options but NOT the correct_answer
+            $metadata = $q->metadata ?? [];
+            $safeMetadata = [];
+            
+            if (isset($metadata['options'])) {
+                $safeMetadata['options'] = $metadata['options'];
+            }
+            
             return [
                 'id'            => $q->id,
                 'question_text' => $q->question_text,
@@ -46,7 +56,7 @@ class PlacementService
                 'domain'        => $q->domain,
                 'type'          => $q->type,
                 'difficulty'    => $q->difficulty,
-                'metadata'      => $q->metadata,
+                'metadata'      => $safeMetadata,
             ];
         })->all();
     }
@@ -59,90 +69,103 @@ class PlacementService
         return DB::transaction(function () use ($user, $data) {
             $answers = collect($data['answers']);
 
+            // Edge case: No questions submitted
+            if ($answers->isEmpty()) {
+                Log::warning("User {$user->id} submitted placement with no answers");
+                
+                $placementResult = PlacementResult::create([
+                    'user_id'       => $user->id,
+                    'final_level'   => 'beginner',
+                    'final_domain'  => $data['domain'] ?? $user->domain ?? 'frontend',
+                    'overall_score' => 0,
+                    'details'       => [
+                        'total_questions' => 0,
+                        'correct_count'   => 0,
+                        'mcq_count'       => 0,
+                        'text_count'      => 0,
+                        'evaluation_method' => 'empty_submission',
+                    ],
+                    'is_active'     => true,
+                ]);
+
+                return [
+                    'placement_result_id' => $placementResult->id,
+                    'score'               => 0,
+                    'suggested_level'     => 'beginner',
+                    'suggested_domain'    => $placementResult->final_domain,
+                    'total_questions'     => 0,
+                    'correct_count'       => 0,
+                    'question_results'    => [],
+                    'recommended_blocks_count' => 0,
+                    'recommended_block_ids'    => [],
+                ];
+            }
+
             // Load all involved questions
             $questions = Question::whereIn('id', $answers->pluck('question_id'))->get()->keyBy('id');
 
             $total = $answers->count();
-
             $suggestedDomain = $data['domain'] ?? $user->domain ?? 'frontend';
-            // For now, start with beginner; AI scoring can update later
-            $suggestedLevel = 'beginner';
 
-            // 1) Create PlacementResult first (required FK for question_attempts)
+            // 1) Create PlacementResult in PENDING state and store answers for background processing
             $placementResult = PlacementResult::create([
                 'user_id'       => $user->id,
-                'final_level'   => $suggestedLevel,
+                'final_level'   => 'beginner', // Will be updated by background job
                 'final_domain'  => $suggestedDomain,
-                'overall_score' => 0, // placeholder, AI can update later
+                'overall_score' => 0, // Will be updated by background job
                 'details'       => [
                     'total_questions' => $total,
                     'correct_count'   => 0,
+                    'evaluation_status' => 'pending',
                 ],
+                'pending_answers' => $answers->toArray(),
+                'status'        => 'pending',
                 'is_active'     => true,
             ]);
 
-            // 2) Create QuestionAttempt records with the placement_result_id
-            $attempts = collect();
+            // Dispatch background job to perform the heavy evaluation
+            \App\Jobs\EvaluatePlacementJob::dispatch($placementResult->id)->onQueue('default');
 
-            foreach ($answers as $answer) {
-                $questionId = (int) $answer['question_id'];
-                $answerText = $answer['answer'];
-
-                $attempt = QuestionAttempt::create([
-                    'user_id'            => $user->id,
-                    'placement_result_id'=> $placementResult->id,
-                    'question_id'        => $questionId,
-                    'answer_text'        => $answerText,
-                    'score'              => null, // AI will evaluate later
-                    'ai_feedback'        => null,
-                    'metadata'           => null,
-                ]);
-
-                $attempts->push($attempt);
-            }
-
-            // Update user profile with suggested values
-            $user->level = $suggestedLevel;
-            $user->domain = $suggestedDomain;
-            $user->save();
-
-            $roadmap = $this->generateRoadmapFromPlacement($user, $placementResult);
-
-            $this->aiLogger->log(
-                'placement.submit',
-                $user->id,
-                [
-                    'answers_count' => $total,
-                    'domain'        => $suggestedDomain,
-                ],
-                [
-                    'final_level'   => $suggestedLevel,
-                    'final_domain'  => $suggestedDomain,
-                    'placement_id'  => $placementResult->id,
-                    'recommended_block_ids' => $roadmap['block_ids'],
-                ],
-                [
-                    'placement_result_id' => $placementResult->id,
-                ]
-            );
-
-            if (config('skillforge.notifications.enabled') && config('skillforge.notifications.placement_result')) {
-                $user->notify(new PlacementResultNotification($placementResult));
-            }
-
+            // Return immediately with pending status (client should poll for result)
             return [
                 'placement_result_id' => $placementResult->id,
-                'score'               => 0, // AI will update later
-                'suggested_level'     => $suggestedLevel,
-                'suggested_domain'    => $suggestedDomain,
-                'total_questions'     => $total,
-                'correct_count'       => 0, // AI will update later
-                'recommended_blocks_count' => $roadmap['count'],
-                'recommended_block_ids'    => $roadmap['block_ids'],
+                'status'               => 'pending',
+                'message'              => 'Placement evaluation started and is processing in the background.',
             ];
+
+            // Note: the actual evaluation will be performed asynchronously by EvaluatePlacementJob
+            // Answers are stored in the `pending_answers` column and the job will update the result when done.
         });
     }
 
+    /**
+     * Evaluate an answer based on question type.
+     */
+    private function evaluateAnswer(Question $question, ?string $answer): array
+    {
+        if ($question->type === 'mcq') {
+            return $this->questionEvaluationService->evaluateMcq($question, $answer);
+        }
+
+        // For text questions, try AI evaluation with fallback
+        $result = $this->questionEvaluationService->evaluateText($question, $answer);
+        
+        // If AI evaluation failed, use fallback heuristic
+        if (($result['metadata']['reason'] ?? null) === 'ai_evaluation_failed' && !empty($answer)) {
+            $fallback = $this->questionEvaluationService->evaluateTextFallback($question, $answer);
+            return array_merge($result, [
+                'score' => $fallback['score'],
+                'feedback' => $fallback['feedback'] . ' ' . ($result['feedback'] ?? ''),
+                'metadata' => array_merge($result['metadata'] ?? [], $fallback['metadata'] ?? []),
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Generate roadmap blocks for the user based on placement result.
+     */
     public function generateRoadmapFromPlacement(User $user, PlacementResult $result): array
     {
         $limit = (int) config('skillforge.placement.recommended_blocks_limit', 6);
@@ -179,7 +202,45 @@ class PlacementService
         ];
     }
 
-    private function inferLevelFromScore(int $score): string
+    /**
+     * Get placement result with detailed question attempts.
+     */
+    public function getPlacementResult(int $placementResultId, User $user): ?array
+    {
+        $result = PlacementResult::with('questionAttempts.question')
+            ->where('id', $placementResultId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$result) {
+            return null;
+        }
+
+        return [
+            'id' => $result->id,
+            'overall_score' => $result->overall_score,
+            'suggested_level' => $result->final_level,
+            'suggested_domain' => $result->final_domain,
+            'details' => $result->details,
+            'created_at' => $result->created_at->toIso8601String(),
+            'question_results' => $result->questionAttempts->map(function ($attempt) {
+                return [
+                    'question_id' => $attempt->question_id,
+                    'question_text' => $attempt->question->question_text ?? null,
+                    'question_type' => $attempt->question->type ?? null,
+                    'answer' => $attempt->answer_text,
+                    'score' => $attempt->score,
+                    'is_correct' => $attempt->is_correct,
+                    'feedback' => $attempt->ai_feedback,
+                ];
+            })->toArray(),
+        ];
+    }
+
+    /**
+     * Infer user level from overall placement score.
+     */
+    public function inferLevelFromScore(int $score): string
     {
         if ($score >= 80) {
             return 'advanced';

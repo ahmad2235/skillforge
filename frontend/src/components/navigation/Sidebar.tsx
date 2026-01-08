@@ -16,52 +16,57 @@ type NavItemProps = {
   path: string;
   active: boolean;
   collapsed: boolean;
+  icon?: React.ComponentType<any>;
   onNavigate?: () => void;
 };
 
-const NavItem = ({ label, path, active, collapsed, onNavigate }: NavItemProps) => (
-  <Link
-    to={path}
-    onClick={onNavigate}
-    title={collapsed ? label : undefined}
-    aria-label={label}
-    className={
-      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative group " +
-      (active
-        ? "bg-primary/10 text-primary"
-        : "text-muted-foreground hover:bg-accent hover:text-foreground")
-    }
-    aria-current={active ? "page" : undefined}
-  >
-    {/* Active indicator bar */}
-    {active && (
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-lg" aria-hidden="true" />
-    )}
-    
-    {/* Icon indicator */}
-    <span
+const NavItem = ({ label, path, active, collapsed, onNavigate, icon }: NavItemProps) => {
+  const Icon = icon as React.ComponentType<any> | undefined;
+
+  return (
+    <Link
+      to={path}
+      onClick={onNavigate}
+      title={collapsed ? label : undefined}
+      aria-label={label}
       className={
-        "inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-xs font-semibold transition-colors " +
+        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative group " +
         (active
-          ? "bg-primary/20 text-primary"
-          : "bg-muted text-muted-foreground group-hover:bg-muted/80")
+          ? "bg-sky-500/10 text-sky-300 border border-slate-700"
+          : "text-slate-300 hover:bg-slate-800 hover:text-slate-100")
       }
-      aria-hidden="true"
+      aria-current={active ? "page" : undefined}
     >
-      {label.charAt(0).toUpperCase()}
-    </span>
-    
-    {/* Label */}
-    <span className={"transition-all duration-200 " + (collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100")}>
-      {label}
-    </span>
-    
-    {/* Hover indicator on right (visible when collapsed) */}
-    {collapsed && (
-      <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-    )}
-  </Link>
-);
+      {/* Active indicator bar */}
+      {active && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-sky-400 rounded-r-lg" aria-hidden="true" />
+      )}
+      
+      {/* Icon indicator: use provided icon or fallback to first letter */}
+      <span
+        className={
+          "inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-xs font-semibold transition-colors " +
+          (active
+            ? "bg-sky-500/20 text-sky-200"
+            : "bg-slate-800 text-slate-400 group-hover:bg-slate-700")
+        }
+        aria-hidden="true"
+      >
+        {Icon ? <Icon className="h-4 w-4" /> : label.charAt(0).toUpperCase()}
+      </span>
+      
+      {/* Label */}
+      <span className={"transition-all duration-200 " + (collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100")}>
+        {label}
+      </span>
+      
+      {/* Hover indicator on right (visible when collapsed) */}
+      {collapsed && (
+        <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+      )}
+    </Link>
+  );
+};
 
 export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
   const { placementMode, collapsed, setCollapsed } = useNavigation();
@@ -114,13 +119,13 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
   const content = (
     <div className="flex h-full flex-col gap-0">
       {/* Header section with brand and collapse button */}
-      <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50 px-4 py-4 flex items-center justify-between gap-3">
+      <div className="border-b border-slate-800 bg-slate-950/80 px-4 py-4 flex items-center justify-between gap-3">
         <div className={`flex items-center gap-2.5 min-w-0 ${collapsed ? 'sr-only' : ''}`}>
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-semibold text-sm flex-shrink-0">
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 text-slate-950 font-semibold text-sm flex-shrink-0">
             S
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-slate-900 truncate">SkillForge</h2>
+            <h2 className="text-sm font-bold text-slate-100 truncate">SkillForge</h2>
           </div>
         </div>
         
@@ -128,7 +133,7 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed((prev) => !prev)}
-          className={`text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 flex-shrink-0 h-8 w-8 p-0`}
+          className="text-slate-300 hover:text-white hover:bg-slate-800 flex-shrink-0 h-8 w-8 p-0"
           aria-pressed={collapsed}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -158,6 +163,7 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
                     path={item.path}
                     active={isActive(item.path)}
                     collapsed={collapsed}
+                    icon={item.icon}
                     onNavigate={onClose}
                   />
                 ))}
@@ -168,15 +174,15 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
       </nav>
 
       {/* User info footer */}
-      <div className="border-t border-slate-200 bg-slate-50/50 px-3 py-4 mt-auto">
+      <div className="border-t border-slate-800 bg-slate-950/70 px-3 py-4 mt-auto">
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-          <div className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0`}>
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-500/20 text-sky-200 text-xs font-semibold flex-shrink-0">
             {user.name?.charAt(0).toUpperCase() ?? 'U'}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-900 truncate">{user.name}</p>
-              <p className="text-xs text-slate-500 truncate capitalize">{user.role}</p>
+              <p className="text-xs font-semibold text-slate-100 truncate">{user.name}</p>
+              <p className="text-xs text-slate-400 truncate capitalize">{user.role}</p>
             </div>
           )}
         </div>
@@ -190,7 +196,7 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
         {/* Desktop sidebar */}
         <aside
           className={
-            "hidden h-screen shrink-0 border-r border-slate-200 bg-white md:flex flex-col transition-all duration-300 ease-out overflow-hidden shadow-sm " +
+            "hidden h-screen shrink-0 border-r border-slate-800 bg-slate-900 md:flex flex-col transition-all duration-300 ease-out overflow-hidden shadow-xl shadow-slate-950/30 " +
             (collapsed ? "w-16" : "w-64")
           }
         >
@@ -227,20 +233,20 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
             />
             
             {/* Mobile drawer panel */}
-            <div className="relative h-full w-72 max-w-[80vw] bg-white shadow-2xl flex flex-col">
+            <div className="relative h-full w-72 max-w-[80vw] bg-slate-900 border-l border-slate-800 shadow-2xl shadow-slate-950/40 flex flex-col">
               {/* Mobile header with close button */}
-              <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50 px-4 py-4 flex items-center justify-between gap-3">
+              <div className="border-b border-slate-800 bg-slate-950/80 px-4 py-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-semibold text-sm flex-shrink-0">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 text-slate-950 font-semibold text-sm flex-shrink-0">
                     S
                   </div>
-                  <h2 className="text-sm font-bold text-slate-900 truncate">SkillForge</h2>
+                  <h2 className="text-sm font-bold text-slate-100 truncate">SkillForge</h2>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 flex-shrink-0"
+                  className="text-slate-300 hover:text-white hover:bg-slate-800 flex-shrink-0"
                   aria-label="Close navigation menu"
                 >
                   ✕
@@ -273,14 +279,14 @@ export const Sidebar = ({ isMobileOpen, onClose }: SidebarProps) => {
               </nav>
 
               {/* Mobile user footer */}
-              <div className="border-t border-slate-200 bg-slate-50/50 px-3 py-4">
+              <div className="border-t border-slate-800 bg-slate-950/70 px-3 py-4">
                 <div className="flex items-center gap-3">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex-shrink-0">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-500/20 text-sky-200 text-xs font-semibold flex-shrink-0">
                     {user.name?.charAt(0).toUpperCase() ?? 'U'}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-900 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-500 truncate capitalize">{user.role}</p>
+                    <p className="text-xs font-semibold text-slate-100 truncate">{user.name}</p>
+                    <p className="text-xs text-slate-400 truncate capitalize">{user.role}</p>
                   </div>
                 </div>
               </div>

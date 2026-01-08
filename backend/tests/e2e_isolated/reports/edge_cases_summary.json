@@ -1,0 +1,264 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "Edge Case: Invalid Login": {
+                "name": "Edge Case: Invalid Login",
+                "path": "::Edge Case: Invalid Login",
+                "id": "529d2796ba3958a9bd0ab9eb7a3aa689",
+                "groups": {},
+                "checks": {
+                        "invalid login returns error": {
+                            "passes": 11,
+                            "fails": 0,
+                            "name": "invalid login returns error",
+                            "path": "::Edge Case: Invalid Login::invalid login returns error",
+                            "id": "ef193127a0a12807bb5f3480a27642f3"
+                        }
+                    }
+            },
+            "Edge Case: Unauthorized Access": {
+                "groups": {},
+                "checks": {
+                        "unauthorized returns 401": {
+                            "path": "::Edge Case: Unauthorized Access::unauthorized returns 401",
+                            "id": "f917b28cf76214de06e19d52fd111e9f",
+                            "passes": 10,
+                            "fails": 0,
+                            "name": "unauthorized returns 401"
+                        },
+                        "student cant access admin": {
+                            "name": "student cant access admin",
+                            "path": "::Edge Case: Unauthorized Access::student cant access admin",
+                            "id": "4a533f6c885018a8bc1aa7d39ee4bff8",
+                            "passes": 10,
+                            "fails": 0
+                        }
+                    },
+                "name": "Edge Case: Unauthorized Access",
+                "path": "::Edge Case: Unauthorized Access",
+                "id": "0545f243513bb1d984e0df0a70c4ed61"
+            },
+            "Edge Case: Invalid Submission": {
+                "checks": {
+                    "invalid submission returns error": {
+                        "id": "0bbf17c1780c8fc0ca29636660367fba",
+                        "passes": 10,
+                        "fails": 0,
+                        "name": "invalid submission returns error",
+                        "path": "::Edge Case: Invalid Submission::invalid submission returns error"
+                    },
+                    "nonexistent task returns 404": {
+                        "id": "b6116b4892ee73eff3c94fe60e8fee6e",
+                        "passes": 10,
+                        "fails": 0,
+                        "name": "nonexistent task returns 404",
+                        "path": "::Edge Case: Invalid Submission::nonexistent task returns 404"
+                    }
+                },
+                "name": "Edge Case: Invalid Submission",
+                "path": "::Edge Case: Invalid Submission",
+                "id": "4ec3b5b55514f517ff454b5495ce7565",
+                "groups": {}
+            },
+            "Edge Case: Incomplete Placement": {
+                "path": "::Edge Case: Incomplete Placement",
+                "id": "e22ad49d1779793fc2a43da34016dc89",
+                "groups": {},
+                "checks": {
+                        "incomplete placement handled": {
+                            "path": "::Edge Case: Incomplete Placement::incomplete placement handled",
+                            "id": "8d896ab2d73aae8b38a1f42fddf37744",
+                            "passes": 10,
+                            "fails": 0,
+                            "name": "incomplete placement handled"
+                        }
+                    },
+                "name": "Edge Case: Incomplete Placement"
+            },
+            "Edge Case: Concurrent Submissions": {
+                "name": "Edge Case: Concurrent Submissions",
+                "path": "::Edge Case: Concurrent Submissions",
+                "id": "047bd0c6f60ab2d4047f987cb8cecc7b",
+                "groups": {},
+                "checks": {}
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "request_duration": {
+            "p(95)": 68.02705,
+            "avg": 42.18455045045044,
+            "min": 12.753,
+            "med": 40.4371,
+            "max": 144.8653,
+            "p(90)": 61.7343
+        },
+        "invalid_login_handled": {
+            "passes": 11,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "invalid_submission_handled": {
+            "passes": 10,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.90": false
+            },
+            "value": 1
+        },
+        "http_reqs": {
+            "count": 111,
+            "rate": 2.748479161864205
+        },
+        "http_req_sending": {
+            "p(90)": 0.4413,
+            "p(95)": 0.5011,
+            "avg": 0.0653990990990991,
+            "min": 0,
+            "med": 0,
+            "max": 1.0327
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "data_received": {
+            "count": 429603,
+            "rate": 10637.431471840973
+        },
+        "iteration_duration": {
+            "med": 1124.9587,
+            "max": 1674.714,
+            "p(90)": 1648.71,
+            "p(95)": 1663.5094,
+            "avg": 1303.5954431372545,
+            "min": 1027.3286
+        },
+        "login_success": {
+            "fails": 0,
+            "passes": 40,
+            "value": 1
+        },
+        "vus": {
+            "min": 1,
+            "max": 2,
+            "value": 1
+        },
+        "incomplete_placement_handled": {
+            "passes": 10,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_failed": {
+            "fails": 60,
+            "passes": 51,
+            "value": 0.4594594594594595
+        },
+        "checks": {
+            "passes": 61,
+            "fails": 0,
+            "value": 1
+        },
+        "data_sent": {
+            "count": 27277,
+            "rate": 675.4078026862155
+        },
+        "http_req_blocked": {
+            "min": 0,
+            "med": 0.5453,
+            "max": 15.448,
+            "p(90)": 1.142,
+            "p(95)": 1.62745,
+            "avg": 0.8854135135135132
+        },
+        "concurrent_submission_handled": {
+            "passes": 0,
+            "fails": 10,
+            "value": 0
+        },
+        "unauthorized_handled": {
+            "passes": 10,
+            "fails": 0,
+            "thresholds": {
+                "rate>0.95": false
+            },
+            "value": 1
+        },
+        "group_duration": {
+            "avg": 294.1593705882352,
+            "min": 19.0351,
+            "med": 118.4633,
+            "max": 659.8877,
+            "p(90)": 645.2022,
+            "p(95)": 653.28765
+        },
+        "http_req_connecting": {
+            "avg": 0.8122144144144141,
+            "min": 0,
+            "med": 0.5216,
+            "max": 15.448,
+            "p(90)": 0.9968,
+            "p(95)": 1.62745
+        },
+        "http_req_waiting": {
+            "avg": 40.674363963963984,
+            "min": 11.5216,
+            "med": 38.8131,
+            "max": 142.1647,
+            "p(90)": 58.8856,
+            "p(95)": 66.96615
+        },
+        "vus_max": {
+            "value": 2,
+            "min": 2,
+            "max": 2
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 46.91594,
+            "min": 24.7016,
+            "med": 51.257400000000004,
+            "max": 73.1859,
+            "p(90)": 63.704460000000005,
+            "p(95)": 66.140335
+        },
+        "http_req_duration": {
+            "max": 144.8653,
+            "p(90)": 61.7343,
+            "p(95)": 68.02705,
+            "avg": 42.18455045045044,
+            "min": 12.753,
+            "med": 40.4371,
+            "thresholds": {
+                "p(95)<3000": false
+            }
+        },
+        "iterations": {
+            "count": 51,
+            "rate": 1.2628147500457159
+        },
+        "http_req_receiving": {
+            "max": 21.5505,
+            "p(90)": 1.9837,
+            "p(95)": 2.1577,
+            "avg": 1.4447873873873878,
+            "min": 0,
+            "med": 1.2177
+        },
+        "edge_cases_passed": {
+            "passes": 51,
+            "fails": 0,
+            "value": 1
+        }
+    }
+}

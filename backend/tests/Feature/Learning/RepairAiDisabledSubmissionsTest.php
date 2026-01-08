@@ -79,7 +79,7 @@ class RepairAiDisabledSubmissionsTest extends TestCase
 
         // ai_evaluation status must be failed and metadata adjusted
         $this->assertEquals('failed', $ae->status);
-        $meta = json_decode($ae->metadata, true);
+        $meta = $ae->metadata; // Already cast to array by model
         $this->assertEquals('manual_review', $meta['evaluation_outcome']);
         $this->assertEquals('ai_disabled', $meta['reason']);
     }

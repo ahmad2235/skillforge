@@ -24,6 +24,8 @@ type Milestone = {
   order_index: number;
   due_date?: string;
   is_required: boolean;
+  domain?: "frontend" | "backend" | null;
+  can_submit?: boolean;
   submission?: MilestoneSubmission | null;
 };
 
@@ -49,9 +51,9 @@ type Assignment = {
 
 const STATUS_COLORS: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string; label: string }> = {
   pending: { variant: "outline", label: "Not submitted" },
-  submitted: { variant: "default", className: "bg-blue-600", label: "Submitted" },
-  reviewed: { variant: "secondary", label: "Under review" },
-  approved: { variant: "default", className: "bg-emerald-600", label: "Approved" },
+  submitted: { variant: "secondary", className: "bg-primary/15 text-primary border-primary/40", label: "Submitted" },
+  reviewed: { variant: "secondary", className: "bg-indigo-500/15 text-indigo-100 border-indigo-500/30", label: "Under review" },
+  approved: { variant: "default", className: "bg-emerald-500/20 text-emerald-100", label: "Approved" },
   rejected: { variant: "destructive", label: "Needs revision" },
 };
 
@@ -177,7 +179,7 @@ export function StudentAssignmentMilestonesPage() {
   const progress = milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -222,7 +224,8 @@ export function StudentAssignmentMilestonesPage() {
             .map((milestone, index) => {
               const submissionStatus = milestone.submission?.status || "pending";
               const statusInfo = STATUS_COLORS[submissionStatus] || STATUS_COLORS.pending;
-              const canSubmit = submissionStatus === "pending" || submissionStatus === "rejected";
+              const canSubmit = milestone.can_submit !== false && (submissionStatus === "pending" || submissionStatus === "rejected");
+              const isReadOnly = milestone.can_submit === false;
 
               return (
                 <Card key={milestone.id} className="p-4">
@@ -237,6 +240,16 @@ export function StudentAssignmentMilestonesPage() {
                         </h3>
                         {milestone.is_required && (
                           <span className="text-xs text-destructive">Required</span>
+                        )}
+                        {milestone.domain && (
+                          <Badge variant="outline" className="text-xs">
+                            {milestone.domain}
+                          </Badge>
+                        )}
+                        {isReadOnly && (
+                          <Badge variant="secondary" className="text-xs">
+                            View only
+                          </Badge>
                         )}
                         <Badge variant={statusInfo.variant} className={statusInfo.className}>
                           {statusInfo.label}
@@ -266,7 +279,7 @@ export function StudentAssignmentMilestonesPage() {
                       {/* Show approval feedback */}
                       {milestone.submission?.status === "approved" && milestone.submission?.review_feedback && (
                         <div className="mt-2 ml-8 p-3 bg-emerald-500/10 rounded-lg">
-                          <p className="text-xs font-medium text-emerald-600 mb-1">Reviewer feedback:</p>
+                          <p className="text-xs font-medium text-emerald-200 mb-1">Reviewer feedback:</p>
                           <p className="text-sm text-foreground">{milestone.submission.review_feedback}</p>
                         </div>
                       )}

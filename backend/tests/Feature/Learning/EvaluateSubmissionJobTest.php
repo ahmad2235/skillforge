@@ -100,6 +100,7 @@ class EvaluateSubmissionJobTest extends TestCase
             'user_id' => $user->id,
             'task_id' => $taskManual->id,
             'status' => 'submitted',
+            // evaluation_status defaults to 'queued' via model $attributes
         ]);
 
         dispatch_sync(new EvaluateSubmissionJob($sub1->id));
@@ -127,7 +128,7 @@ class EvaluateSubmissionJobTest extends TestCase
             'user_id' => $user->id,
             'task_id' => $taskSkip->id,
             'status' => 'submitted',
-            'evaluation_status' => null,
+            // evaluation_status defaults to 'queued' via model $attributes
         ]);
 
         dispatch_sync(new EvaluateSubmissionJob($sub2->id));

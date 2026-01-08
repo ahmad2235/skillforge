@@ -4,22 +4,25 @@ namespace App\Modules\Projects\Interface\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Projects\Application\Services\ProjectMilestoneSubmissionService;
+use App\Modules\Projects\Application\Services\ProjectAssignmentService;
 use App\Modules\Projects\Infrastructure\Models\ProjectAssignment;
 use App\Modules\Projects\Infrastructure\Models\ProjectMilestone;
 use App\Modules\Projects\Interface\Http\Requests\SubmitProjectMilestoneRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class StudentMilestoneController extends Controller
 {
     public function __construct(
         private readonly ProjectMilestoneSubmissionService $submissionService,
+        private readonly ProjectAssignmentService $assignmentService,
     ) {}
 
     public function index(int $assignmentId)
     {
         $student = Auth::user();
 
-        $assignment = ProjectAssignment::with(['project'])
+        $assignment = ProjectAssignment::with(['project', 'team', 'user'])
             ->findOrFail($assignmentId);
 
         if ($assignment->user_id !== $student->id) {
@@ -27,8 +30,23 @@ class StudentMilestoneController extends Controller
         }
 
         $milestones = $this->submissionService->listMilestonesForAssignment($assignment)
-            ->map(function ($milestone) {
-                $submission = $milestone->submissions->first();
+            ->map(function ($milestone) use ($student, $assignment) {
+                // For team assignments, find student's own submission
+                $submission = null;
+                if ($assignment->team_id) {
+                    $submission = $milestone->submissions->firstWhere('user_id', $student->id);
+                } else {
+                    $submission = $milestone->submissions->first();
+                }
+
+                // Determine if student can submit this milestone
+                $canSubmit = true;
+                if ($assignment->team_id && $milestone->domain) {
+                    $studentDomain = $student->domain;
+                    if ($studentDomain !== 'fullstack' && $studentDomain !== $milestone->domain) {
+                        $canSubmit = false;
+                    }
+                }
 
                 return [
                     'id'            => $milestone->id,
@@ -37,6 +55,8 @@ class StudentMilestoneController extends Controller
                     'order_index'   => $milestone->order_index,
                     'due_date'      => $milestone->due_date ? $milestone->due_date->toDateString() : null,
                     'is_required'   => (bool) $milestone->is_required,
+                    'domain'        => $milestone->domain,
+                    'can_submit'    => $canSubmit,
                     'submission'    => $submission ? [
                         'id'             => $submission->id,
                         'status'         => $submission->status,
@@ -49,6 +69,12 @@ class StudentMilestoneController extends Controller
 
         return response()->json([
             'data' => $milestones,
+            'team' => $assignment->team_id ? [
+                'id' => $assignment->team->id,
+                'name' => $assignment->team->name,
+                'status' => $assignment->team->status,
+            ] : null,
+            'can_submit_assignment' => $this->canStudentSubmitAssignment($student, $assignment),
         ]);
     }
 
@@ -80,5 +106,20 @@ class StudentMilestoneController extends Controller
             'message' => 'Milestone submitted.',
             'data'    => $submission,
         ], 201);
+    }
+
+    /**
+     * Helper: Check if student can submit/mark assignment ready
+     * For solo: always true
+     * For team: only if higher score (or backend on tie)
+     */
+    private function canStudentSubmitAssignment(User $student, ProjectAssignment $assignment): bool
+    {
+        if (!$assignment->team_id) {
+            return true; // Solo assignment
+        }
+
+        $leadId = $this->assignmentService->getTeamSubmissionLead($assignment->team_id);
+        return $leadId === $student->id;
     }
 }

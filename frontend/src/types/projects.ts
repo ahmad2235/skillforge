@@ -1,4 +1,4 @@
-export type AssignmentStatus = "invited" | "active" | "completed" | "declined";
+export type AssignmentStatus = "pending" | "active" | "completed" | "declined" | "cancelled";
 
 export type ProjectStatus = "draft" | "open" | "in_progress" | "completed";
 
@@ -14,7 +14,7 @@ export interface ProjectAssignment {
   id: number;
   project_id: number;
   user_id: number;
-  status: string; // "invited" | "accepted" | "completed" | "declined" | "removed"
+  status: string; // "pending" | "accepted" | "completed" | "declined" | "cancelled"
   // Backend returns project attached with the assignment
   project?: ProjectSummary;
   user?: {
@@ -36,14 +36,38 @@ export interface ProjectAssignment {
 
 export interface PortfolioItem {
   id: number;
-  assignment_id: number;
+  user_id: number;
+  assignment_id?: number;
+  project_id?: number | null;
+  level_project_id?: number | null;
   title: string;
   description?: string | null;
   github_url?: string | null;
   live_demo_url?: string | null;
   score?: number | null;
   feedback?: string | null;
-  metadata?: Record<string, unknown> | null;
+  is_public?: boolean;
+  metadata?: {
+    category?: string | null;
+    tags?: string[];
+    project_name?: string;
+    project_id?: number;
+    assignment_id?: number;
+    source?: string;
+    created_at?: string;
+    [key: string]: unknown;
+  } | null;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    level?: string;
+    domain?: string;
+  };
+  project?: ProjectSummary;
+  levelProject?: ProjectSummary;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface BusinessProject {
@@ -69,4 +93,18 @@ export interface CandidateRanked {
   };
   score: number;
   reason: string;
+}
+
+export interface TeamRecommendation {
+  team_score: number;
+  coverage: string;
+  members: Array<{
+    id: number;
+    name: string;
+    email: string;
+    domain?: string | null;
+    level?: string | null;
+    score?: number;
+    reason?: string;
+  }>;
 }

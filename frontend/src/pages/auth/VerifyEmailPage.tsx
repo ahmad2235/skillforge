@@ -32,10 +32,10 @@ export function VerifyEmailPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4">
-      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
+      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg animate-card-enter">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center">
-            <Mail className="h-8 w-8 text-blue-400" />
+          <div className="mx-auto w-16 h-16 bg-primary/15 rounded-full flex items-center justify-center">
+            <Mail className="h-8 w-8 text-primary" />
           </div>
           <CardTitle className="text-2xl">Verify Your Email</CardTitle>
           <CardDescription className="text-slate-400">
@@ -44,7 +44,7 @@ export function VerifyEmailPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div className="rounded-lg bg-blue-900/20 border border-blue-700/50 px-4 py-4 text-sm text-blue-200">
+            <div className="rounded-lg bg-primary/10 border border-primary/30 px-4 py-4 text-sm text-primary">
               <p className="font-medium mb-2">Next steps:</p>
               <ol className="list-decimal list-inside space-y-1.5 text-slate-300">
                 <li>Check your email inbox (and spam folder)</li>
@@ -86,7 +86,7 @@ export function VerifyEmailPage() {
 
               <div className="text-center text-sm text-slate-400">
                 Already verified?{" "}
-                <Link to="/auth/login" className="text-blue-400 hover:text-blue-300 font-medium">
+                <Link to="/auth/login" className="text-primary hover:text-primary/80 font-medium">
                   Login here
                 </Link>
               </div>

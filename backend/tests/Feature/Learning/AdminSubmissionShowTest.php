@@ -27,6 +27,7 @@ class AdminSubmissionShowTest extends TestCase
             'task_id' => $task->id,
             'answer_text' => 'test',
             'status' => 'evaluated',
+            'evaluation_status' => Submission::EVAL_COMPLETED,
             'final_score' => 80,
             'evaluated_by' => 'system',
             'submitted_at' => now(),

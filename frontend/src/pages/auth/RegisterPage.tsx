@@ -21,6 +21,7 @@ import { getSafeErrorMessage } from "../../lib/errors";
 import { safeLogError } from "../../lib/logger";
 import { useAuth } from "../../hooks/useAuth";
 import type { AuthUser } from "../../context/AuthContext";
+import '../../styles/AnimatedBackground.css';
 
 type UserRole = "student" | "business";
 
@@ -170,8 +171,8 @@ export function RegisterPage() {
   const formSubmitting = !!isSubmitting;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 px-4 py-6">
-      <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-lg">
+    <div className="animated-gradient-background px-4 py-6">
+      <Card className="w-full max-w-md bg-slate-900/80 backdrop-blur-sm border-slate-700/50 shadow-2xl shadow-black/20 animate-card-enter">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl">Create account</CardTitle>
           <CardDescription>Join SkillForge and start your learning journey</CardDescription>
@@ -197,7 +198,7 @@ export function RegisterPage() {
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                className={`bg-slate-950/80 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
                   fieldErrors.name ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.name}
@@ -222,8 +223,7 @@ export function RegisterPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                className={`bg-slate-950/80 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
                   fieldErrors.email ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.email}
@@ -245,11 +245,10 @@ export function RegisterPage() {
               <Input
                 id="register-password"
                 type="password"
-                placeholder="At least 8 characters"
+                placeholder="8+ characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                className={`bg-slate-950/80 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
                   fieldErrors.password ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.password}
@@ -265,17 +264,16 @@ export function RegisterPage() {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-200">
+              <label htmlFor="register-confirm-password" className="block text-sm font-medium text-slate-200">
                 Confirm password
               </label>
               <Input
-                id="confirmPassword"
+                id="register-confirm-password"
                 type="password"
-                placeholder="Re-enter your password"
+                placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                className={`bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
+                className={`bg-slate-950/80 border-slate-700 text-slate-100 placeholder:text-slate-500 ${
                   fieldErrors.confirmPassword ? "border-red-500" : ""
                 }`}
                 aria-invalid={!!fieldErrors.confirmPassword}
@@ -291,13 +289,8 @@ export function RegisterPage() {
                 I am a
               </label>
               <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-                <SelectTrigger
-                  id="role"
-                  className={`bg-slate-950 border-slate-700 text-slate-100 ${
-                    fieldErrors.role ? "border-red-500" : ""
-                  }`}
-                >
-                  <SelectValue placeholder="Select role" />
+                <SelectTrigger className="bg-slate-950/80 border-slate-700 text-slate-100">
+                  <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-950 border-slate-700">
                   <SelectItem value="student" className="text-slate-100">
@@ -317,11 +310,16 @@ export function RegisterPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-sky-600 hover:bg-sky-500 text-white mt-2"
+              className="w-full bg-sky-600 hover:bg-sky-500 text-white mt-2 inline-flex items-center justify-center gap-2"
               aria-busy={formSubmitting}
             >
-              <span className="disabled:inline disabled:block">Submitting…</span>
-              <span className="disabled:hidden">Register</span>
+              {isSubmitting && (
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {isSubmitting ? "Creating account..." : "Create account"}
             </Button>
           </form>
 

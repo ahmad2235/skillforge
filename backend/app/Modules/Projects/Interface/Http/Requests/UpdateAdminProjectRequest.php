@@ -16,7 +16,7 @@ class UpdateAdminProjectRequest extends FormRequest
         return [
             'status'         => 'sometimes|in:draft,open,in_progress,completed,cancelled',
             'required_level' => 'sometimes|nullable|in:beginner,intermediate,advanced',
-            'domain'         => 'sometimes|in:frontend,backend',
+            'domain'         => 'sometimes|in:frontend,backend,fullstack',
             'admin_note'     => 'sometimes|nullable|string',
         ];
     }

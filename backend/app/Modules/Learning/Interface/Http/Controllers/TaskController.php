@@ -57,6 +57,10 @@ class TaskController extends Controller
                 'max_score' => $task->max_score ?? null,
                 'metadata' => $task->metadata ?? [],
                 'roadmap_block_id' => $task->roadmap_block_id,
+                'block' => $block ? [
+                    'id' => $block->id,
+                    'title' => $block->title,
+                ] : null,
             ],
         ]);
     }
@@ -80,12 +84,23 @@ class TaskController extends Controller
             ], 422);
         }
 
-        $result = $this->roadmapService->submitTask($user, $taskId, $request->validated());
+        try {
+            $result = $this->roadmapService->submitTask($user, $taskId, $request->validated());
 
-        return response()->json([
-            'message'    => 'Task submitted successfully.',
-            'submission' => $result['submission'],
-        ], 201);
+            return response()->json([
+                'message'    => 'Task submitted successfully.',
+                'submission' => $result['submission'],
+            ], 201);
+        } catch (\Exception $e) {
+            // If task is already passed, return a friendly error
+            if (str_contains($e->getMessage(), 'already passed')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'task_completed' => true,
+                ], 403);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -148,32 +163,13 @@ class TaskController extends Controller
         // Build minimal evaluation_debug (admin/advanced only in UI)
         $meta = (array) ($latestAi?->metadata ?? []);
 
-        // Map canonical evaluation_status to a user-facing message (small, friendly mapping)
-        $evaluationStatus = $submission->evaluation_status ?? null;
-        switch ($evaluationStatus) {
-            case 'queued':
-                $userMessage = 'Evaluation queued — awaiting processing.';
-                break;
-            case 'evaluating':
-                $userMessage = 'Evaluation in progress.';
-                break;
-            case 'completed':
-                $userMessage = 'Evaluation complete.';
-                break;
-            case 'timed_out':
-                $userMessage = 'Evaluation timed out. Try re-checking or request manual review.';
-                break;
-            case 'manual_review':
-                $userMessage = 'Requires manual review by staff.';
-                break;
-            case 'failed':
-                $userMessage = 'Automatic evaluation failed. Please request a manual review.';
-                break;
-            case 'skipped':
-                $userMessage = 'Auto evaluation skipped.';
-                break;
-            default:
-                $userMessage = null;
+        // Use mapSemanticStatus to derive the semantic status and user-facing message
+        // This handles fallback logic when evaluation_status is not set on the submission
+        [$semanticStatus, $userMessage] = $this->mapSemanticStatus($submission, $latestAi);
+
+        // Override the ai_evaluation.semantic_status with the derived semantic status
+        if ($aiEvaluation !== null) {
+            $aiEvaluation['semantic_status'] = $semanticStatus;
         }
 
         $evaluationDebug = [
@@ -199,11 +195,14 @@ class TaskController extends Controller
                 'ai_feedback' => $submission->ai_feedback,
                 'ai_metadata' => $submission->ai_metadata,
                 'final_score' => $submission->final_score ?? null,
+                'rubric_scores' => $submission->rubric_scores ?? null,
+                'evaluated_by' => $submission->evaluated_by ?? null,
+                'effective_score' => $submission->effective_score,
                 'is_evaluated' => $submission->is_evaluated,
                 'submitted_at' => $submission->submitted_at,
                 'evaluated_at' => $submission->evaluated_at,
                 'task'        => $submission->task,
-                'evaluation_status' => $submission->evaluation_status,
+                'evaluation_status' => $semanticStatus,
                 'user_message' => $userMessage,
                 'ai_evaluation' => $aiEvaluation,
                 'evaluation_debug' => $evaluationDebug,
@@ -256,9 +255,18 @@ class TaskController extends Controller
                 // 2) succeeded -> completed
                 $semantic = 'completed';
                 $message = 'Evaluation complete';
+                
+                // Special case: if metadata says manual_review even if succeeded (e.g. partial success or ai_disabled handled gracefully)
+                if ($outcome === 'manual_review') {
+                    $semantic = 'manual_review';
+                    $message = 'Needs manual review';
+                }
             } elseif ($raw === 'failed') {
                 // 3) failed -> consult metadata outcome
-                if ($outcome === 'manual_review') {
+                if ($outcome === 'timed_out') {
+                    $semantic = 'timed_out';
+                    $message = 'Evaluation timed out. Manual review needed.';
+                } elseif ($outcome === 'manual_review') {
                     $semantic = 'manual_review';
                     if (($meta['reason'] ?? null) === 'evaluator_timeout') {
                         $message = 'Evaluation timed out. Please try again later or ask an admin to review.';
@@ -270,21 +278,25 @@ class TaskController extends Controller
                 } elseif ($outcome === 'skipped') {
                     $semantic = 'skipped';
                     $message = 'Auto evaluation skipped';
+                } elseif ($outcome === 'failed') {
+                    $semantic = 'failed';
+                    $message = 'Evaluation failed — manual review needed';
                 } else {
                     $semantic = 'failed';
                     $message = 'Evaluation failed — needs attention';
                 }
             } else {
-                // 4) If metadata explicitly says manual_review/skipped even if raw is non-failed,
+                // 4) If metadata explicitly says manual_review/skipped/timed_out even if raw is non-failed,
                 // treat those as authoritative (covers legacy or odd states)
-                if (in_array($outcome, ['manual_review', 'skipped'], true)) {
-                    if ($outcome === 'manual_review') {
-                        $semantic = 'manual_review';
-                        $message = 'Needs manual review';
-                    } else {
-                        $semantic = 'skipped';
-                        $message = 'Auto evaluation skipped';
-                    }
+                if (in_array($outcome, ['manual_review', 'skipped', 'timed_out', 'failed'], true)) {
+                    $semantic = $outcome;
+                    $message = match ($outcome) {
+                        'manual_review' => 'Needs manual review',
+                        'skipped' => 'Auto evaluation skipped',
+                        'timed_out' => 'Evaluation timed out. Manual review needed.',
+                        'failed' => 'Evaluation failed — manual review needed',
+                        default => 'Evaluation in progress',
+                    };
                 } else {
                     // Default to pending
                     $semantic = 'pending';
@@ -293,13 +305,25 @@ class TaskController extends Controller
             }
         } else {
             // Fallback to canonical evaluation_status when no latest ai_evaluation exists
-            if ($submission->evaluation_status === Submission::EVAL_MANUAL_REVIEW) {
+            if ($submission->evaluation_status === Submission::EVAL_TIMED_OUT) {
+                $semantic = 'timed_out';
+                $message = 'Evaluation timed out. Manual review needed.';
+            } elseif ($submission->evaluation_status === Submission::EVAL_FAILED) {
+                $semantic = 'failed';
+                $message = 'Evaluation failed — manual review needed';
+            } elseif ($submission->evaluation_status === Submission::EVAL_MANUAL_REVIEW) {
                 $semantic = 'manual_review';
                 $message = 'Needs manual review';
-            } elseif ($submission->is_evaluated) {
+            } elseif ($submission->evaluation_status === Submission::EVAL_SKIPPED) {
+                $semantic = 'skipped';
+                $message = 'Auto evaluation skipped';
+            } elseif ($submission->evaluation_status === Submission::EVAL_COMPLETED || $submission->is_evaluated) {
                 $semantic = 'completed';
                 $message = 'Evaluation complete';
             } elseif ($submission->evaluation_status === Submission::EVAL_EVALUATING) {
+                $semantic = 'evaluating';
+                $message = 'Evaluation in progress.';
+            } elseif ($submission->evaluation_status === Submission::EVAL_QUEUED) {
                 $semantic = 'pending';
                 $message = 'Evaluation in progress';
             }

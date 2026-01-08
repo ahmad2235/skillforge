@@ -37,28 +37,57 @@ class StudentAssignmentController extends Controller
     }
 
     /**
-     * قبول دعوة
+     * قبول دعوة بـ token
      * POST /api/student/projects/assignments/{assignment}/accept
      */
-    public function accept(int $assignmentId)
+    public function accept(Request $request, int $assignmentId)
     {
-        $student    = Auth::user();
-        $assignment = $this->assignmentService->studentRespond($student, $assignmentId, 'accept');
-
-        return response()->json([
-            'message'    => 'Assignment accepted.',
-            'assignment' => $assignment,
+        $student = Auth::user();
+        
+        $data = $request->validate([
+            'token' => 'nullable|string|size:64',
         ]);
+
+        if (!empty($data['token'])) {
+            $assignment = $this->assignmentService->acceptInvitation(
+                $student,
+                $assignmentId,
+                $data['token']
+            );
+        } else {
+            // Allow students to accept pending invitations directly when authenticated
+            $assignment = $this->assignmentService->acceptPendingAssignmentForStudent(
+                $student,
+                $assignmentId
+            );
+        }
+
+        // Prepare response with team status info
+        $response = [
+            'message'    => 'Assignment accepted successfully.',
+            'assignment' => $assignment,
+        ];
+
+        // Add team-specific messaging
+        if ($assignment->team_id && isset($assignment->team_status)) {
+            if ($assignment->team_status === 'partial') {
+                $response['team_message'] = 'You have accepted this project. You can start working once all team members accept.';
+            } elseif ($assignment->team_status === 'active') {
+                $response['team_message'] = 'All team members have accepted. You can now start working on the project!';
+            }
+        }
+
+        return response()->json($response);
     }
 
     /**
      * رفض دعوة
      * POST /api/student/projects/assignments/{assignment}/decline
      */
-    public function decline(int $assignmentId)
+    public function decline(Request $request, int $assignmentId)
     {
         $student    = Auth::user();
-        $assignment = $this->assignmentService->studentRespond($student, $assignmentId, 'decline');
+        $assignment = $this->assignmentService->declineInvitation($student, $assignmentId);
 
         return response()->json([
             'message'    => 'Assignment declined.',

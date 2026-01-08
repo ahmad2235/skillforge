@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/apiClient";
+import { TaskDescription } from "@/components/task/TaskDescription";
 import ErrorStateCard from "@/components/shared/ErrorStateCard";
 import { parseApiError, isNotImplemented } from "@/lib/apiErrors";
 import EmptyState from "@/components/feedback/EmptyState";
@@ -172,7 +173,7 @@ export default function AdminLearningSubmissionsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="mx-auto max-w-5xl p-6 space-y-6 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Submissions</h1>
         <p className="text-sm text-muted-foreground">Review and override student task submissions.</p>
@@ -242,7 +243,7 @@ export default function AdminLearningSubmissionsPage() {
                 <div className="space-y-1">
                   <p className="font-semibold">Task</p>
                   <p className="text-sm text-muted-foreground">{selected.task?.title}</p>
-                  <p className="text-sm">{selected.task?.description}</p>
+                  <div className="text-sm"><TaskDescription description={selected.task?.description} /></div>
                   {selected.task?.rubric && (
                     <div className="mt-2 space-y-1">
                       <p className="text-sm font-medium">Rubric</p>

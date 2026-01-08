@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Jobs\CleanupStuckSubmissionsJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -21,7 +22,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Clean up stuck submissions every 5 minutes
+        // This ensures no submission remains in 'queued' or 'evaluating' state indefinitely
+        $schedule->job(new CleanupStuckSubmissionsJob())
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**

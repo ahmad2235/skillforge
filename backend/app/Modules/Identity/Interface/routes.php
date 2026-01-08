@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Identity\Interface\Http\Controllers\AuthController;
 use App\Modules\Identity\Interface\Http\Controllers\EmailVerificationController;
+use App\Modules\Identity\Interface\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Interface\Http\Controllers\AdminMonitoringController;
 use App\Modules\Identity\Interface\Http\Controllers\AdminUserController;
 
@@ -20,14 +21,30 @@ Route::prefix('auth')->group(function () {
         ->middleware('throttle:register');
 
     // POST /api/auth/login (rate limited)
+    // This route needs session and CSRF middleware so SPA logins (stateful cookies)
+    // work correctly. We add StartSession and VerifyCsrfToken so the controller
+    // can call $request->session()->regenerate() safely.
     Route::post('login', [AuthController::class, 'login'])
-        ->middleware('throttle:login');
+        ->middleware([
+            'throttle:login',
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        ]);
+
+    // POST /api/auth/forgot-password - Request password reset link
+    Route::post('forgot-password', [PasswordResetController::class, 'forgotPassword'])
+        ->middleware('throttle:5,10');
+
+    // POST /api/auth/reset-password - Reset password with token
+    Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])
+        ->middleware('throttle:5,10');
 
     // Email verification - PUBLIC route secured by signed URL
     // The signed middleware validates the cryptographic signature (no auth token needed)
+    // Rate limit: 5 requests per 10 minutes per IP
     // GET /api/auth/email/verify/{id}/{hash}
     Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
+        ->middleware(['signed', 'throttle:5,10'])
         ->name('verification.verify');
 
     // هذه المسارات تحتاج أن يكون المستخدم مسجّل دخول (token)
@@ -39,9 +56,10 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
 
         // Resend verification email - requires auth (user must be logged in)
+        // Rate limit: 5 requests per 10 minutes per IP
         // POST /api/auth/email/resend
         Route::post('email/resend', [EmailVerificationController::class, 'resend'])
-            ->middleware('throttle:6,1')
+            ->middleware('throttle:5,10')
             ->name('verification.send');
     });
 });

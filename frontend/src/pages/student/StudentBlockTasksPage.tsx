@@ -8,6 +8,7 @@ import { EmptyState } from "../../components/feedback/EmptyState";
 import { SkeletonList } from "../../components/feedback/Skeletons";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import { TaskDescription } from "../../components/task/TaskDescription";
 import type { Task } from "../../types/learning";
 
 type ErrorState = "invalid" | "not-found" | "generic";
@@ -70,8 +71,8 @@ export function StudentBlockTasksPage() {
     return (
       <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
         <div className="space-y-2">
-          <div className="h-8 w-48 animate-pulse rounded-md bg-slate-200" />
-          <div className="h-4 w-72 animate-pulse rounded-md bg-slate-200" />
+          <div className="h-8 w-48 animate-pulse rounded-md bg-slate-800" />
+          <div className="h-4 w-72 animate-pulse rounded-md bg-slate-800" />
         </div>
         <SkeletonList rows={4} />
       </div>
@@ -111,42 +112,101 @@ export function StudentBlockTasksPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 animate-page-enter">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-900">
+        <h1 className="text-3xl font-semibold text-foreground">
           {blockTitle ? `${blockTitle} — Tasks` : "Learning block — Tasks"}
         </h1>
-        <p className="text-base text-slate-700">
+        <p className="text-base text-slate-300">
           Explore the tasks for this learning block.
         </p>
       </header>
 
       <div className="space-y-3">
-        {tasks.map((task) => (
-          <Card key={task.id} className="space-y-2 border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-slate-900">{task.title}</h3>
-                <p className="text-sm text-slate-700">
-                  {task.description ?? "No description provided."}
-                </p>
-              </div>
-            </div>
+        {tasks.map((task) => {
+          const isCompleted = task.is_completed === true;
+          const score = typeof task.score === 'number' ? Math.round(task.score) : null;
+          const hasFailed = score !== null && score < 80 && !isCompleted;
 
-            <Button size="sm" className="mt-2" asChild>
-              <Link
-                to={`/student/tasks/${task.id}`}
-                state={{
-                  taskTitle: task.title,
-                  blockId: blockId ?? Number(id),
-                  blockTitle: blockTitle,
-                }}
-              >
-                Open task
-              </Link>
-            </Button>
-          </Card>
-        ))}
+          return (
+            <Card 
+              key={task.id} 
+              className={
+                "space-y-2 border p-4 shadow-xl shadow-slate-950/30 transition " +
+                (isCompleted 
+                  ? "border-emerald-500/40 bg-emerald-500/5" 
+                  : hasFailed 
+                    ? "border-red-500/40 bg-red-500/5"
+                    : "border-slate-800 bg-slate-900/80")
+              }
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-slate-50">{task.title}</h3>
+                    {isCompleted && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-200">
+                        ✓ Completed
+                      </span>
+                    )}
+                    {hasFailed && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-200">
+                        ✗ Failed
+                      </span>
+                    )}
+                  </div>
+                  {score !== null && (
+                    <div className="text-sm">
+                      <span className={isCompleted ? "text-emerald-300 font-medium" : "text-red-300 font-medium"}>
+                        Score: {score}/100
+                      </span>
+                    </div>
+                  )}
+                  <div className="text-sm text-slate-300">
+                    <TaskDescription description={task.description} />
+                  </div>
+                </div>
+              </div>
+
+              {isCompleted ? (
+                <div className="mt-2 rounded-md bg-emerald-500/10 border border-emerald-500/30 p-3 text-sm text-emerald-200">
+                  🎉 Great job! You've passed this task. No resubmission needed.
+                </div>
+              ) : hasFailed ? (
+                <div className="space-y-2 mt-2">
+                  <div className="rounded-md bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-200">
+                    📚 Keep studying and try again! You can resubmit to improve your score.
+                  </div>
+                  <Button size="sm" className="w-full sm:w-auto" asChild>
+                    <Link
+                      to={`/student/tasks/${task.id}`}
+                      state={{
+                        taskTitle: task.title,
+                        blockId: blockId ?? Number(id),
+                        blockTitle: blockTitle,
+                      }}
+                    >
+                      Retry task
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" className="mt-2 w-full sm:w-auto" asChild>
+                  <Link
+                    to={`/student/tasks/${task.id}`}
+                    state={{
+                      taskTitle: task.title,
+                      blockId: blockId ?? Number(id),
+                      blockTitle: blockTitle,
+                    }}
+                  >
+                    Open task
+                  </Link>
+                </Button>
+              )}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

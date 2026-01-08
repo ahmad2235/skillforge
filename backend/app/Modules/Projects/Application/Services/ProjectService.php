@@ -28,6 +28,11 @@ class ProjectService
 
     /**
      * إنشاء مشروع جديد لصاحب العمل
+     * 
+     * Now supports 'complexity' field for the recommender system.
+     * The complexity field can be:
+     * - Manually set by the business owner
+     * - Auto-populated from PDF analysis via ProjectLevelerService
      */
     public function createProject(User $owner, array $data): Project
     {
@@ -36,8 +41,10 @@ class ProjectService
                 'owner_id'                 => $owner->id,
                 'title'                    => $data['title'],
                 'description'              => $data['description'],
+                'requirements_pdf_path'    => $data['requirements_pdf_path'] ?? null,
                 'domain'                   => $data['domain'],
                 'required_level'           => $data['required_level'] ?? null,
+                'complexity'               => $data['complexity'] ?? 'low', // New field
                 'min_score_required'       => $data['min_score_required'] ?? null,
                 'status'                   => $data['status'] ?? 'open',
                 'min_team_size'            => $data['min_team_size'] ?? null,
@@ -70,8 +77,10 @@ class ProjectService
             $allowed = [
                 'title',
                 'description',
+                'requirements_pdf_path',
                 'domain',
                 'required_level',
+                'complexity',  // Added for recommender
                 'min_score_required',
                 'status',
                 'min_team_size',
@@ -81,6 +90,13 @@ class ProjectService
             ];
 
             $updateData = array_intersect_key($data, array_flip($allowed));
+
+            // Merge metadata instead of overwriting when provided
+            if (array_key_exists('metadata', $updateData)) {
+                $existing = is_array($project->metadata) ? $project->metadata : [];
+                $incoming = is_array($updateData['metadata']) ? $updateData['metadata'] : [];
+                $updateData['metadata'] = array_merge($existing, $incoming);
+            }
 
             $project->update($updateData);
 

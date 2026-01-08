@@ -127,6 +127,30 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Security Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Dedicated channel for security-related events:
+        | - Failed login attempts
+        | - Authorization failures (403)
+        | - Rate limit hits (429)
+        | - Bearer token rejections
+        | - File upload rejections
+        | - Email verification failures
+        |
+        | Uses daily rotation with 90-day retention for audit compliance.
+        |
+        */
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'days' => 90,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

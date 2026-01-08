@@ -40,8 +40,9 @@ class AdminSubmissionReviewTest extends TestCase
             'task_id' => $task->id,
             'answer_text' => 'initial answer',
             'status' => 'evaluated',
+            'evaluation_status' => Submission::EVAL_COMPLETED,
             'final_score' => 70,
-            'feedback' => 'auto-feedback',
+            'ai_feedback' => 'auto-feedback',
             'evaluated_by' => 'system',
             'submitted_at' => now(),
             'evaluated_at' => now(),
@@ -113,6 +114,9 @@ class AdminSubmissionReviewTest extends TestCase
 
     public function test_admin_can_queue_re_evaluate(): void
     {
+        // Fake the queue so jobs don't execute synchronously
+        \Illuminate\Support\Facades\Queue::fake();
+
         $admin = User::factory()->create(['role' => 'admin']);
         $student = User::factory()->create(['role' => 'student']);
 
@@ -124,7 +128,7 @@ class AdminSubmissionReviewTest extends TestCase
             'task_id' => $task->id,
             'answer_text' => 'answer',
             'status' => 'submitted',
-            'evaluation_status' => null,
+            // evaluation_status will default to 'queued' via model $attributes
         ]);
 
         $this->actingAs($admin, 'sanctum')
@@ -135,5 +139,8 @@ class AdminSubmissionReviewTest extends TestCase
         $submission->refresh();
         $this->assertEquals('queued', $submission->evaluation_status);
         $this->assertDatabaseHas('ai_evaluations', ['submission_id' => $submission->id, 'status' => 'queued']);
+
+        // Verify job was dispatched
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\EvaluateSubmissionJob::class);
     }
 }

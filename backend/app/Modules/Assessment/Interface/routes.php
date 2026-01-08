@@ -10,6 +10,8 @@ Route::middleware(['auth:sanctum', 'role:student'])
         Route::get('/placement/questions', [PlacementController::class, 'getQuestions']);
         Route::post('/placement/submit', [PlacementController::class, 'submit'])
             ->middleware('throttle:placement_submit');
+        Route::get('/placement/result/{id}', [PlacementController::class, 'getResult']);
+        Route::get('/placement/latest', [PlacementController::class, 'getLatestResult']);
     });
 
 // Admin routes

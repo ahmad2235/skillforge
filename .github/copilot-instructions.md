@@ -14,7 +14,7 @@ SkillForge is an AI tutoring and programmer ranking platform (Laravel 12 API bac
   - `Domain/` – entities, value objects, repository interfaces
   - `Infrastructure/` – Eloquent models, external adapters
 
-- **Modules**: `Identity` (auth), `Learning` (roadmaps, tasks, submissions), `Projects` (business assignments), `Gamification` (badges, portfolios), `Assessment` (placement tests), `AI` (evaluation & recommendation hooks).
+- **Modules**: `Identity` (auth), `Learning` (roadmaps, tasks, submissions), `Projects` (business assignments), `Gamification` (badges, portfolios), `Assessment` (placement tests), `AI` (evaluation & recommendation hooks), `Chat` (real-time messaging).
 
 - **Routes loading**: Each module exposes `Interface/routes.php`, required from `routes/api.php`:
   ```php
@@ -29,7 +29,7 @@ SkillForge is an AI tutoring and programmer ranking platform (Laravel 12 API bac
 | **Controllers**    | `Interface/Http/Controllers/`                                      |
 | **Auth**           | Laravel Sanctum (`auth:sanctum` middleware)                        |
 | **Roles**          | `role:student`, `role:business`, `role:admin` via `RoleMiddleware` |
-| **Route prefixes** | `/auth`, `/student`, `/admin`, `/business`                         |
+| **Route prefixes** | `/auth`, `/student`, `/admin`, `/business`, `/chat`         |
 | **API responses**  | JSON; status codes 200/201/403/422                                 |
 
 ## AI Module – Integration Points
@@ -90,6 +90,50 @@ npm run dev      # Vite dev server
 
 - Tests live in `backend/tests/Feature/` and `backend/tests/Unit/`.
 - Run via `composer test` or `php artisan test`.
+
+## Chat Module
+
+The Chat module provides real-time 1-to-1 messaging between students and business owners.
+
+### System Contract (NON-NEGOTIABLE)
+- **1-to-1 only**: student ↔ business owner
+- **Append-only**: No edits, no deletes
+- **NOT supported**: Groups, attachments, typing indicators, read receipts, presence
+
+### Architecture
+```
+Frontend (React) → Socket.IO Client
+                         ↓
+Socket.IO Server (Node.js) ← Sanctum token validation
+                         ↓
+MySQL Database ← Laravel REST API
+```
+
+### Running the Chat Server
+```powershell
+cd backend/services/chat-server
+npm install
+npm start  # Runs on port 3001
+```
+
+### REST Endpoints
+| Method | Endpoint                              | Description                |
+| ------ | ------------------------------------- | -------------------------- |
+| GET    | `/api/chat/conversations`             | List user's conversations  |
+| POST   | `/api/chat/conversations`             | Create/get conversation    |
+| GET    | `/api/chat/conversations/{id}/messages` | Get paginated messages   |
+| POST   | `/api/chat/conversations/{id}/messages` | Send message (fallback)  |
+
+### Socket Events
+| Event           | Direction | Payload                                      |
+| --------------- | --------- | -------------------------------------------- |
+| `send_message`  | C → S     | `{ tempId, conversationId, text }`           |
+| `receive_message` | S → C   | `{ id, conversationId, senderId, text, createdAt }` |
+| `error`         | S → C     | `{ tempId?, reason }`                        |
+
+### Database Tables
+- `conversations` - UNIQUE(student_id, owner_id)
+- `messages` - INDEX(conversation_id, created_at)
 
 ## Misc
 

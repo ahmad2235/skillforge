@@ -35,11 +35,11 @@ type MonitoringRow = {
 };
 
 const statusStyles: Record<string, string> = {
-  on_track: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  at_risk: "bg-amber-100 text-amber-800 border-amber-200",
-  overdue: "bg-rose-100 text-rose-800 border-rose-200",
-  submitted: "bg-blue-100 text-blue-800 border-blue-200",
-  approved: "bg-indigo-100 text-indigo-800 border-indigo-200",
+  on_track: "bg-emerald-500/15 text-emerald-100 border-emerald-500/30",
+  at_risk: "bg-amber-500/15 text-amber-100 border-amber-500/30",
+  overdue: "bg-rose-500/15 text-rose-100 border-rose-500/30",
+  submitted: "bg-primary/15 text-primary border-primary/40",
+  approved: "bg-indigo-500/15 text-indigo-100 border-indigo-500/30",
 };
 
 const statusLabel = (value?: string) => {
@@ -144,17 +144,17 @@ export const BusinessMonitoringPage = () => {
   }, [rows]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6 animate-page-enter">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-900">Monitoring</h1>
-        <p className="text-base text-slate-700">Track milestone health across your active projects.</p>
+        <h1 className="text-3xl font-semibold text-foreground">Monitoring</h1>
+        <p className="text-base text-muted-foreground">Track milestone health across your active projects.</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {computedKpis.map((item) => (
-          <Card key={item.label} className="space-y-1 border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-slate-600">{item.label}</p>
-            <p className="text-2xl font-semibold text-slate-900">{item.value}</p>
+          <Card key={item.label} className="space-y-1 border border-slate-800 bg-slate-900/80 p-4 shadow-xl">
+            <p className="text-sm text-slate-400">{item.label}</p>
+            <p className="text-2xl font-semibold text-slate-50">{item.value}</p>
           </Card>
         ))}
       </section>
@@ -208,8 +208,8 @@ export const BusinessMonitoringPage = () => {
         />
       ) : hasActive ? (
         <div className="overflow-x-auto">
-          <Card className="min-w-full divide-y divide-slate-200 border border-slate-200 bg-white shadow-sm">
-            <div className="grid min-w-[720px] grid-cols-6 gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <Card className="min-w-full divide-y divide-slate-800 border border-slate-800 bg-slate-900/80 shadow-xl">
+            <div className="grid min-w-[720px] grid-cols-6 gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
               <span>Project</span>
               <span>Milestone</span>
               <span>Status</span>
@@ -222,17 +222,17 @@ export const BusinessMonitoringPage = () => {
               return (
                 <div
                   key={row.id}
-                  className="grid min-w-[720px] grid-cols-6 gap-3 px-4 py-4 text-sm text-slate-900 hover:bg-slate-50"
+                  className="grid min-w-[720px] grid-cols-6 gap-3 px-4 py-4 text-sm text-slate-50 hover:bg-slate-800/50"
                 >
                   <div className="font-semibold">{row.project || row.project_name || "—"}</div>
-                  <div className="text-slate-700">{row.milestone || row.milestone_name || "—"}</div>
+                  <div className="text-slate-300">{row.milestone || row.milestone_name || "—"}</div>
                   <div>
                     <Badge variant="outline" className={statusStyles[statusKey] || ""}>
                       {statusLabel(row.status)}
                     </Badge>
                   </div>
-                  <div className="text-slate-700">{row.due || row.due_date || "—"}</div>
-                  <div className="text-slate-700">{row.student || row.student_name || "—"}</div>
+                  <div className="text-slate-300">{row.due || row.due_date || "—"}</div>
+                  <div className="text-slate-300">{row.student || row.student_name || "—"}</div>
                   <div className="flex items-center justify-end gap-2">
                     <Button size="sm" disabled className="opacity-60">Open milestone (coming soon)</Button>
                     <Button size="sm" variant="outline" disabled className="opacity-60">Message (coming soon)</Button>

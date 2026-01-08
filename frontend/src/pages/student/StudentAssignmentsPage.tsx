@@ -19,15 +19,25 @@ import { useAppToast } from "../../components/feedback/useAppToast";
 import type { AssignmentStatus, ProjectAssignment } from "../../types/projects";
 import { Link, useNavigate } from "react-router-dom";
 
-const STATUS_TABS: AssignmentStatus[] = ["invited", "active", "completed"];
+const STATUS_TABS: AssignmentStatus[] = ["pending", "active", "completed"];
 
 export function StudentAssignmentsPage() {
   const navigate = useNavigate();
   const { toastSuccess, toastError } = useAppToast();
-  const [status, setStatus] = useState<AssignmentStatus>("invited");
+  const [status, setStatus] = useState<AssignmentStatus>("pending");
+
+  // Ensure backward compat: map old 'invited' status to 'pending' when loading filters from query strings
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const q = url.searchParams.get('status');
+    if (q === 'invited') setStatus('pending');
+  }, []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown | null>(null);
   const [assignments, setAssignments] = useState<any[]>([]);
+  // Local UI state to hide specific invitations and show per-assignment inline errors
+  const [hiddenAssignments, setHiddenAssignments] = useState<number[]>([]);
+  const [assignmentErrors, setAssignmentErrors] = useState<Record<number, string>>({});
 
   // Feedback dialog state
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
@@ -58,13 +68,31 @@ export function StudentAssignmentsPage() {
 
   async function handleAccept(assignmentId: number) {
     try {
-      await apiClient.post(
+      const response = await apiClient.post(
         `/student/projects/assignments/${assignmentId}/accept`
       );
-      toastSuccess("Assignment accepted!");
+      
+      const { team_message } = response.data;
+      
+      if (team_message) {
+        toastSuccess(team_message);
+      } else {
+        toastSuccess("Assignment accepted!");
+      }
+      
+      setStatus("active"); // Switch to active tab after accepting
       await fetchAssignments();
-    } catch (err: unknown) {
-      setError(err);
+    } catch (err: any) {
+      const message = err?.response?.data?.message ?? "Failed to accept assignment";
+      toastError(message);
+
+      // If the project was already taken, show an inline message for this assignment with a Hide button
+      if (message === 'This project has already been accepted by another student.') {
+        setAssignmentErrors((prev) => ({ ...prev, [assignmentId]: message }));
+      }
+
+      // Refresh the list to remove invalid invitations (e.g., already accepted by another student)
+      await fetchAssignments();
     }
   }
 
@@ -75,8 +103,10 @@ export function StudentAssignmentsPage() {
       );
       toastSuccess("Assignment declined");
       await fetchAssignments();
-    } catch (err: unknown) {
-      setError(err);
+    } catch (err: any) {
+      const message = err?.response?.data?.message ?? "Failed to decline assignment";
+      toastError(message);
+      await fetchAssignments();
     }
   }
 
@@ -130,7 +160,7 @@ export function StudentAssignmentsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-page-enter">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-foreground">Your Project Assignments</h1>
         <p className="text-sm text-muted-foreground">
@@ -159,11 +189,11 @@ export function StudentAssignmentsPage() {
         <Card className="space-y-3 p-6 text-center">
           <h3 className="text-lg font-semibold text-foreground">No {status} assignments</h3>
           <p className="text-sm text-muted-foreground">
-            {status === "invited" && "You don't have any pending invitations."}
+            {status === "pending" && "You don't have any pending invitations."}
             {status === "active" && "You don't have any active projects right now."}
             {status === "completed" && "You haven't completed any projects yet."}
           </p>
-          {status !== "invited" && (
+          {status !== "pending" && (
             <div className="mt-4 flex justify-center">
               <Button onClick={() => navigate("/student/roadmap")}>Continue Learning</Button>
             </div>
@@ -172,8 +202,17 @@ export function StudentAssignmentsPage() {
       ) : (
         <div className="space-y-3">
           {assignments.map((assignment) => {
+            // Skip assignments the user has chosen to hide client-side
+            if (hiddenAssignments.includes(assignment.id)) return null;
+
             const project = assignment.project;
             const hasGivenFeedback = assignment.student_rating != null;
+
+            const isTeamInvite = !!assignment.team_id;
+            const teammates = (assignment.team?.assignments || [])
+              .filter((a: any) => a.user_id !== assignment.user_id)
+              .map((a: any) => a.user);
+            const isFrozen = assignment.status === 'frozen';
 
             return (
               <Card key={assignment.id} className="p-4">
@@ -191,6 +230,26 @@ export function StudentAssignmentsPage() {
                   </p>
                 )}
 
+                {isTeamInvite && (
+                  <div className="mt-2 rounded-md border border-violet-700/30 bg-violet-950/20 p-3">
+                    <p className="text-xs text-violet-200 font-medium mb-1">Team Invitation</p>
+                    {teammates && teammates.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {teammates.map((m: any) => (
+                          <span key={m.id} className="px-2 py-0.5 rounded bg-slate-900/60 border border-slate-700/50 text-slate-200">
+                            {m.name || m.email} · {m.domain || 'domain'}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Waiting for teammates to be invited.</p>
+                    )}
+                    {isFrozen && (
+                      <p className="text-xs text-amber-200 mt-2">This team invite is temporarily frozen due to a teammate declining. Please wait while the business finds a replacement.</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Business info if available */}
                 {project?.owner && (
                   <p className="text-xs text-muted-foreground mb-2">
@@ -199,14 +258,31 @@ export function StudentAssignmentsPage() {
                 )}
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {status === "invited" && (
+                  {assignmentErrors[assignment.id] && (
+                    <div className="w-full mb-2 flex items-center justify-between rounded border border-amber-500/20 bg-amber-600/10 p-3">
+                      <p className="text-sm text-amber-100">{assignmentErrors[assignment.id]}</p>
+                      <div className="ml-2">
+                        <Button size="sm" variant="outline" onClick={() => {
+                          // Hide it client-side immediately
+                          setHiddenAssignments(prev => [...prev, assignment.id]);
+                          setAssignmentErrors(prev => {
+                            const { [assignment.id]: _, ...rest } = prev;
+                            return rest;
+                          });
+                        }}>Hide</Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {status === "pending" && (
                     <>
                       <Button
                         size="sm"
                         onClick={() => handleAccept(assignment.id)}
                         className="bg-emerald-600 hover:bg-emerald-500"
+                        disabled={isFrozen}
                       >
-                        Accept
+                        {isFrozen ? 'Frozen' : 'Accept'}
                       </Button>
                       <Button
                         size="sm"
